@@ -43,30 +43,30 @@ for j=1:numel(sessions)
     if extra_plot
     if j==1
         figure(fig1)
-         %% video for neuromatch
-                for t=1:750
-                    for i_bin=1:Nbins
-                         idx=find(idx_dir==1 & idx_duration==i_bin);
-                plot3(score(idx(1:t),1),score(idx(1:t),2),score(idx(1:t),3),'Color',colour_dur(i_bin,:),'LineWidth',2)
-                hold on
-                plot3(score(idx(1),1),score(idx(1),2),score(idx(1),3),'o','MarkerFaceColor',colour_dur(i_bin,:),'MarkerEdgeColor',colour_dur(i_bin,:))
-                    end
-                xlim([min(score(:,1)) max(score(:,1))])
-                ylim([min(score(:,2)) max(score(:,2))])
-                zlim([min(score(:,3)) max(score(:,3))])
-                xlabel('PC 1')
-                ylabel('PC 2')
-                zlabel('PC 3')
-                plot3([-0.01 0],[0.005 0.005],[-0 -0],'Color',[0.3 0.3 0.3],'LineWidth',2)
-                plot3([0 0 ],[-0.005 0.005],[0 0],'Color',[0.3 0.3 0.3],'LineWidth',2)
-                plot3([0 0],[0.005 0.005],[0 0.01],'Color',[0.3 0.3 0.3],'LineWidth',2)
-                view([-77,29])
-                axis off
-                pause(0.01)
-                print(['.\neuromatch_video\traj_im' num2str(t)],'-dpng','-r0')
-                cla
-                end
-                pause
+%          %% video for neuromatch
+%                 for t=1:750
+%                     for i_bin=1:Nbins
+%                          idx=find(idx_dir==1 & idx_duration==i_bin);
+%                 plot3(score(idx(1:t),1),score(idx(1:t),2),score(idx(1:t),3),'Color',colour_dur(i_bin,:),'LineWidth',2)
+%                 hold on
+%                 plot3(score(idx(1),1),score(idx(1),2),score(idx(1),3),'o','MarkerFaceColor',colour_dur(i_bin,:),'MarkerEdgeColor',colour_dur(i_bin,:))
+%                     end
+%                 xlim([min(score(:,1)) max(score(:,1))])
+%                 ylim([min(score(:,2)) max(score(:,2))])
+%                 zlim([min(score(:,3)) max(score(:,3))])
+%                 xlabel('PC 1')
+%                 ylabel('PC 2')
+%                 zlabel('PC 3')
+%                 plot3([-0.01 0],[0.005 0.005],[-0 -0],'Color',[0.3 0.3 0.3],'LineWidth',2)
+%                 plot3([0 0 ],[-0.005 0.005],[0 0],'Color',[0.3 0.3 0.3],'LineWidth',2)
+%                 plot3([0 0],[0.005 0.005],[0 0.01],'Color',[0.3 0.3 0.3],'LineWidth',2)
+%                 view([-77,29])
+%                 axis off
+%                 pause(0.01)
+%                 %print(['.\neuromatch_video\traj_im' num2str(t)],'-dpng','-r0')
+%                 cla
+%                 end
+%                 pause
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         Ndir=max(idx_dir);
@@ -126,7 +126,7 @@ for j=1:numel(sessions)
         xlabel('Normalised time')
     end
     end
-    pause
+    %pause
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Test if Hausdorff distance for different durations is shorter than for different directions
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

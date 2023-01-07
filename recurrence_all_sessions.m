@@ -148,7 +148,7 @@ for j=1:numel(Areas)
             caxis([0 1])
             colormap(flipud(colormap('gray')))
             box off
-            pause
+            %pause
             if j_m1==sum(strcmp(Areas,'M1'))
             subplot(nrows,3,(j_m1-1)*3+1)
             xlabel('Time from movement onset [ms]')
