@@ -85,18 +85,18 @@ for j=1:numel(sessions)
                 
                 
                 
-%                 subplot(3,2,1)
-%                
-%                 
-%                 plot3(score(idx(1:600),1),score(idx(1:600),2),score(idx(1:600),3),'Color',colour_dur(i_bin,:),'LineWidth',2)
-%                 hold on
-%                 plot3(score(idx(1),1),score(idx(1),2),score(idx(1),3),'o','MarkerFaceColor',colour_dur(i_bin,:),'MarkerEdgeColor',colour_dur(i_bin,:))
-%                 xlim([min(score(:,1)) max(score(:,1))])
-%                 ylim([min(score(:,2)) max(score(:,2))])
-%                 zlim([min(score(:,3)) max(score(:,3))])
-%                 xlabel('PC 1')
-%                 ylabel('PC 2')
-%                 zlabel('PC 3')
+                subplot(3,2,1)
+               
+                
+                plot3(score(idx(1:600),1),score(idx(1:600),2),score(idx(1:600),3),'Color',colour_dur(i_bin,:),'LineWidth',2)
+                hold on
+                plot3(score(idx(1),1),score(idx(1),2),score(idx(1),3),'o','MarkerFaceColor',colour_dur(i_bin,:),'MarkerEdgeColor',colour_dur(i_bin,:))
+                xlim([min(score(:,1)) max(score(:,1))])
+                ylim([min(score(:,2)) max(score(:,2))])
+                zlim([min(score(:,3)) max(score(:,3))])
+                xlabel('PC 1')
+                ylabel('PC 2')
+                zlabel('PC 3')
                 %normalise time
                 xtime2=linspace(0,1,numel(idx));
                 % interpolate to match all vector lengths
@@ -126,7 +126,7 @@ for j=1:numel(sessions)
         xlabel('Normalised time')
     end
     end
-    %pause
+    pause
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Test if Hausdorff distance for different durations is shorter than for different directions
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,11 +1,12 @@
 %% aim: this script should call all functions to reproduce the results of the paper
 close all 
 clear all
+
 session={'MC_S1_raw.mat','MC_S2_raw.mat','MC_S3_raw.mat','MC_S4_raw.mat',...
     'MM_S1_raw.mat','MM_S2_raw.mat','MM_S3_raw.mat',...
     'MM_S1_raw.mat','MM_S2_raw.mat','MM_S3_raw.mat','MT_S3_raw.mat','MT_S2_raw.mat','MT_S1_raw.mat'};
 Area={'M1','M1','M1','M1','M1','M1','M1','PMd','PMd','PMd','PMd','PMd','PMd'};
-
+session_N=[1 2 3 4 5 6 7 5 6 7 8 9 10];
 %parameters
 do_extra_plot=1;
 threshold=80;
@@ -33,19 +34,23 @@ t_2b=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];
 
 %Figure 2
 
-%embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,0,t_1,t_2,from);
+%embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,0,t_1,t_2,from,session_N);
 
 % Figure 3
 %%%%%%%%distance_position_all_sessions(session,Area,threshold,Ndir,Nbins,1,t_1,t_2,from);
-%[t_1,t_2]=Trajectories_differ_by_dir_all_sessions(session,Area,threshold,Ndir,Nbins);
+[t_1,t_2]=Trajectories_differ_by_dir_all_sessions(session,Area,threshold,Ndir,Nbins);
 
 %embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,1,t_1,t_2,from)
+
 %variance_trajectories_v2_all_sessions(session,Area,threshold,Ndir,Nbins,1,t_1,t_2,from);
-recurrence_all_sessions(session,Area,threshold,Ndir,threshold_dist)
+
+%recurrence_all_sessions(session,Area,threshold,Ndir,threshold_dist)
  
-recurrence_region_all_sessions(session,Area,threshold,Ndir,do_extra_plot)
+%recurrence_region_all_sessions(session,Area,threshold,Ndir,do_extra_plot)
   
+
 [h,p]=distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_extra_plot);
+
 %speed_distance_all_sessions(session,Area,threshold,Ndir,t_1,t_2b)
 %speed_distance_all_sessions_pos(session,Area,threshold,Ndir,t_1,t_2b)
 % 

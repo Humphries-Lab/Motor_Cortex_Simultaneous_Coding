@@ -1,60 +1,90 @@
-function embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot,t_1,t_2,from)
-% original sessions
-%session={'MT_S3_raw.mat','MT_S2_raw.mat','MT_S1_raw.mat','MM_S1_raw.mat','MM_S1_raw.mat'};
-%Area={'PMd','PMd','PMd','PMd','M1'};
-
-%new sessions
-% session={'MC_S1_raw.mat','MC_S2_raw.mat','MC_S3_raw.mat','MC_S4_raw.mat','MC_S5_raw.mat','MM_S2_raw.mat','MM_S3_raw.mat','MM_S4_raw.mat','MM_S2_raw.mat','MM_S3_raw.mat','MM_S4_raw.mat'};
-% Area={'M1','M1','M1','M1','M1','M1','M1','M1','PMd','PMd','PMd'};
-
-% by area
-% session={'MC_S1_raw.mat','MC_S2_raw.mat','MC_S3_raw.mat','MC_S4_raw.mat','MC_S5_raw.mat',...
-%     'MM_S1_raw.mat','MM_S2_raw.mat','MM_S3_raw.mat','MM_S4_raw.mat','MM_S2_raw.mat','MM_S3_raw.mat',...
-%     'MM_S4_raw.mat','MT_S3_raw.mat','MT_S2_raw.mat','MT_S1_raw.mat','MM_S1_raw.mat'};
-% Area={'M1','M1','M1','M1','M1','M1','M1','M1','M1','PMd','PMd','PMd','PMd','PMd','PMd','PMd'};
-
-
+function embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot,t_1,t_2,from,session_N)
 
 fig1=figure;
+fig1sup=figure;
 embedding_dim=zeros(size(session));
+R(max(session_N))=struct();
 for i=1:size(session,2)
-    i
+    disp(['Recording ' num2str(i)])
     %      [~,t_1_new,t_2_new]=embedding_dimensions(session{i}, Area{i},0,Ndir,t_1(i),t_2(i,:),from);
     %      t_1(i)=t_1_new;
     %      t_2(i,:)=t_2_new;
-    variance=embedding_dimensions(session{i}, Area{i},do_plot,Ndir,Nbins,t_1(i),t_2(i,:),from);
-    if strcmp(Area{i},'M1')
-        colourArea='m';
-    else
-        colourArea='b';
+    
+    [variance,~,~,dist_mov_dir,mov_duration,max_speed]=embedding_dimensions(session{i}, Area{i},do_plot,Ndir,Nbins,t_1(i),t_2(i,:),from);
+    %% kinematics
+    if i==1
+        figure(fig1sup)
+        plot_kinematics(dist_mov_dir,mov_duration,max_speed,Nbins)
     end
+    % Here the sessions are repeated because of the shared regions
+    % Andrea needs to fix this
+    R(session_N(i)).R_dist_dur=corr([dist_mov_dir{1:Nbins}]',[mov_duration{1:Nbins}]');
+    R(session_N(i)).R_dist_speed=corr([dist_mov_dir{1:Nbins}]',[max_speed{1:Nbins}]');
+    R(session_N(i)).R_speed_dur=corr([max_speed{1:Nbins}]',[mov_duration{1:Nbins}]');
+    
+    % Dimensionality of the subspace
+    embedding_dim(i)=find(cumsum(variance)>threshold,1,'First');
+    
+    if strcmp(Area{i},'M1')
+        colourArea=[85 30 116]./256;
+    else
+        colourArea=[89 156 153]./256;
+    end
+    
     figure(fig1)
     subplot(2,1,1)
-    plot(cumsum(variance),colourArea)
+    plot(cumsum(variance),'Color',colourArea)
     hold on
-    box off
-    embedding_dim(i)=find(cumsum(variance)>threshold,1,'First');
-    xlabel('N units')
-    ylabel('Variance explained [%]')
-    clear variance
+    
     subplot(2,1,2)
     hold on
-    plot(i,embedding_dim(i),['o' colourArea])
+    plot(i,embedding_dim(i),'o','Color',colourArea)
+    
+    clear variance dist_mov_dir mov_duration max_speed
+    
 end
+
 figure(fig1)
 subplot(2,1,1)
 plot([0 100],[threshold threshold])
-figure(fig1)
+xlabel('N units')
+ylabel('Variance explained [%]')
+box off
+
 subplot(2,1,2)
 hold on
-plot(embedding_dim,'k')
 box off
 xlabel('N session')
 ylabel('Embedding dimensions')
+ylim([0 13])
+%%
+figure(fig1sup)
+
+subplot(2,3,4)
+histogram([R.R_dist_dur])
+box off
+xlabel('Corr Distance-Duration')
+ylabel('Number of sessions')
+xlim([0 1])
+title(['Mean = ' num2str(mean([R.R_dist_dur]),'%.2f')])
+
+subplot(2,3,5)
+histogram([R.R_dist_speed])
+box off
+xlabel('Corr Distance-Speed')
+xlim([0 1])
+title(['Mean = ' num2str(mean([R.R_dist_speed]),'%.2f')])
+
+subplot(2,3,6)
+histogram([R.R_speed_dur])
+box off
+xlabel('Corr Distance-Speed')
+xlim([0 1])
+title(['Mean = ' num2str(mean([R.R_speed_dur]),'%.2f')])
 end
 
 
-function [variance,t_1_new,t_2_new]=embedding_dimensions(session, Area,do_plot,Ndir,Nbins,t_1,t_2,from)
+function [variance,t_1_new,t_2_new,dist_mov_dir,mov_duration,max_speed]=embedding_dimensions(session, Area,do_plot,Ndir,Nbins,t_1,t_2,from)
 %% Average across bins of segments durations (200,300,400,500 ms)
 event=2;
 if do_plot
@@ -107,54 +137,27 @@ for i=1:Nbins
     for cond=1:Ndir
         nsamples_condition(cond,i)=sum(direction1==cond);
         if nsamples_condition(cond,i)>=2
-        average_cond_1=[average_cond_1,mean(condition_matrix{i}(:,:,direction1==cond),3)];
-        idx_dir=[idx_dir;zeros(round((t_2(i)-t_1)*1000),1)+cond];
-        idx_duration=[idx_duration;zeros(round((t_2(i)-t_1)*1000),1)+i];
-        counter=counter+1;
-%         if do_plot
-%             subplot(4,5,20)
-%             polarplot(direction(direction1==cond),1,'.','Color',colour_dir(cond,:))
-%             hold on
-%         end
-        
-              else
-            cond 
+            average_cond_1=[average_cond_1,mean(condition_matrix{i}(:,:,direction1==cond),3)];
+            idx_dir=[idx_dir;zeros(round((t_2(i)-t_1)*1000),1)+cond];
+            idx_duration=[idx_duration;zeros(round((t_2(i)-t_1)*1000),1)+i];
+            counter=counter+1;
+            %         if do_plot
+            %             subplot(4,5,20)
+            %             polarplot(direction(direction1==cond),1,'.','Color',colour_dir(cond,:))
+            %             hold on
+            %         end
+            
+        else
+            cond
             [session, Area]
             pause
         end
-
-    end
-    if do_plot
-        
-        
-        subplot(4,5,14)
-        hold on
-        plot(dist_mov_dir{i},mov_duration{i},'.','Color',colour_plasma(i,:))
-        xlabel('Distance [cm]')
-        ylabel('Duration [ms]')
-        
-        subplot(4,5,15)
-        hold on
-        plot(dist_mov_dir{i},max_speed{i},'.','Color',colour_plasma(i,:))
-        xlabel('Distance [cm]')
-        ylabel('Max speed [cm/s]')
-        
-        subplot(4,5,19)
-        hold on
-        plot(max_speed{i},mov_duration{i},'.','Color',colour_plasma(i,:))
-        xlabel('Max speed [cm/s]')
-        ylabel('Duration [ms]')
         
     end
+    
 end
-R1=corr([dist_mov_dir{1:Nbins}]',[mov_duration{1:Nbins}]')
-R2=corr([dist_mov_dir{1:Nbins}]',[max_speed{1:Nbins}]')
-R1=corr([max_speed{1:Nbins}]',[mov_duration{1:Nbins}]')
-% figure
-% plot(nsamples_condition)
-% hold on
-% plot([0 numel(nsamples_condition)],[5 5])
-% pause
+
+
 %% Compute a common subspace
 % soft normalization
 %delete neurons that have minimal number of spikes
