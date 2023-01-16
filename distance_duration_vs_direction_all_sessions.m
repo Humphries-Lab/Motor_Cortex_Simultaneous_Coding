@@ -30,6 +30,7 @@ for j=1:numel(sessions)
     [SI2,~,~,SI2std,SIallother]=scale_index_other(score,idx_dir,idx_duration,ndim(j),normalised_t);
     %% Stats
     SIj(j)=SI;
+    SI2j(j)=SI2;
     [~,pR2(j)]=ttest2(SIall,SIallother);
     subplot(3,3,9)
     errorbar(j,SI,SIstd,'.','Color',colourArea)
@@ -126,7 +127,6 @@ for j=1:numel(sessions)
         xlabel('Normalised time')
     end
     end
-    pause
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Test if Hausdorff distance for different durations is shorter than for different directions
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -166,7 +166,7 @@ for j=1:numel(sessions)
         clear h p
     end
     
-    [fraction_above,Delta_distances,Hdist_tmp,Hdur_tmp]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim(j),1,colourArea,nsamples_condition);
+    [fraction_above,Delta_distances,Hdist_tmp,Hdur_tmp,hdelta200(j)]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim(j),1,colourArea,nsamples_condition);
     %% add a plot with the histogram for each axis
     Hdist=[Hdist;Delta_distances];
     Hdur=[Hdur;Hdur_tmp];
@@ -209,9 +209,11 @@ xlabel('Distance duration')
 xlim([0 0.025])
 box off
 meanR2=mean(SIj)
+meanR2_other=mean(SI2j)
+significantdelta200=sum(hdelta200)
 end
 
-function [total_fraction,Delta_distances,All_dist_dir,All_dist_dur]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim,do_plot,ColourArea,nsamples_condition)
+function [total_fraction,Delta_distances,All_dist_dir,All_dist_dur,hdelta200]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim,do_plot,ColourArea,nsamples_condition)
 Ndir=max(idx_dir);
 Nbins=max(idx_duration);
 Hdist_dir=zeros(Ndir,Ndir);
@@ -221,7 +223,8 @@ idx_others(round(Ndir/2))=[];
 if do_plot
     colour_dir=hsv(Ndir);
 end
-
+Delta_dur=[100 200 300 100 200 100];
+%[Delta_dur,idx_delta]=sort(Delta_dur,'ascend');
 for i_dir=1:Ndir
     counter=1;
     %%trajectories with same direction but different durations
@@ -231,14 +234,7 @@ for i_dir=1:Ndir
             idx2=find(idx_dir==i_dir & idx_duration==j_bin);
             %% distance between trajectories
             recurrence=pdist2(score(idx1,1:ndim),score(idx2,1:ndim));
-            %identify the time when this happen
-            
-%             [~,idxtmp1]=min(recurrence);
-%             [~,idxtmp3]=max(min(recurrence));
-%             [~,idxtmp2]=min(recurrence,[],2);
-%             [~,idxtmp4]=max(min(recurrence,[],2));
-%             [idxtmp1(idxtmp3) idxtmp3 idxtmp2(idxtmp4) idxtmp4]
-%             pause
+
             Hdist_dur(i_dir,counter)=max([min(recurrence),min(recurrence,[],2)']);
             nsamp(i_dir,counter)=min(nsamples_condition(i_dir,i_bin),nsamples_condition(i_dir,j_bin));
             counter=counter+1;
@@ -247,9 +243,21 @@ for i_dir=1:Ndir
 end
 if do_plot
     subplot(3,3,1)
-    plot(Hdist_dur')
+    hold on
+    Delta_ms=[100 200 300];
+    Delta100=Hdist_dur(:,[1 4 6]);
+    Delta200=Hdist_dur(:,[2 5]);
+    Delta300=Hdist_dur(:,3);
+    HausdorffD_mean=[mean(Delta100(:)) mean(Delta200(:)) mean(Delta300(:))];
+    HausdorffD_SD=[std(Delta100(:)) std(Delta200(:)) std(Delta300(:))];
+    %[hdelta200,pdelta200]=ttest2(Delta100(:),Delta300(:),'Vartype','unequal');
+    [hdelta100,pdelta100]=ttest2(Delta100(:),Delta200(:),'alpha',0.025)
+    [hdelta100b,pdelta100]=ttest2(Delta200(:),Delta300(:),'alpha',0.025)
+    hdelta200=hdelta100 & hdelta100b;
+    errorbar(Delta_ms,HausdorffD_mean,HausdorffD_SD,'Color',ColourArea)
+    %plot(Delta_dur,mean(Hdist_dur)','Color',ColourArea)
     box off
-    xlabel('Combinations')
+    xlabel('Delta dur')
     ylabel('H Distance')
 end
 Delta_distances=[];

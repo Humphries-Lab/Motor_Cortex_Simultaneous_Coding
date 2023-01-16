@@ -6,6 +6,11 @@ fraction_above_dist=zeros(Nsessions,1);
 p_dist=zeros(Nsessions,1);
 average_speed_bin=zeros(Nsessions,2);
 average_dist_bin=average_speed_bin;
+Distance_vel=nan(Nsessions,8);
+Distance_dist=nan(Nsessions,8);
+Distance_v_dir=nan(Nsessions,32);
+Distance_d_dir=nan(Nsessions,32);
+
 figure
 for i=1:Nsessions
     if i==1
@@ -13,35 +18,53 @@ for i=1:Nsessions
     else
         do_plot=0;
     end
-    [fraction_above_vel(i),p_vel(i),fraction_above_dist(i),p_dist(i),average_speed_bin(i,:),average_dist_bin(i,:)]=speed_distance_dimensions(session{i}, Area{i},threshold,Ndir,t_1(i),t_2b(i),do_plot);
+    [fraction_above_vel(i),p_vel(i),fraction_above_dist(i),p_dist(i),average_speed_bin(i,:),average_dist_bin(i,:),Distance_vel(i,:),Distance_v_dir(i,:),Distance_dist(i,:),Distance_d_dir(i,:)]=speed_distance_dimensions(session{i}, Area{i},threshold,Ndir,t_1(i),t_2b(i),do_plot);
     if strcmp(Area{i},'M1')
         colourArea='m';
     else
         colourArea='b';
     end
-    
-    subplot(2,5,3)
-    hold on
-    plot(i,fraction_above_vel(i),'o','Color',colourArea)
-    
-    subplot(2,5,5+3)
-    hold on
-    plot(i,fraction_above_dist(i),'o','Color',colourArea)
-    pause(0.001)
+
 end
+subplot(2,5,1)
+plot([0 0.025],[0 0.025],'k')
+xlabel('Distance speed')
+ylabel('Distance closest directions')
+xlim([0 0.025])
+ylim([0 0.025])
+
+subplot(2,5,5+1)
+plot([0 0.025],[0 0.025],'k')
+xlabel('Distance distance')
+ylabel('Distance closest directions')
+xlim([0 0.025])
+ylim([0 0.025])
 
 subplot(2,5,3)
-xlim([0 Nsessions+1])
-ylim([0 1])
+histogram(Distance_vel(:),'Normalization','probability')
+xlim([0 0.025])
+xlabel('Distance Speed')
 box off
-xlabel('Recording Number')
-ylabel('Fraction above (Speed)')
-subplot(2,5,5+3)
-xlim([0 Nsessions+1])
-ylim([0 1])
+
+subplot(2,5,4)
+histogram(Distance_v_dir(:),'Normalization','probability','orientation','horizontal')
+ylim([0 0.02])
+ylabel('Distance Closest direction')
 box off
-xlabel('Recording Number')
-ylabel('Fraction above (Speed)')
+
+
+subplot(2,5,3+5)
+histogram(Distance_dist(:),'Normalization','probability')
+xlim([0 0.025])
+box off
+xlabel('Distance distance')
+
+subplot(2,5,4+5)
+histogram(Distance_d_dir(:),'Normalization','probability','orientation','horizontal')
+ylim([0 0.025])
+box off
+ylabel('Distance closest directions')
+
 p_vel
 p_dist
 p_vel_max=max(p_vel)
