@@ -91,7 +91,7 @@ for iarea=1:numel(Areas)
             else
                 time_rec(i_dir,i_bin)=midbin(bin);
             end
-           
+            cla
             
             if iarea==1 && i_bin==1 && i_dir==1
                 
@@ -158,6 +158,7 @@ for iarea=1:numel(Areas)
             caxis([0 1])
             colormap(flipud(colormap('gray')))
             box off
+            %pause
             if j_m1==sum(strcmp(Areas,'M1'))
                 subplot(nrows,2,(j_m1-1)*2+1)
                 xlabel('Time from movement onset [ms]')

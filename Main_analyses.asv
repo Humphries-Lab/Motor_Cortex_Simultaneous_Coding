@@ -52,7 +52,7 @@ t_2b=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];
 
 %% Figure 3
 
-%recurrence_all_sessions(session,Area,threshold,Ndir,threshold_dist)
+recurrence_all_sessions(session,Area,threshold,Ndir,threshold_dist)
 %%%%%%%%distance_position_all_sessions(session,Area,threshold,Ndir,Nbins,1,t_1,t_2,from);
 
 %variance_trajectories_v2_all_sessions(session,Area,threshold,Ndir,Nbins,1,t_1,t_2,mov_durS);
@@ -61,7 +61,7 @@ t_2b=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];
  
 %% Figure 4
 
-decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,do_extra_plot)
+%decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,do_extra_plot)
 %shuffle=1;
 %decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,do_extra_plot)
 
@@ -72,6 +72,7 @@ decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep
 %speed_distance_all_sessions(session,Area,threshold,Ndir,t_1,t_2b)
 %%%%%%%%speed_distance_all_sessions_pos(session,Area,threshold,Ndir,t_1,t_2b)
 
-%% Figure 6
+
 %decoding_instantaneuos_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,1)
+
 %decoding_movement_duration_all_sessions(session,Area,Ndir,Nbins)

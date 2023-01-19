@@ -1,18 +1,15 @@
-function embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot,t_1,t_2,from,session_N,plot_supp)
-if plot_supp
+function embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot,t_1,t_2,from,session_N,plot_su)
+
 fig1=figure;
 fig1sup=figure;
-end
-
 embedding_dim=zeros(size(session));
 R(max(session_N))=struct();
 for i=1:size(session,2)
     disp(['Recording ' num2str(i)])
     
     [variance,~,~,dist_mov_dir,mov_duration,max_speed]=embedding_dimensions(session{i}, Area{i},do_plot,Ndir,Nbins,t_1(i),t_2(i,:),from);
-    
     %% kinematics
-    if i==1 && plot_supp
+    if i==1
         figure(fig1sup)
         plot_kinematics(dist_mov_dir,mov_duration,max_speed,Nbins)
 
@@ -25,7 +22,6 @@ for i=1:size(session,2)
     % Dimensionality of the subspace
     embedding_dim(i)=find(cumsum(variance)>threshold,1,'First');
     
-    if plot_supp
     if strcmp(Area{i},'M1')
         colourArea=[85 30 116]./256;
     else
@@ -40,11 +36,11 @@ for i=1:size(session,2)
     subplot(2,1,2)
     hold on
     plot(i,embedding_dim(i),'o','Color',colourArea)
-    end
+    
     clear variance dist_mov_dir mov_duration max_speed
     
 end
-if plot_supp
+
 figure(fig1)
 subplot(2,1,1)
 plot([0 100],[threshold threshold])
@@ -83,13 +79,11 @@ xlabel('Corr Distance-Speed')
 xlim([0 1])
 title(['Mean = ' num2str(mean([R.R_speed_dur]),'%.2f')])
 end
-end
 
 
 function [variance,t_1_new,t_2_new,dist_mov_dir,mov_duration,max_speed]=embedding_dimensions(session, Area,do_plot,Ndir,Nbins,t_1,t_2,from)
 %% Average across bins of segments durations (200,300,400,500 ms)
-event=2;% mov onset
-
+event=2;
 if do_plot
     figure
     colour_dir=hsv(Ndir);
@@ -100,16 +94,20 @@ if strcmp(Area,'PMd')
     startt=trial_table2(1,1);
     endt=trial_table2(size(trial_table2,1),22);
     ISI=compute_ISI(PMd.units,startt,endt);
+    %t_1=-0.5;
 else
     load(session,'M1','trial_table2')
     startt=trial_table2(1,1);
     endt=trial_table2(size(trial_table2,1),22);
     ISI=compute_ISI(M1.units,startt,endt);
+    %t_1=-0.5;
 end
 
 ms=nanmedian(ISI); %round(ms*sqrt(12))
 
-
+% from=[0.2 0.3 0.4 0.5];
+%
+% t_2=from+0.1+0.5;%movement duration+ 200 ms
 average_cond_1=[];
 idx_dir=[];
 idx_duration=[];

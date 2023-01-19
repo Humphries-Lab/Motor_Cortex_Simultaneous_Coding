@@ -168,6 +168,7 @@ for j=1:size(session,2)
     Acc(j)=sum(diag(C_total))/numel(trueLabels);
     fig1=figure;
     cm = confusionchart(trueLabels,predictedLabels,'Normalization','row-normalized');
+    NormalizedValues=cm.NormalizedValues;
     close(fig1)
     
     if do_plot
@@ -182,7 +183,7 @@ for j=1:size(session,2)
         
         
         subplot(2,3,6)
-        imagesc(cm.NormalizedValues)
+        imagesc(NormalizedValues)
         colormap gray
         title(['Acc = ' num2str(Acc(j))])
         colorbar
