@@ -14,9 +14,10 @@ std_error=zeros(size(session,2),1);
 Acc=zeros(size(session,2),1);
 acc_error_mean=zeros(size(session,2),1);
 acc_error_std=zeros(size(session,2),1);
-for j=1:size(session,2)
+for isession=1:size(session,2)
+    disp(['Starting session ' num2str(isession)])
     %% Step 1
-    [angle_dir,i_dir,neural_mov]=extract_movement_for_decoding(session{j}, Area{j},Ndir);
+    [angle_dir,i_dir,neural_mov]=extract_movement_for_decoding(session{isession}, Area{isession},Ndir);
     
     % %% Step 2
     Nsample=zeros(Ndir,1);
@@ -33,10 +34,7 @@ for j=1:size(session,2)
     neural_mov=squeeze(mean(neural_mov,2))';
     %selected_class=i_dir;
     xangle=zeros(1,Ndir);
-    if do_plot
-        figure
-        subplot(2,3,1)
-    end
+
     for i=1:Ndir
         idx_i=find(i_dir==i);
         %randon permutation to break temporal patterns throughout the session
@@ -48,10 +46,6 @@ for j=1:size(session,2)
         
         selected_neural=[selected_neural;neural_mov(selected_idx,:)];
         
-        if do_plot
-            polarplot(angle_dir(selected_idx),1,'.','Color',colour_dir(i,:))
-            hold on
-        end
         
     end
     
@@ -106,12 +100,13 @@ for j=1:size(session,2)
             [coeff,score,~,~,variance]=pca(traning_neural);
             Ndim(k)=find(cumsum(variance)>threshold,1,'First');
             scores_test=(testing_neural-repmat(mean(traning_neural),size(testing_neural,1),1))*coeff(:,1:Ndim);
-            if do_plot
+           
+            if do_plot && isession==11 && ~shuffle
                 if k==1 && r==1
-                    subplot(2,3,4)
+                    subplot(2,3,1)
+                     hold on
                     for i=1:Ndir
                         plot(score(training_class==i,1),score(training_class==i,2),'.','Color',colour_dir(i,:),'MarkerSize',12)
-                        hold on
                         plot(scores_test(testing_class==i,1),scores_test(testing_class==i,2),'.','MarkerSize',18,'Color',colour_dir(i,:)/2)
                     end
                 end
@@ -138,54 +133,30 @@ for j=1:size(session,2)
             counter=counter+1;
         end
         Acc_per_cv(:,r)=Acc_per_fold;
-        if do_plot
-            subplot(2,3,2)
-            errorbar(1:k_fold,mean_error_iter,std_error_iter)
-            xlabel('Fold')
-            ylabel('Absolute Error [Degrees]')
-            box off
-            hold on
-            
-            subplot(2,3,5)
-            plot(Acc_per_fold)
-            hold on
-            xlabel('Fold')
-            ylabel('Accuracy')
-            box off
-        end
+
     end
     
-    acc_error_mean(j)=mean(Acc_per_cv(:));
-    acc_error_std(j)=std(Acc_per_cv(:));
+    acc_error_mean(isession)=mean(Acc_per_cv(:));
+    acc_error_std(isession)=std(Acc_per_cv(:));
     error_angle=abs(angdiff(predictedThetas,trueThetas)*180/pi);
     error_angle_bin=abs(angdiff(predictedThetas_bin,trueThetas)*180/pi);
-    median_error_angle_bin(j)=median(error_angle_bin);
-    std_error_bin(j)=std(error_angle_bin);
-    median_error(j)=median(error_angle);
-    std_error(j)=std(error_angle);
+    median_error_angle_bin(isession)=median(error_angle_bin);
+    std_error_bin(isession)=std(error_angle_bin);
+    median_error(isession)=median(error_angle);
+    std_error(isession)=std(error_angle);
     
     C_total = confusionmat(trueLabels,predictedLabels);
-    Acc(j)=sum(diag(C_total))/numel(trueLabels);
+    Acc(isession)=sum(diag(C_total))/numel(trueLabels);
     fig1=figure;
     cm = confusionchart(trueLabels,predictedLabels,'Normalization','row-normalized');
     NormalizedValues=cm.NormalizedValues;
     close(fig1)
     
-    if do_plot
-        subplot(2,3,3)
-        plot(error_angle)
-        hold on
-        title(['Mean = ' num2str(median_error(j)) ' degrees'])
-        xlabel('Sample number')
-        ylabel('Absolute Error [Degrees]')
-        box off
-        
-        
-        
-        subplot(2,3,6)
+    if do_plot && isession==11 && ~shuffle
+        subplot(2,3,2)
         imagesc(NormalizedValues)
         colormap gray
-        title(['Acc = ' num2str(Acc(j))])
+        title(['Acc = ' num2str(Acc(isession))])
         colorbar
         caxis([0 1])
         box off
@@ -193,35 +164,25 @@ for j=1:size(session,2)
         ylabel('True direction')
         box off
     end
-    %Ndim
+    
 end
 
+
+%% Summary for all sessions
 if ~shuffle
     M1=strcmp(Area,'M1');
-    figure
-    subplot(2,3,1)
+    subplot(2,3,6)
     hold on
     errorbar(1:sum(M1),median_error(M1),std_error(M1),'.m')
     errorbar((1:sum(~M1))+sum(M1),median_error(~M1),std_error(~M1),'.b')
-    errorbar(1:sum(M1),median_error_angle_bin(M1),std_error_bin(M1),'.r')
-    errorbar((1:sum(~M1))+sum(M1),median_error_angle_bin(~M1),std_error_bin(~M1),'.c')
+    
     [mean(median_error(M1)) mean(median_error(~M1)) mean(median_error_angle_bin(M1)) mean(median_error_angle_bin(~M1))]
     box off
     xlabel('Session')
     ylabel('Absolute angle error [degrees]')
     
-    subplot(2,3,2)
-    hold on
-    plot(1:sum(M1),Acc(M1),'.m')
-    plot((1:sum(~M1))+sum(M1),Acc(~M1),'.b')
-    [mean(Acc(M1)) mean(Acc(~M1))]
-    box off
-    xlim([0.8 size(session,2)+0.2])
-    xlabel('Session')
-    ylabel('Accuracy')
-    ylim([0 1])
     
-    subplot(2,3,3)
+    subplot(2,3,5)
     hold on
     errorbar(1:sum(M1),acc_error_mean(M1),acc_error_std(M1),'.m')
     [mean(acc_error_mean(M1)) mean(acc_error_mean(~M1))]
@@ -234,15 +195,12 @@ if ~shuffle
     
 else
     colour_shuffle=[0.5 0.5 0.5];
-    subplot(2,3,1)
+    subplot(2,3,6)
     hold on
     errorbar(1:size(session,2),median_error,std_error,'.','Color',colour_shuffle)
     
-    subplot(2,3,2)
-    hold on
-    plot(Acc,'.','Color',colour_shuffle)
     
-    subplot(2,3,3)
+    subplot(2,3,5)
     hold on
     errorbar(1:size(session,2),acc_error_mean,acc_error_std,'Color',colour_shuffle)
     plot([1 size(session,2)],[1/8 1/8],'k')

@@ -43,7 +43,7 @@ t_2b=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];
 % [new_t_1,new_t_2]=Trajectories_differ_by_dir_all_sessions(session,Area,threshold,Ndir,Nbins);
 % 
 % % select the neural activity from the selected segments for each area
-% t_1=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
+ t_1=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
 % t_2=[repmat(mov_durS+0.1+0.2,sum(strcmp(Area,'M1')),1);repmat(mov_durS+0.1+0.05,sum(strcmp(Area,'PMd')),1)];%movement duration+ 200 ms for M1 and 50 ms for PMd
 % 
 % do_plot=0;
@@ -53,23 +53,23 @@ t_2b=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];
 %% Figure 3
 
 %recurrence_all_sessions(session,Area,threshold,Ndir,threshold_dist)
-%%%%%%%%distance_position_all_sessions(session,Area,threshold,Ndir,Nbins,1,t_1,t_2,from);
+
 
 %variance_trajectories_v2_all_sessions(session,Area,threshold,Ndir,Nbins,1,t_1,t_2,mov_durS);
  
 %recurrence_region_all_sessions(session,Area,threshold,Ndir,do_extra_plot)
  
 %% Figure 4
-
-decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,do_extra_plot)
-%shuffle=1;
-%decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,do_extra_plot)
+% 
+% decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,do_extra_plot)
+% shuffle=1;
+% decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,do_extra_plot)
 
 
 %% Figure 5
 %[h,p]=distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_extra_plot);
 
-%speed_distance_all_sessions(session,Area,threshold,Ndir,t_1,t_2b)
+speed_distance_all_sessions(session,Area,threshold,Ndir,t_1,t_2b)
 %%%%%%%%speed_distance_all_sessions_pos(session,Area,threshold,Ndir,t_1,t_2b)
 
 %% Figure 6
