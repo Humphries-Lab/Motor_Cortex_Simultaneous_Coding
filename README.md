@@ -1,2 +1,2 @@
 # Motor_Cortex_Simultaneous_Coding
- This code reproduce the figures from the paper
+ This code reproduces the figures from the paper 
