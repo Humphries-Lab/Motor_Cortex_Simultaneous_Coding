@@ -11,8 +11,6 @@ colour_dur=plasma(Nbins);
 for isession=1:numel(Areas)
     Area=Areas{isession};
     session=sessions{isession};
-    End_recurrence=true(Nbins*Ndir,1);
-    Start_recurrence=true(Nbins*Ndir,1);
     for i_bin=[2:Nbins 1]
         
         

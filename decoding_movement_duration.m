@@ -13,12 +13,12 @@ function [mean_total_error,error_duration,std_error,estimated_duration]=decoding
 
 Ndir=max(idx_dir);
 colour_dir=hsv(Ndir);
-
-
+colour_dur=plasma(Nbins);
 test_bins=1:Nbins;
 test_bins(ref_bin)=[];
 traj_ref=sum((idx_dir==1)& (idx_duration==ref_bin));
 Ntest_bins=numel(test_bins);
+traj_length=nan(1,Ntest_bins);
 for i_bin=1:Ntest_bins
     bin_i=test_bins(i_bin);
     traj_length(i_bin)=sum((idx_dir==1)& (idx_duration==bin_i));
@@ -47,11 +47,11 @@ for i_dir=1:Ndir
     error_duration(i_dir,:)=abs(estimated_duration(i_dir,:)-traj_length);
     
     
-    subplot(3,3,1)
+    subplot(2,3,4)
     plot(traj_length,estimated_duration(i_dir,:),'.','Color',colour_dir(i_dir,:))
     hold on
     
-    subplot(3,3,2)
+    subplot(2,3,5)
     plot(traj_length,100*abs(estimated_duration(i_dir,:)-traj_length)./traj_length,'.','Color',colour_dir(i_dir,:))
     hold on
     
@@ -63,7 +63,7 @@ mean_total_error=median(error_duration(:));
 
 if do_plot
     
-    subplot(3,3,4)
+    subplot(2,3,3)
     for i_bin=1:Ntest_bins
         y = mean(idx_tmp{i_bin},2)'; % your mean vector;
         x = 1:numel(y);
@@ -72,9 +72,9 @@ if do_plot
         curve2 = y - std_dev;
         x2 = [x, fliplr(x)];
         inBetween = [curve1, fliplr(curve2)];
-        fill(x2, inBetween, colour_dir(i_bin,:));
-        hold on;
-        plot(x, y, 'LineWidth', 2);
+        fill(x2, inBetween, colour_dur(test_bins(i_bin),:))
+        hold on
+        plot(x, y, 'LineWidth', 2,'Color',colour_dur(test_bins(i_bin),:));
         %errorbar(0:traj_length(i_bin)-start,mean(idx_tmp{i_bin},2),std(idx_tmp{i_bin}'),'.')
         hold on
         plot([0 traj_length(i_bin)-start],[0 traj_ref-start],'k--')
@@ -272,11 +272,12 @@ f1 = fit((1:i)',idx(1:i),ft,'StartPoint',[0 0]);
 
 fraction=f1.a;
 if fraction<0
-subplot(3,3,8)
+    figure
+subplot(2,1,1)
 plot(idx)
 hold on
  plot([0 S_sample],[0 S_sample])
-subplot(3,3,9)
+subplot(2,1,2)
 plot3(xref(:,1),xref(:,2),xref(:,3),'k')
 hold on 
 plot3(xsample(:,1),xsample(:,2),xsample(:,3),'r')

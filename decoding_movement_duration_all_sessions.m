@@ -28,53 +28,55 @@ for j=1:Nsessions
     else
         do_plot=0;
     end
-    subplot(3,3,1)
+    subplot(2,3,4)
     [mean_total_error(j),error_duration_tmp,std_error(j),estimated_duration]=decoding_movement_duration(score,idx_dir,idx_duration,ref_bin,ndim(j),Nbins,kneigh,do_plot);
     
-    title([ session{j} '  ' Area{j} ' ' num2str(j)])
     error_duration(Ndir*(j-1)+1:Ndir*j,:)=error_duration_tmp;
     estimated_dur_all(Ndir*(j-1)+1:Ndir*j,:)=estimated_duration;
     error_per_sample=100*abs(estimated_duration-repmat(traj_length_M1,Ndir,1))./repmat(traj_length_M1,Ndir,1);
     nsamples_condition(:,ref_bin)=[];
-    subplot(3,3,9)
-    plot(nsamples_condition(:),error_per_sample(:),'.')
-    hold on
+    
+%     subplot(3,3,9)
+%     plot(nsamples_condition(:),error_per_sample(:),'.')
+%     hold on
     if strcmp(Area{j},'M1')
         M1(Ndir*(j-1)+1:Ndir*j)=1;
     end
-    %pause
     
 end
-subplot(3,3,1)
-errorbar(traj_length_M1,mean(estimated_dur_all(M1==1,:)),std(estimated_dur_all(M1==1,:)),'Color','m')
-errorbar(traj_length_PMd,mean(estimated_dur_all(M1~=1,:)),std(estimated_dur_all(M1~=1,:)),'Color','b')
+
+subplot(2,3,4)
+errorbar(traj_length_M1,mean(estimated_dur_all(M1==1,:)),std(estimated_dur_all(M1==1,:)),'Color',[85 30 116]./256)
+errorbar(traj_length_PMd,mean(estimated_dur_all(M1~=1,:)),std(estimated_dur_all(M1~=1,:)),'Color',[89 156 153]./256)
 box off
 ylabel('Predicted trajectory duration [ms]')
 xlabel('Actual trajectory duration [ms]')
 plot(traj_length_M1,traj_length_M1,'k')
 xlim([traj_length_M1(1)-100 traj_length_PMd(end)+100])
 
-subplot(3,3,2)
+subplot(2,3,5)
 error_prop_M1=100*abs(estimated_dur_all(M1==1,:)-repmat(traj_length_M1,sum(M1==1),1))./repmat(traj_length_M1,sum(M1==1),1);
 error_prop_PMd=100*abs(estimated_dur_all(M1~=1,:)-repmat(traj_length_PMd,sum(M1~=1),1))./repmat(traj_length_PMd,sum(M1~=1),1);
 relative_error_M1=abs(error_prop_M1);
 relative_error_PMd=abs(error_prop_PMd);
-errorbar(traj_length_M1,mean(abs(error_prop_M1)),std(abs(error_prop_M1)),'Color','m')
-errorbar(traj_length_PMd,mean(abs(error_prop_PMd)),std(abs(error_prop_PMd)),'Color','b')
-[mean(relative_error_M1(:)) mean(relative_error_PMd(:))]
+errorbar(traj_length_M1,mean(abs(error_prop_M1)),std(abs(error_prop_M1)),'Color',[85 30 116]./256)
+errorbar(traj_length_PMd,mean(abs(error_prop_PMd)),std(abs(error_prop_PMd)),'Color',[89 156 153]./256)
+%[mean(relative_error_M1(:)) mean(relative_error_PMd(:))]
+text(700,100,['Mean M1 = ' num2str(mean(relative_error_M1(:)),2)])
+text(1000,100,['Mean PMd = ' num2str(mean(relative_error_PMd(:)),2)])
 box off
 ylabel('Relative error [%]')
 xlabel('Actual trajectory duration [ms]')
 xlim([traj_length_M1(1)-100 traj_length_PMd(end)+100])
 
-subplot(3,3,5)
-errorbar(1:Nsessions,mean_total_error,std_error)
-hold on
-box off
-ylabel('Median error [ms]')
-xlim([0.8 Nsessions+0.2])
+% subplot(3,3,5)
+% errorbar(1:Nsessions,mean_total_error,std_error)
+% hold on
+% box off
+% ylabel('Median error [ms]')
+% xlim([0.8 Nsessions+0.2])
 
-%% shuffle test
+%% shuffle test: Shuffle direction label to test how breaking the hypothesis of geometry changes the results
 %aim: produce a plot that shows diff angle vs error
 clear error_duration_tmp
 angle_diff=linspace(0,360,Ndir+1)-180;
@@ -85,50 +87,24 @@ for j=1:Nsessions
     
     load(['scores_LDS_diff_duration_newfilter_' session{j} '_' Area{j} '.mat'],'score','idx_dir','idx_duration','variance')
     ndim(j)=find(cumsum(variance)>threshold,1,'First');
-    %     traj_length=(abs(t_1)+t_2)*1000;
-    %     traj_length(ref_bin)=[];
+
     [error_duration_tmp(:,j),error_by_dir_shift]=decoding_movement_duration_chance(score,idx_dir,idx_duration,ref_bin,ndim(j),kneigh);
     error_dir(Ndir*(j-1)*3+1:Ndir*j*3,:)=error_by_dir_shift';
+    
     if strcmp(Area{j},'M1')
-        colour_Area='m';
-        subplot(3,3,6)
-        plot(angle_diff,median(error_by_dir_shift,2),colour_Area)
-        hold on
-        box off
-        ylabel('Median error')
-        xlabel('Angle difference')
-        
-        subplot(3,3,8)
-        plot(angle_diff,mean(error_by_dir_shift,2),colour_Area)
-        hold on
-        box off
-        ylabel('Mean error')
-        
+        colour_Area=[85 30 116]./256;
     else
-        colour_Area='b';
-        subplot(3,3,6)
-        plot(angle_diff,median(error_by_dir_shift,2),colour_Area)
+        colour_Area=[89 156 153]./256;
+    end
+    
+     subplot(2,3,6)
+        plot(angle_diff,median(error_by_dir_shift,2),'Color',colour_Area)
         hold on
         box off
-        xlabel('Angle difference')
         ylabel('Median error')
-        %     subplot(3,3,9)
-        %     plot(angle_diff,mean(error_by_dir_shift,2),colour_Area)
-        %     hold on
-        %     box off
-        %     ylabel('Mean error')
-    end
+        xlabel('Angle difference')
     
     
 end
-subplot(3,3,3)
-errorbar(angle_diff,mean(error_dir),std(error_dir))
 
-subplot(3,3,5)
-errorbar(1:Nsessions,median(error_duration_tmp),std(error_duration_tmp))
-%plot(1:Nsessions,median(error_duration_tmp))
-xlim([0.8 Nsessions+0.2])
-%ylim([-200 1000])
-ylabel('Shuffle dir error')
-box off
 end
