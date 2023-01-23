@@ -1,8 +1,5 @@
-function [fraction_above_vel,p_vel,fraction_above_dist,p_dist,average_speed_bin,average_dist_bin,Distance_vel,Distance_v_dir,Distance_dist,Distance_d_dir]=speed_distance_dimensions(session, Area,threshold,Ndir,t_1,t_2,do_plot)
+function [fraction_above_vel,p_vel,fraction_above_dist,p_dist,average_speed_bin,average_dist_bin,Distance_vel,Distance_v_dir,Distance_dist,Distance_d_dir]=speed_distance_dimensions(session, Area,threshold,Ndir,t_1,t_2)
 % aim: normalise time of individual trajectories and then do PCA
-
-%% Average across bins of segments durations (200,300,400,500 ms)
-colour_dir=hsv(Ndir);
 event=2;
 %consider reaches from lenght "from" to "to"
 from=0.2;
@@ -19,10 +16,12 @@ idx_dir_2=[];
 idx_vel_2=[];
 threshold_speed=20;
 nsamples_vel=zeros(Ndir,2);
+
+
 if strcmp(Area,'M1')
-    colourArea='m';
+    colourArea=[85 30 116]./256;
 else
-    colourArea='b';
+    colourArea=[89 156 153]./256;
 end
 
 from_to=[from to];
@@ -39,7 +38,7 @@ else
 end
 ms=nanmedian(ISI);
 
-[condition_matrix,direction,~,~,~,reach_number,dist_mov_dir,mov_duration,max_speed,prep_duration]=neural_data_per_duration_normalised(session,Area,ms,t_1,t_2,event,from_to);
+[condition_matrix,direction,~,~,~,~,dist_mov_dir,~,max_speed,~]=neural_data_per_duration_normalised(session,Area,ms,t_1,t_2,event,from_to);
 
 
 %discretise dir, vel and distance
@@ -56,22 +55,24 @@ dist_discrete=ones(size(max_speed));
 dist_discrete(dist_mov_dir>=limit_dist)=2;
 average_speed_bin=[mean(max_speed(speed_discrete==1 & abs(dist_mov_dir-5)<1)) mean(max_speed(speed_discrete==2 & abs(dist_mov_dir-5)<1))];
 average_dist_bin=[mean(dist_mov_dir(dist_discrete==1 & abs(max_speed-threshold_speed)<2)) mean(dist_mov_dir(dist_discrete==2 & abs(max_speed-threshold_speed)<2))];
-if do_plot
-    subplot(2,5,2)
-    histogram(max_speed(speed_discrete==1 & abs(dist_mov_dir-5)<1),0:1:max(max_speed),'Normalization','Probability')
-    hold on
-    histogram(max_speed(speed_discrete==2 & abs(dist_mov_dir-5)<1),0:1:max(max_speed),'Normalization','Probability')
-    box off
-    xlabel('Speed [cm/s]')
-    ylabel('Normalised Frequency')
-    subplot(2,5,5+2)
-    histogram(dist_mov_dir(dist_discrete==1 & abs(max_speed-threshold_speed)<2),0:0.5:max(dist_mov_dir),'Normalization','Probability')
-    hold on
-    histogram(dist_mov_dir(dist_discrete==2 & abs(max_speed-threshold_speed)<2),0:0.5:max(dist_mov_dir),'Normalization','Probability')
-    box off
-    xlabel('Distance [cm]')
-    ylabel('Normalised Frequency')
-end
+
+%% Histograms of the speed and distance of the selected movements
+%if do_plot
+%     subplot(2,3,2)
+%     histogram(max_speed(speed_discrete==1 & abs(dist_mov_dir-5)<1),0:1:max(max_speed),'Normalization','Probability')
+%     hold on
+%     histogram(max_speed(speed_discrete==2 & abs(dist_mov_dir-5)<1),0:1:max(max_speed),'Normalization','Probability')
+%     box off
+%     xlabel('Speed [cm/s]')
+%     ylabel('Normalised Frequency')
+%     subplot(2,5,5+2)
+%     histogram(dist_mov_dir(dist_discrete==1 & abs(max_speed-threshold_speed)<2),0:0.5:max(dist_mov_dir),'Normalization','Probability')
+%     hold on
+%     histogram(dist_mov_dir(dist_discrete==2 & abs(max_speed-threshold_speed)<2),0:0.5:max(dist_mov_dir),'Normalization','Probability')
+%     box off
+%     xlabel('Distance [cm]')
+%     ylabel('Normalised Frequency')
+% end
 
 for cond=1:Ndir
     average_cond_1=[average_cond_1,mean(condition_matrix(:,:,direction1==cond),3)];
@@ -90,7 +91,6 @@ for cond=1:Ndir
     end
 end
 
-%% Compute a common subspace
 
 %% Project same directions coloring different times
 %[coeff,score,~,~,exp_all]=pca(average_cond_1);
@@ -106,63 +106,21 @@ averages_dist(delete_units,:)=[];
 averages_vel=averages_vel'./repmat(normalisation,size(averages_vel,2),1);
 averages_dist=averages_dist'./repmat(normalisation,size(averages_dist,2),1);
 Ndim=find(cumsum(exp_1)>threshold,1,'First');
+
+%projecting trajectories onto the subspace defined from all durations and
+%all dir
 score_vel=averages_vel*coeffs(:,1:Ndim);
 score_dist=averages_dist*coeffs(:,1:Ndim);
-optional_plot=0;
-if optional_plot
-    
-    for i_dir=1:Ndir
-        [~,score2]=pca(score_vel(idx_dir_2==i_dir,1:Ndim));
-        for i_vel=1:2
-            idx=idx_vel_2==i_vel & idx_dir_2==i_dir;
-            idx2=idx_vel_2(idx_dir_2==i_dir)==i_vel;
-            subplot(2,5,4)
-            plot(score2(idx2,1)+1,score2(idx2,2)+1,'Color',colour_dir(i_dir,:)./i_vel)
-           
-            Area_curve_speed(i_dir,i_vel)=abs(area_closed_curve(score2(idx2,1)+1,score2(idx2,2)+1));
-            %plot3(score_vel(idx,1),score_vel(idx,2),score_vel(idx,3),'Color',colour_dir(i_dir,:)./i_vel,'LineWidth',i_vel)
-            hold on
-        end
-        
-    end
-
-    subplot(2,5,5)
-        plot(1:2,mean(Area_curve_speed)./mean(Area_curve_speed(:,1)),'.-','Color',colourArea)
-        hold on
-    title('speed')
-    
-    
-    for i_dir=1:Ndir
-        [~,score2]=pca(score_dist(idx_dir_2==i_dir,1:Ndim));
-        for i_vel=1:2
-            idx=idx_vel_2==i_vel & idx_dir_2==i_dir;
-            idx2=idx_vel_2(idx_dir_2==i_dir)==i_vel;
-            subplot(2,5,5+4)
-            %plot3(score_dist(idx,1),score_dist(idx,2),score_dist(idx,3),'Color',colour_dir(i_dir,:)./i_vel,'LineWidth',i_vel)
-            plot(score2(idx2,1)+1,score2(idx2,2)+1,'Color',colour_dir(i_dir,:)./i_vel)
-            hold on
-            Area_curve_dist(i_dir,i_vel)=abs(area_closed_curve(score2(idx2,1)+1,score2(idx2,2)+1));
-        end
-        title('Distance')
-        
-    end
-    subplot(2,5,5+5)
-        plot(1:2,mean(Area_curve_dist)./mean(Area_curve_dist(:,1)),'.-','Color',colourArea)
-        hold on
-    
-end
 
 %% Hausdorff distance for different speeds
 Ndim=find(cumsum(exp_1)>threshold,1,'First');
-[fraction_above_vel,p_vel,Distance_vel,Distance_v_dir]=Hausdorff_distance(score_vel,idx_dir_2,idx_vel_2,Ndim,colourArea,1);
-
+[fraction_above_vel,p_vel,Distance_vel,Distance_v_dir]=Hausdorff_distance(score_vel,idx_dir_2,idx_vel_2,Ndim,colourArea,5);
 
 
 %%
 %% now for distance
 Ndim=find(cumsum(exp_dist_1)>threshold,1,'First');
 [fraction_above_dist,p_dist,Distance_dist,Distance_d_dir]=Hausdorff_distance(score_dist,idx_dir_2,idx_vel_2,Ndim,colourArea,6);
-p_dist
 
 
 end
@@ -196,7 +154,7 @@ for i_dir=1:Ndir
     distance_fast=circshift(Hdist_vel_dir2(i_dir,:),Ndir/2-i_dir);
     all_points=[all_points;Hdist_vel(i_dir)*ones(4,1),[distance_fast(Ndir/2-1);distance_fast(Ndir/2+1);distance_slow(Ndir/2+1);distance_slow(Ndir/2-1)]];
     
-    subplot(2,5,nplot)
+    subplot(2,3,nplot)
     plot(Hdist_vel(i_dir),distance_fast(Ndir/2-1),'.','Color',colourArea)
     hold on
     plot(Hdist_vel(i_dir),distance_fast(Ndir/2+1),'.','Color',colourArea)
@@ -206,16 +164,6 @@ for i_dir=1:Ndir
     Hdist=[Hdist,distance_fast(Ndir/2-1),distance_fast(Ndir/2+1),distance_slow(Ndir/2+1),distance_slow(Ndir/2-1)];
 end
 fraction_above=sum(all_points(:,1)<all_points(:,2))/size(all_points,1);
-[h,p]=ttest2(all_points(:,1),all_points(:,2));
+[~,p]=ttest2(all_points(:,1),all_points(:,2));
 box off
-end
-
-function A=area_closed_curve(x,y)
-N=numel(x);
-I=zeros(N,1);
-for i=1:N-1
-    I(i)=(y(i+1)+y(i))*(x(i+1)-x(i))/2;
-end
-I(N)=(y(1)+y(N))*(x(1)-x(N))/2;
-A=sum(I);
 end

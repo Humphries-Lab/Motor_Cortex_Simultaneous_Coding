@@ -148,12 +148,12 @@ subplot(2,3,2)
 xlim([0 0.025])
 ylim([0 0.025])
 
-ax1 = axes('Position',[0.41,0.93,0.21,0.041]);
+axes('Position',[0.41,0.93,0.21,0.041]);
 histogram(Hdist,0:0.001:0.025,'Normalization','probability')
 xlim([0 0.025])
 box off
 
-ax2 = axes('Position',[0.63,0.58,0.028,0.338]);
+axes('Position',[0.63,0.58,0.028,0.338]);
 histogram(Hdur,0:0.001:0.025,'Normalization','probability','orientation','horizontal')
 ylim([0 0.025])
 box off

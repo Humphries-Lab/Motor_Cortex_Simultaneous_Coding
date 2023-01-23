@@ -11,66 +11,54 @@ Distance_dist=nan(Nsessions,8);
 Distance_v_dir=nan(Nsessions,32);
 Distance_d_dir=nan(Nsessions,32);
 
-figure
-for i=1:Nsessions
-    if i==1
-        do_plot=1;
-    else
-        do_plot=0;
-    end
-    [fraction_above_vel(i),p_vel(i),fraction_above_dist(i),p_dist(i),average_speed_bin(i,:),average_dist_bin(i,:),Distance_vel(i,:),Distance_v_dir(i,:),Distance_dist(i,:),Distance_d_dir(i,:)]=speed_distance_dimensions(session{i}, Area{i},threshold,Ndir,t_1(i),t_2b(i),do_plot);
-    if strcmp(Area{i},'M1')
-        colourArea='m';
-    else
-        colourArea='b';
-    end
+for isession=1:Nsessions
+
+    [fraction_above_vel(isession),p_vel(isession),fraction_above_dist(isession),p_dist(isession),average_speed_bin(isession,:),average_dist_bin(isession,:),Distance_vel(isession,:),Distance_v_dir(isession,:),Distance_dist(isession,:),Distance_d_dir(isession,:)]=speed_distance_dimensions(session{isession}, Area{isession},threshold,Ndir,t_1(isession),t_2b(isession));
 
 end
-subplot(2,5,1)
+subplot(2,3,5)
 plot([0 0.025],[0 0.025],'k')
 xlabel('Distance speed')
 ylabel('Distance closest directions')
 xlim([0 0.025])
 ylim([0 0.025])
 
-subplot(2,5,5+1)
+subplot(2,3,6)
 plot([0 0.025],[0 0.025],'k')
 xlabel('Distance distance')
 ylabel('Distance closest directions')
 xlim([0 0.025])
 ylim([0 0.025])
 
-subplot(2,5,3)
+axes('Position',[0.4116    0.47    0.21   0.041]);
 histogram(Distance_vel(:),'Normalization','probability')
 xlim([0 0.025])
 xlabel('Distance Speed')
 box off
 
-subplot(2,5,4)
+axes('Position',[ 0.6331    0.1116    0.0164    0.34]);
 histogram(Distance_v_dir(:),'Normalization','probability','orientation','horizontal')
-ylim([0 0.02])
+ylim([0 0.025])
 ylabel('Distance Closest direction')
 box off
 
-
-subplot(2,5,3+5)
+axes('Position',[ 0.6936    0.47    0.2100    0.0410]);
 histogram(Distance_dist(:),'Normalization','probability')
 xlim([0 0.025])
 box off
-xlabel('Distance distance')
 
-subplot(2,5,4+5)
+axes('Position',[ 0.9152    0.1187    0.0164    0.3380]);
 histogram(Distance_d_dir(:),'Normalization','probability','orientation','horizontal')
 ylim([0 0.025])
 box off
-ylabel('Distance closest directions')
 
-p_vel
-p_dist
-p_vel_max=max(p_vel)
-p_dist_max=max(p_dist)
-average_speed_bin
-mean(average_speed_bin)
-mean(average_dist_bin)
-average_dist_bin
+
+% p_vel
+% p_dist
+% p_vel_max=max(p_vel)
+% p_dist_max=max(p_dist)
+% average_speed_bin
+% mean(average_speed_bin)
+% mean(average_dist_bin)
+% average_dist_bin
 end

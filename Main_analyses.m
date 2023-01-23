@@ -23,8 +23,8 @@ t_2b=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];
 
 %Run analyses
 
-% %% Figure 1
-% % Example trial
+%% Figure 1
+% Example trial
 % trial=4;
 % Behaviour_spikes_per_trial(session{11}, Area{11},trial)
 % % Example session stats
@@ -32,8 +32,8 @@ t_2b=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];
 
 %% Figure 2
 
-% % before selecting the end and start of each area, select neural activity from 500 ms before the
-% % movement onset upto 300 ms after the movement end
+% before selecting the end and start of each area, select neural activity from 500 ms before the
+% movement onset upto 300 ms after the movement end
 % t_1=[-0.5*ones(1,sum(strcmp(Area,'M1'))),-0.5*ones(1,sum(strcmp(Area,'PMd')))];
 % t_2=[repmat(mov_durS+0.1+0.3,sum(strcmp(Area,'M1')),1);repmat(mov_durS+0.1+0.3,sum(strcmp(Area,'PMd')),1)];%movement duration+ 300 ms
 % do_plot=0;
@@ -41,8 +41,8 @@ t_2b=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];
 % embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot,t_1,t_2,mov_durS,session_N,plot_supp);
 % 
 % [new_t_1,new_t_2]=Trajectories_differ_by_dir_all_sessions(session,Area,threshold,Ndir,Nbins);
-% 
-% % select the neural activity from the selected segments for each area
+
+% select the neural activity from the selected segments for each area
  t_1=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
 % t_2=[repmat(mov_durS+0.1+0.2,sum(strcmp(Area,'M1')),1);repmat(mov_durS+0.1+0.05,sum(strcmp(Area,'PMd')),1)];%movement duration+ 200 ms for M1 and 50 ms for PMd
 % 
@@ -67,11 +67,19 @@ t_2b=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];
 
 
 %% Figure 5
-%[h,p]=distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_extra_plot);
+% [h,p]=distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_extra_plot);
+% 
+% speed_distance_all_sessions(session,Area,threshold,Ndir,t_1,t_2b)
 
-speed_distance_all_sessions(session,Area,threshold,Ndir,t_1,t_2b)
 %%%%%%%%speed_distance_all_sessions_pos(session,Area,threshold,Ndir,t_1,t_2b)
 
 %% Figure 6
-%decoding_instantaneuos_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,1)
+% shuffle=0;
+% decoding_instantaneuos_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,1)
+% shuffle=1;
+% decoding_instantaneuos_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,1)
 %decoding_movement_duration_all_sessions(session,Area,Ndir,Nbins)
+
+%% Figure 7
+addpath('../Motor_Cortex_Simultaneous_Coding/RNN/')  
+RunDifferentTau
