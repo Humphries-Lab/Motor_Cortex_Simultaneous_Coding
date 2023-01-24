@@ -23,7 +23,7 @@ function ISI=compute_ISI(units,startt,endt)
 ISI=[];
 
 for iunit=1:size(units,2)
-    idxsp=find(((units(iunit).ts>=startt) & (units(iunit).ts<endt)));
+    idxsp=(units(iunit).ts>=startt) & (units(iunit).ts<endt);
     ISI_iunit=diff(units(iunit).ts(idxsp));
     ISI=[ISI;ISI_iunit(:)];
 end

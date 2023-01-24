@@ -1,4 +1,4 @@
-function [condition_matrix,direction,total_matrix,trial_idx,trial_number,reach_number,mov_dist,mov_duration,max_speed,position]=neural_data_per_duration(session,Area,sigma_filter,t_1,t_2,event,duration_range)
+function [condition_matrix,direction,total_matrix,trial_idx,trial_number,reach_number,mov_dist,mov_duration,max_speed,position]=neural_data_per_duration_v2(session,Area,sigma_filter,t_1,t_2,event,duration_range)
 %% neural_data_per_duration selects the neural activity and the movement parameters for all movements within the duration range
 % INPUTS
 %

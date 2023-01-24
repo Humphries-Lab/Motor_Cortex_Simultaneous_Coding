@@ -227,7 +227,7 @@ ms=nanmedian(ISI); %round(ms*sqrt(12))
 t_1=-0.2;
 t_2=0;
 from_to=[0.2 1.2];
-[neural_mov,angle_dir]=neural_data_per_duration(session,Area,ms,t_1,t_2,event,from_to,0);
+[neural_mov,angle_dir]=neural_data_per_duration(session,Area,ms,t_1,t_2,event,from_to);
 class_dir=ceil(Ndir*(angle_dir+pi)/(2*pi));
 
 end

@@ -23,10 +23,9 @@ t_1=-0.5;
 t_2=0.5;
 
 duration_range=[0.05 2]; %select movements between 50 ms and 2s
-doplot=0;
 
 % extract all movements and their parameters from the session
-[~,direction,~,~,~,~,dist_mov,mov_duration,max_speed]=neural_data_per_duration(Session,Area,ms,t_1,t_2,event,duration_range,doplot);
+[~,direction,~,~,~,~,dist_mov,mov_duration,max_speed]=neural_data_per_duration(Session,Area,ms,t_1,t_2,event,duration_range);
 
 
 %% Plot histogram of movement direction

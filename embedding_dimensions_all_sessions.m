@@ -107,7 +107,7 @@ else
     ISI=compute_ISI(M1.units,startt,endt);
 end
 
-ms=nanmedian(ISI); %round(ms*sqrt(12))
+ms=round(median(ISI)); %round(ms*sqrt(12))
 
 
 average_cond_1=[];
@@ -118,7 +118,7 @@ counter=1;
 nsamples_condition=zeros(Ndir,Nbins);
 for i=1:Nbins
     from_to=[from(i) from(i)+0.1]; % select movements in this range of duration only
-    [condition_matrix{i},direction,~,~,~,reach_number{i},dist_mov_dir{i},mov_duration{i},max_speed{i}]=neural_data_per_duration(session,Area,ms,t_1,t_2(i),event,from_to,0);
+    [condition_matrix{i},direction,~,~,~,reach_number{i},dist_mov_dir{i},mov_duration{i},max_speed{i}]=neural_data_per_duration(session,Area,ms,t_1,t_2(i),event,from_to);
     xtime=round(t_1*1000):1:round(t_2(i)*1000-1);
     %take average by direction
     direction1=ceil(Ndir*(direction+pi)/(2*pi));

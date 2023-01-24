@@ -59,7 +59,7 @@ idx_pos=[];
 idx_dir2=[];
 for i=1:Nbins
     from_to=[from(i) from(i)+0.1];
-    [condition_matrix{i},direction,~,~,~,reach_number{i},dist_mov_dir{i},mov_duration{i},max_speed{i},position{i}]=neural_data_per_duration(session,Area,ms,t_1,t_2(i),event,from_to,0);
+    [condition_matrix{i},direction,~,~,~,reach_number{i},dist_mov_dir{i},mov_duration{i},max_speed{i},position{i}]=neural_data_per_duration(session,Area,ms,t_1,t_2(i),event,from_to);
     xtime=round(t_1*1000):1:round(t_2(i)*1000-1);
     %take average by direction
     direction1=ceil(Ndir*(direction+pi)/(2*pi));
