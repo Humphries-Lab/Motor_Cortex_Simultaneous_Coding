@@ -36,25 +36,23 @@ else
     endt=trial_table2(size(trial_table2,1),22);
     ISI=compute_ISI(M1.units,startt,endt);
 end
-ms=nanmedian(ISI);
-
-[condition_matrix,direction,~,~,~,~,dist_mov_dir,~,max_speed,~]=neural_data_per_duration_normalised(session,Area,ms,t_1,t_2,event,from_to);
-
+sigma_filter=round(median(ISI));
+[Neural_info,Mov_params]=neural_data_per_duration_normalised(session,Area,sigma_filter,t_1,t_2,event,from_to);
 
 %discretise dir, vel and distance
 %better do this by percentil
-direction1=ceil(Ndir*(direction+pi)/(2*pi));
+direction1=ceil(Ndir*(Mov_params.direction+pi)/(2*pi));
 
-limit_vel=median(max_speed(abs(dist_mov_dir-5)<1));
-speed_discrete=ones(size(max_speed));
-speed_discrete(max_speed>limit_vel)=2;
+limit_vel=median(Mov_params.max_speed(abs(Mov_params.distance-5)<1));
+speed_discrete=ones(size(Mov_params.max_speed));
+speed_discrete(Mov_params.max_speed>limit_vel)=2;
 
 
-limit_dist=median(dist_mov_dir(abs(max_speed-threshold_speed)<2))+0.001;
-dist_discrete=ones(size(max_speed));
-dist_discrete(dist_mov_dir>=limit_dist)=2;
-average_speed_bin=[mean(max_speed(speed_discrete==1 & abs(dist_mov_dir-5)<1)) mean(max_speed(speed_discrete==2 & abs(dist_mov_dir-5)<1))];
-average_dist_bin=[mean(dist_mov_dir(dist_discrete==1 & abs(max_speed-threshold_speed)<2)) mean(dist_mov_dir(dist_discrete==2 & abs(max_speed-threshold_speed)<2))];
+limit_dist=median(Mov_params.distance(abs(Mov_params.max_speed-threshold_speed)<2))+0.001;
+dist_discrete=ones(size(Mov_params.max_speed));
+dist_discrete(Mov_params.distance>=limit_dist)=2;
+average_speed_bin=[mean(Mov_params.max_speed(speed_discrete==1 & abs(Mov_params.distance-5)<1)) mean(Mov_params.max_speed(speed_discrete==2 & abs(Mov_params.distance-5)<1))];
+average_dist_bin=[mean(Mov_params.distance(dist_discrete==1 & abs(Mov_params.max_speed-threshold_speed)<2)) mean(Mov_params.distance(dist_discrete==2 & abs(Mov_params.max_speed-threshold_speed)<2))];
 
 %% Histograms of the speed and distance of the selected movements
 %if do_plot
@@ -75,18 +73,18 @@ average_dist_bin=[mean(dist_mov_dir(dist_discrete==1 & abs(max_speed-threshold_s
 % end
 
 for cond=1:Ndir
-    average_cond_1=[average_cond_1,mean(condition_matrix(:,:,direction1==cond),3)];
+    average_cond_1=[average_cond_1,mean(Neural_info.FR(:,:,direction1==cond),3)];
     idx_dir=[idx_dir;zeros(final_length,1)+cond];
     for i_vel=1:2
         
         %averages_vel=[averages_vel,mean(condition_matrix(:,:,speed_discrete==i_vel & direction1==cond),3)];
         % to select only the ones with the same distance
-        averages_vel=[averages_vel,mean(condition_matrix(:,:,speed_discrete==i_vel & direction1==cond & abs(dist_mov_dir-5)<1),3)];
+        averages_vel=[averages_vel,mean(Neural_info.FR(:,:,speed_discrete==i_vel & direction1==cond & abs(Mov_params.distance-5)<1),3)];
         idx_dir_2=[idx_dir_2;zeros(final_length,1)+cond];
         idx_vel_2=[idx_vel_2;zeros(final_length,1)+i_vel];
         
-        averages_dist=[averages_dist,mean(condition_matrix(:,:,dist_discrete==i_vel & direction1==cond & abs(max_speed-threshold_speed)<2),3)];
-        nsamples_vel(cond,i_vel)=[sum(speed_discrete==i_vel & direction1==cond & abs(dist_mov_dir-5)<1)];
+        averages_dist=[averages_dist,mean(Neural_info.FR(:,:,dist_discrete==i_vel & direction1==cond & abs(Mov_params.max_speed-threshold_speed)<2),3)];
+        nsamples_vel(cond,i_vel)=[sum(speed_discrete==i_vel & direction1==cond & abs(Mov_params.distance-5)<1)];
         
     end
 end
@@ -96,7 +94,9 @@ end
 %[coeff,score,~,~,exp_all]=pca(average_cond_1);
 % [~,score_vel,~,~,exp_1]=pca(averages_vel);
 % [~,score_dist,~,~,exp_dist_1]=pca(averages_dist);
-load(['scores_LDS_diff_duration_newfilter_' session '_' Area '.mat'],'coeffs','score','idx_dir','idx_duration','variance','t_1','t_2','from','delete_units','normalisation')
+load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'coeffs','variance','delete_units','normalisation')
+   
+%load(['scores_LDS_diff_duration_newfilter_' session '_' Area '.mat'],'coeffs','score','idx_dir','idx_duration','variance','t_1','t_2','from','delete_units','normalisation')
 exp_1=variance;
 exp_dist_1=variance;
 % soft normalization
@@ -105,6 +105,8 @@ averages_dist(delete_units,:)=[];
 %average_cond_1=average_cond_1'./repmat(range(average_cond_1')+5,size(average_cond_1,2),1);
 averages_vel=averages_vel'./repmat(normalisation,size(averages_vel,2),1);
 averages_dist=averages_dist'./repmat(normalisation,size(averages_dist,2),1);
+
+
 Ndim=find(cumsum(exp_1)>threshold,1,'First');
 
 %projecting trajectories onto the subspace defined from all durations and

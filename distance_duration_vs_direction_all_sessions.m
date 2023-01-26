@@ -19,8 +19,9 @@ for isession=1:Nsessions
     
     Area=Areas{isession};
     session=sessions{isession};
-    
-    load(['scores_LDS_diff_duration_newfilter_' session '_' Area '.mat'],'score','idx_dir','idx_duration','variance','ms','t_1','t_2','from','nsamples_condition')
+    load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','nsamples_condition')
+
+    %load(['scores_LDS_diff_duration_newfilter_' session '_' Area '.mat'],'score','idx_dir','idx_duration','variance','ms','t_1','t_2','from','nsamples_condition')
     ndim(isession)=find(cumsum(variance)>threshold,1,'First');
     
     %% Plot example trajectories for same direction different durations

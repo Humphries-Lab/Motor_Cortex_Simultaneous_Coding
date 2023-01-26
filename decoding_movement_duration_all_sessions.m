@@ -12,14 +12,15 @@ M1=nan(Ndir*Nsessions,1);
 mean_total_error=zeros(Nsessions,1);
 std_error=zeros(Nsessions,1);
 for j=1:Nsessions
-    
-    load(['scores_LDS_diff_duration_newfilter_' session{j} '_' Area{j} '.mat'],'score','idx_dir','idx_duration','variance','t_1','t_2','nsamples_condition')
+    load(['../Output_files/PCA_' session{j}(1:end-4) '_' Area{j} '.mat'],'score','idx_dir','idx_duration','variance','t_from','t_upto')
+   
+    %load(['scores_LDS_diff_duration_newfilter_' session{j} '_' Area{j} '.mat'],'score','idx_dir','idx_duration','variance','t_1','t_2','nsamples_condition')
     ndim(j)=find(cumsum(variance)>threshold,1,'First');
     if strcmp(Area{j},'M1')
-        traj_length_M1=(abs(t_1)+t_2)*1000;
+        traj_length_M1=(abs(t_from)+t_upto)*1000;
         traj_length_M1(ref_bin)=[];
     else
-        traj_length_PMd=(abs(t_1)+t_2)*1000;
+        traj_length_PMd=(abs(t_from)+t_upto)*1000;
         traj_length_PMd(ref_bin)=[];
     end
     
@@ -33,12 +34,9 @@ for j=1:Nsessions
     
     error_duration(Ndir*(j-1)+1:Ndir*j,:)=error_duration_tmp;
     estimated_dur_all(Ndir*(j-1)+1:Ndir*j,:)=estimated_duration;
-    error_per_sample=100*abs(estimated_duration-repmat(traj_length_M1,Ndir,1))./repmat(traj_length_M1,Ndir,1);
-    nsamples_condition(:,ref_bin)=[];
+    %error_per_sample=100*abs(estimated_duration-repmat(traj_length_M1,Ndir,1))./repmat(traj_length_M1,Ndir,1);
     
-%     subplot(3,3,9)
-%     plot(nsamples_condition(:),error_per_sample(:),'.')
-%     hold on
+
     if strcmp(Area{j},'M1')
         M1(Ndir*(j-1)+1:Ndir*j)=1;
     end
@@ -84,8 +82,9 @@ angle_diff(end)=[];
 angle_diff=angle_diff+(angle_diff(2)-angle_diff(1)); %center at zero
 error_dir=zeros(Ndir*Nsessions*3,Ndir);
 for j=1:Nsessions
-    
-    load(['scores_LDS_diff_duration_newfilter_' session{j} '_' Area{j} '.mat'],'score','idx_dir','idx_duration','variance')
+    load(['../Output_files/PCA_' session{j}(1:end-4) '_' Area{j} '.mat'],'score','idx_dir','idx_duration','variance')
+   
+    %load(['scores_LDS_diff_duration_newfilter_' session{j} '_' Area{j} '.mat'],'score','idx_dir','idx_duration','variance')
     ndim(j)=find(cumsum(variance)>threshold,1,'First');
 
     [error_duration_tmp(:,j),error_by_dir_shift]=decoding_movement_duration_chance(score,idx_dir,idx_duration,ref_bin,ndim(j),kneigh);

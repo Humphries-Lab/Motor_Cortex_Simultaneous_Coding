@@ -14,8 +14,14 @@ std_error=zeros(size(session,2),1);
 Acc=zeros(size(session,2),1);
 acc_error_mean=zeros(size(session,2),1);
 acc_error_std=zeros(size(session,2),1);
+Colour_M1=[85 30 116]./256;
+Colour_PMd=[89 156 153]./256;
+
+if shuffle==0
+    figure
+end
 for isession=1:size(session,2)
-    disp(['Starting session ' num2str(isession)])
+    disp(['Starting decoding for session ' num2str(isession)])
     %% Step 1
     [angle_dir,i_dir,neural_mov]=extract_movement_for_decoding(session{isession}, Area{isession},Ndir);
     
@@ -173,8 +179,8 @@ if ~shuffle
     M1=strcmp(Area,'M1');
     subplot(2,3,6)
     hold on
-    errorbar(1:sum(M1),median_error(M1),std_error(M1),'.m')
-    errorbar((1:sum(~M1))+sum(M1),median_error(~M1),std_error(~M1),'.b')
+    errorbar(1:sum(M1),median_error(M1),std_error(M1),'.','Color',Colour_M1)
+    errorbar((1:sum(~M1))+sum(M1),median_error(~M1),std_error(~M1),'.','Color',Colour_PMd)
     
     [mean(median_error(M1)) mean(median_error(~M1)) mean(median_error_angle_bin(M1)) mean(median_error_angle_bin(~M1))]
     box off
@@ -184,9 +190,9 @@ if ~shuffle
     
     subplot(2,3,5)
     hold on
-    errorbar(1:sum(M1),acc_error_mean(M1),acc_error_std(M1),'.m')
+    errorbar(1:sum(M1),acc_error_mean(M1),acc_error_std(M1),'.','Color',Colour_M1)
     [mean(acc_error_mean(M1)) mean(acc_error_mean(~M1))]
-    errorbar((1:sum(~M1))+sum(M1),acc_error_mean(~M1),acc_error_std(~M1),'.b')
+    errorbar((1:sum(~M1))+sum(M1),acc_error_mean(~M1),acc_error_std(~M1),'.',Colour_PMd)
     box off
     hold on
     xlabel('Session')
@@ -209,7 +215,6 @@ end
 end
 
 function [angle_dir,class_dir,neural_mov]=extract_movement_for_decoding(session, Area,Ndir)
-%colour_dir=hsv(Ndir);
 event=2;
 if strcmp(Area,'PMd')
     load(session,'PMd','trial_table2')
@@ -223,11 +228,14 @@ else
     ISI=compute_ISI(M1.units,startt,endt);
 end
 
-ms=nanmedian(ISI); %round(ms*sqrt(12))
+sigma_filter=round(median(ISI)); %round(ms*sqrt(12))
+
 t_1=-0.2;
 t_2=0;
 from_to=[0.2 1.2];
-[neural_mov,angle_dir]=neural_data_per_duration(session,Area,ms,t_1,t_2,event,from_to);
+[Neural_info,Mov_params]=neural_data_per_duration(session,Area,sigma_filter,t_1,t_2,event,from_to);
+neural_mov=Neural_info.FR;
+angle_dir=Mov_params.direction;
 class_dir=ceil(Ndir*(angle_dir+pi)/(2*pi));
 
 end

@@ -20,7 +20,7 @@ colormap(flipud(colormap('gray')))
 for iarea=1:numel(Areas)
     Area=Areas{iarea};
     session=sessions{iarea};
-    %time_rec=nan(Ndir,Nbins);
+    time_rec=zeros(Ndir,Nbins);
     
     if do_plot_supp
         
@@ -77,21 +77,27 @@ for iarea=1:numel(Areas)
         idx=zeros(Ndir,upto);
         hall=zeros(Ndir,numel(0:50:segment_length)-1);
         Edges=0:50:segment_length;
-%        midbin=Edges+50/2;
         
         for i_dir=1:Ndir
             
             recurrencebin=recurrence((i_dir-1)*segment_length+1:i_dir*segment_length,(i_dir-1)*segment_length+1:i_dir*segment_length)<limit;
             idx(i_dir,:)=recurrence_time(recurrencebin,upto,2*sigma_filter);
             
+            
+            
+            midbin=Edges+50/2;
+            
             hall(i_dir,:)=histcounts(idx(i_dir,:),Edges,'Normalization','probability');
-
-            %To compute time of recurrene, select bin with maximum number of recurrent points
-%             [val,bin]=max(hall(i_dir,:),[],'includenan');
-%             
-%             if val~=0
-%                 time_rec(i_dir,i_bin)=midbin(bin);
-%             end
+            %v1- median of all points
+            %time_rec(i,i_bin)=nanmedian(idx(i,:));
+            %v2- select bin with maximum number of recurrent points
+            [val,bin]=max(hall(i_dir,:),[],'includenan');
+            
+            if val==0
+                time_rec(i_dir,i_bin)=nan;
+            else
+                time_rec(i_dir,i_bin)=midbin(bin);
+            end
             
             
             if iarea==1 && i_bin==1 && i_dir==1

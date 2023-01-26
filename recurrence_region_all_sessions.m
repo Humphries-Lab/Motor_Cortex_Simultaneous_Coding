@@ -16,8 +16,9 @@ for isession=1:numel(Areas)
     for i_bin=[2:Nbins 1]
         
         
-        %load(['scores_LDS_diff_duration_ms_original_longer_' session '_' Area '.mat'],'score','idx_dir','idx_duration','variance')
-        load(['scores_LDS_diff_duration_newfilter_' session '_' Area '.mat'],'score','idx_dir','idx_duration','variance','t_1','t_2')
+        load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','t_from','t_upto')
+
+       % load(['scores_LDS_diff_duration_newfilter_' session '_' Area '.mat'],'score','idx_dir','idx_duration','variance','t_1','t_2')
         ndim=find(cumsum(variance)>threshold,1,'First');
         if i_bin==2
              if isession==1
@@ -30,7 +31,7 @@ for isession=1:numel(Areas)
         end
         
         %% compute recurrence time
-        segment_length=round((t_2(i_bin)-t_1)*1000);
+        segment_length=round((t_upto(i_bin)-t_from)*1000);
         Its=zeros(segment_length,Ndir);
         for i_dir=1:Ndir
             %Its(:,i_dir)=IsInRecRegion(score(idx_dir(idx_duration==i_bin)==i_dir,1:ndim),region);
@@ -47,7 +48,7 @@ for isession=1:numel(Areas)
             subplot(2,2,4)
             hold on
         end
-        plot((1:size(Its,1))+t_1*1000,sum(Its,2),'Color',colour_dur(i_bin,:))
+        plot((1:size(Its,1))+t_from*1000,sum(Its,2),'Color',colour_dur(i_bin,:))
         
         
         clear Its
