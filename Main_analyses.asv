@@ -71,19 +71,22 @@ mov_durS=(1:Nbins)/10+0.1; %Movement duration for each bin [S]
 % 
 % %% select the neural activity from the selected segments for each area
 % 
-% t_from=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
-% t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];%movement duration+ 200 ms for M1 and 50 ms for PMd
+t_from=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
+t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];%movement duration+ 200 ms for M1 and 50 ms for PMd
 
 % plot_supp=1; %plot supplementary
 % 
+% %embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot,t_from,t_upto,mov_durS,session_N,plot_supp);
 % embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,mov_durS,session_N,plot_traj_all_rec,plot_supp);
 
 % %% Figure 3
+tic
 do_plot_supp=1;
-i_bin=1; % plot results for this bin only
+i_bin=1;
 recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
+toc
 
-recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
+%recurrence_region_all_sessions(session,Area,threshold,Ndir)
 
 % %% Figure 4
 % tic 
