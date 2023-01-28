@@ -1,6 +1,7 @@
 function [t_from_new,t_upto_new]=Trajectories_differ_by_dir_all_sessions(Sessions,Areas,threshold,Ndir,Nbins)
 %% Trajectories_differ_by_dir_all_sessions calculates the distance between
 %% trajectories corresponding to different movement directions
+%
 % INPUTS
 %
 % Sessions: cell array containing the names of the sessions to be analysed.

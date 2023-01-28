@@ -38,7 +38,7 @@ threshold_dist=10; %threshold of the distance (theta) for recurrence analyses
 
 
 k_fold=6; %Number of folds for cross-validation for predicting movement direction
-Nrep=10; %Nunmber of repetitions for cross-validation for predicting movement direction
+Nrep=10; %Number of repetitions for cross-validation for predicting movement direction
 shuffle=0; %Perform shuffle of direction labels
 do_extra_plot=1;
 
@@ -71,38 +71,39 @@ mov_durS=(1:Nbins)/10+0.1; %Movement duration for each bin [S]
 % 
 % %% select the neural activity from the selected segments for each area
 % 
-% t_from=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
-% t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];%movement duration+ 200 ms for M1 and 50 ms for PMd
+t_from=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
+t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];%movement duration+ 200 ms for M1 and 50 ms for PMd
 
 % plot_supp=1; %plot supplementary
 % 
 % embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,mov_durS,session_N,plot_traj_all_rec,plot_supp);
 
 % %% Figure 3
-do_plot_supp=1;
-i_bin=1; % plot results for this bin only
-recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
-
-recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
+% do_plot_supp=1;
+% i_bin=1; % plot results for this bin only
+% recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
+% 
+% recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
 
 % %% Figure 4
-% tic 
-% decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,do_extra_plot)
+
+% decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle)
 % shuffle=1;
-% decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle,do_extra_plot)
-% toc
+% decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle)
+
  
 % %% Figure 5
 % tic 
-%[h,p]=distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_extra_plot);
+% do_plot_supp=1;
+% [h,p]=distance_duration_vs_direction_all_sessions(session,Area,threshold,Nbins,do_plot_supp);
 % toc
 % speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 % toc
 
 % %% Figure 6
-% tic 
-% decoding_movement_duration_all_sessions(session,Area,Ndir,Nbins)
-% toc
-% 
+tic 
+decoding_movement_duration_all_sessions(session,Area,Ndir,Nbins)
+toc
+
 % %% Figure 7
 % % RunDifferentTau

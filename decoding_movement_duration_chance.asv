@@ -22,10 +22,7 @@ function error_by_dir_shift=decoding_movement_duration_chance(score,idx_dir,idx_
 % OUTPUTS
 %
 % error_by_dir_shift: Matrix containing the prediction error for all test
-% trajectories [ms]. Rows are directions shifted so that middle row
-% corresponds to 0 angle difference and first and end rows are the most
-% distant direction bins (~-+180\^o). Columns are the number of comparisons
-% made (Ntest_bins*Ndir).
+% trajectories [ms]. Rows are directions shifted so that in the middle bi
 %
 %
 % 28/05/2023

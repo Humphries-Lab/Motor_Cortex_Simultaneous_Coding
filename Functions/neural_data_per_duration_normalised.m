@@ -1,9 +1,48 @@
-function [Neural_info,Mov_params,Reach_info]=neural_data_per_duration_normalised(session,Area,sigma_filter,t_1,t_2,event,duration_range)
-%% neural_data_per_duration selects the neural activity and the movement parameters for all movements within the duration range
+function [Neural_info,Mov_params,Reach_info]=neural_data_per_duration_normalised(session,Area,sigma_filter,t_from,t_upto,event,duration_range)
+%% neural_data_per_duration_normalised selects the neural activity and the movement parameters for all movements within the duration range.
+% All neural trajectories are temporally scaled to the same final length 
+%
 % INPUTS
+%
+% Session= Name of the session to be analysed.
+% e.g 'MC_S1_raw.mat'
+%
+% Area= Name of the area to be analysed in the Session.
+% e.g 'M1'
+%
+% sigma_filter= size of the gaussian filter to convolve the spike trains with.
+%
+% t_from= start time of the neural activity relative to movement onset [S]
+% e.g t_from=-0.5
+%
+% t_upto= end time of the neural activity relative to the movement onset [S]
+% e.g t_from=0.6
+%
+% event = Indicates the event to which the neural activity will be aligned
+%         1- Target onset
+%         2- Movement onset
+%
+% duration_range= range of the durations of the movements [S] that will be
+% selected. e.g [0.2 0.3]
 %
 % OUTPUTS
 %
+% Neural_info = structure containing the following fields
+%                .FR = [nunits ntimebins n movements] each matrix contain the filtered spike trains for each selected movement.
+%                .spikes = [nunits ntimebins n movements] each matrix contain the spike trains for each selected movement.
+%
+% Mov_params = structure containing the following fields
+%                .distance= distance of all selected movement [cm].
+%                .duration = duration of all selected movement [ms].
+%                .max_distance = maximum speed of all selected movement [cm/s].
+%                .position= x and y coordinates of the origin target [cm].
+%
+% Reach_info = structure containing the following fields                
+%                .trial_number= trial number of each selected movement.
+%                .reach_number= number of the movement within the trial (1-4).
+%
+% 27/01/2023
+% Andrea Colins Rodriguez
 
 load(session,Area,'cont','trial_table2')
 if strcmp(Area,'PMd')
@@ -33,8 +72,8 @@ for i=1:numel(Ntrial)
     
     %reach
     mov_length=trial_table2(Ntrial(i),[3 8 13 18]+1)-trial_table2(Ntrial(i),[3 8 13 18]);
-    ntarget_time=trial_table2(Ntrial(i),[3 8 13 18]+event_t)+t_1-shiftbase/1000;
-    nonset_time=trial_table2(Ntrial(i),[3 8 13 18]+event_t)+t_2+shiftbase/1000;
+    ntarget_time=trial_table2(Ntrial(i),[3 8 13 18]+event_t)+t_from-shiftbase/1000;
+    nonset_time=trial_table2(Ntrial(i),[3 8 13 18]+1+event_t)+t_upto+shiftbase/1000;
     
     movement_init_t=round((trial_table2(Ntrial(i),[3 8 13 18])-1)*1000);
     movement_end_t=round((trial_table2(Ntrial(i),[3 8 13 18]+1)-1)*1000);
