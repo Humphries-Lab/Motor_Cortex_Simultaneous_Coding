@@ -253,7 +253,7 @@ end
 
 end
 
-function [angle_dir,class_dir,neural_mov]=extract_movement_for_decoding(session, Area,Ndir)
+function [angle_dir,class_dir,neural_mov]=extract_movement_for_decoding(Session, Area,Ndir)
 %% extract_movement_for_decoding extracts all movements and their respective
 %% *preparatory* neural activity.
 %
@@ -279,26 +279,24 @@ function [angle_dir,class_dir,neural_mov]=extract_movement_for_decoding(session,
 % 27/05/2023
 % Andrea Colins Rodriguez
 
-event=2;
+load(Session,Area,'trial_table2','cont')
+startt=trial_table2(1,1);
+endt=trial_table2(size(trial_table2,1),22);
+
 if strcmp(Area,'PMd')
-    load(session,'PMd','trial_table2')
-    startt=trial_table2(1,1);
-    endt=trial_table2(size(trial_table2,1),22);
-    ISI=compute_ISI(PMd.units,startt,endt);
+    neural_data=PMd.units;
 else
-    load(session,'M1','trial_table2')
-    startt=trial_table2(1,1);
-    endt=trial_table2(size(trial_table2,1),22);
-    ISI=compute_ISI(M1.units,startt,endt);
+    neural_data=M1.units;
 end
 
+ISI=compute_ISI(neural_data,startt,endt);
 sigma_filter=round(median(ISI));
 
 t_from=-0.2;
 t_upto=0;
 from_to=[0.2 1.2];
 
-[Neural_info,Mov_params]=neural_data_per_duration(session,Area,sigma_filter,t_from,t_upto,event,from_to);
+[Neural_info,Mov_params]=neural_data_per_duration(cont,trial_table2,neural_data,sigma_filter,t_from,t_upto,from_to);
 neural_mov=Neural_info.FR;
 angle_dir=Mov_params.direction;
 class_dir=ceil(Ndir*(angle_dir+pi)/(2*pi));

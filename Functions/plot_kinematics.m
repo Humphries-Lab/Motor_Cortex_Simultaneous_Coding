@@ -38,19 +38,19 @@ for i=1:Nbins
 end
 subplot(2,3,1)
 R_dist_dur=corr([mov_dist{1:Nbins}]',[mov_duration{1:Nbins}]');
-text(12,0.25,['Mean = ' num2str(mean(R_dist_dur),'%.2f')])
+text(12,0.25,['Corr = ' num2str(mean(R_dist_dur),'%.2f')])
 xlabel('Distance [cm]')
 ylabel('Duration [s]')
 
 subplot(2,3,2)
 R_dist_speed=corr([mov_dist{1:Nbins}]',[max_speed{1:Nbins}]');
-text(12,5,['Mean = ' num2str(mean(R_dist_speed),'%.2f')])
+text(12,5,['Corr = ' num2str(mean(R_dist_speed),'%.2f')])
 xlabel('Distance [cm]')
 ylabel('Max speed [cm/s]')
 
 subplot(2,3,3)
 R_speed_dur=corr([max_speed{1:Nbins}]',[mov_duration{1:Nbins}]');
-text(60,0.22,['Mean = ' num2str(mean(R_speed_dur),'%.2f')])
+text(60,0.22,['Corr = ' num2str(mean(R_speed_dur),'%.2f')])
 xlabel('Max speed [cm/s]')
 ylabel('Duration [s]')
 end

@@ -17,15 +17,21 @@ colour_dur=plasma(Nbins);
 
 %these parameters are related to the neural activity. They don't really
 %matter for the purpose of the analyses of the behaviour
-event=2; %align neural data to movement onser
-ms=20;% this number doesn't matter because its related to the neural activity, not the behaviour
-t_1=-0.5;
-t_2=0.5;
+sigma_filter=20;% this number doesn't matter because its related to the neural activity, not the behaviour
+t_from=-0.5;
+t_upto=0.2;
 
 duration_range=[0.05 2]; %select movements between 50 ms and 2s
 
 % extract all movements and their parameters from the session
-[~,Mov_params]=neural_data_per_duration(Session,Area,ms,t_1,t_2,event,duration_range);
+load(Session,Area,'trial_table2','cont')
+if strcmp(Area,'PMd')
+    neural_data=PMd.units;
+else
+    neural_data=M1.units;
+end
+
+[~,Mov_params]=neural_data_per_duration(cont,trial_table2,neural_data,sigma_filter,t_from,t_upto,duration_range);
 
 %% Plot histogram of movement direction
 subplot(4,4,13)

@@ -54,30 +54,31 @@ mov_durS=(1:Nbins)/10+0.1; %Movement duration for each bin [S]
 % % Example session stats
 % Behaviour_variability(session{11}, Area{11},Ndir,Nbins)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Figure 2
-%%
+% %% Figure 2
+% %%
 % % before selecting the end and start of each area, select neural activity from 500 ms before the
 % % movement onset upto 300 ms after the movement end
 % 
 % t_from=-0.5*ones(1,size(session_N,2));% from 500 ms before mov onset 
 % t_upto=0.3*ones(1,size(session_N,2)); %movement duration+ 300 ms
+% 
 % plot_traj_all_rec=0; % plot trajectories for all recordings
 % plot_supp=0; %Don't plot supplementary
 % 
-% %embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,plot_traj_all_rec,t_from,t_upto,mov_durS,session_N,plot_supp);
+% tic 
 % embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,mov_durS,session_N,plot_traj_all_rec,plot_supp);
-% 
+% toc
 % [new_t_1,new_t_2]=Trajectories_differ_by_dir_all_sessions(session,Area,threshold,Ndir,Nbins);
-% 
+%  
 % %% select the neural activity from the selected segments for each area
 % 
 t_from=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
 t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];%movement duration+ 200 ms for M1 and 50 ms for PMd
-
-% plot_supp=1; %plot supplementary
 % 
+% plot_supp=1; %plot supplementary
+%  
 % embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,mov_durS,session_N,plot_traj_all_rec,plot_supp);
-
+% 
 % %% Figure 3
 % do_plot_supp=1;
 % i_bin=1; % plot results for this bin only
@@ -85,22 +86,22 @@ t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)]
 % 
 % recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
 
-% %% Figure 4
+%% Figure 4
 
 % decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle)
 % shuffle=1;
 % decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep,shuffle)
 
  
-% %% Figure 5
-% tic 
-% do_plot_supp=1;
-% [h,p]=distance_duration_vs_direction_all_sessions(session,Area,threshold,Nbins,do_plot_supp);
-% toc
-% speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
-% toc
+%% Figure 5
+tic 
+do_plot_supp=1;
+p=distance_duration_vs_direction_all_sessions(session,Area,threshold,Nbins,do_plot_supp);
+toc
+speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
+toc
 
-% %% Figure 6
+%% Figure 6
 tic 
 decoding_movement_duration_all_sessions(session,Area,Ndir,Nbins)
 toc

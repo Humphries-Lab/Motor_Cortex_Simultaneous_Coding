@@ -1,4 +1,4 @@
-function [Neural_info,Mov_params]=neural_data_per_duration(cont,trial_table2,neural_data,sigma_filter,t_from,t_upto,duration_range)
+function [Neural_info,Mov_params]=neural_data_per_duration(Session,Area,sigma_filter,t_from,t_upto,duration_range)
 %% neural_data_per_duration selects the neural activity and the movement parameters for all movements within the duration range
 %
 % INPUTS
@@ -35,11 +35,19 @@ function [Neural_info,Mov_params]=neural_data_per_duration(cont,trial_table2,neu
 % 25/01/2023
 % Andrea Colins Rodriguez
 
+load(Session,Area,'cont','trial_table2')
+if strcmp(Area,'PMd')
+    neural_data=PMd.units;
+elseif strcmp(Area,'M1')
+    neural_data=M1.units;
+end
+
 Ntrial=1:size(trial_table2,1);
 
 ntimebins=round((t_upto-t_from)*1000);
 max_n_mov=size(trial_table2,1)*4;
 
+%Neural_info.FR=zeros(size(neural_data,2),ntimebins);
 %% preallocate memory
 Neural_info.FR=zeros(size(neural_data,2),ntimebins,max_n_mov);
 
@@ -55,18 +63,14 @@ w = (1/(sqrt(2*pi*sigma_filter^2)))*exp(-((x.^2*(1/(2*sigma_filter^2))))); % y-a
 w = w ./sum(w);
 
 counter=1;
-mov_onset_column=[3 8 13 18];
-mov_offset_column=mov_onset_column+1;
-
-targetx_column=[5 10 15 20];
-targety_column=targetx_column+1;
-
+mov_onset=[3 8 13 18];
+mov_offset=mov_onset+1;
 for i=1:numel(Ntrial)
     
     %reach
-    mov_length=trial_table2(Ntrial(i),mov_offset_column)-trial_table2(Ntrial(i),mov_onset_column);
-    ntarget_time=trial_table2(Ntrial(i),mov_onset_column)+t_from-shiftbase/1000;
-    nonset_time=trial_table2(Ntrial(i),mov_onset_column)+t_upto+shiftbase/1000;
+    mov_length=trial_table2(Ntrial(i),mov_offset)-trial_table2(Ntrial(i),mov_onset);
+    ntarget_time=trial_table2(Ntrial(i),mov_onset)+t_from-shiftbase/1000;
+    nonset_time=trial_table2(Ntrial(i),mov_onset)+t_upto+shiftbase/1000;
     
     % For the first movement, define the position of target 0 as the
     % position of the cursor at time of target onset 
@@ -81,8 +85,8 @@ for i=1:numel(Ntrial)
         yfirst= cont.pos(round((trial_table2(Ntrial(i),2)-1)*1000),2);
     end
     
-    ntargetx=[xfirst trial_table2(Ntrial(i),targetx_column)];
-    ntargety=[yfirst trial_table2(Ntrial(i),targety_column)];
+    ntargetx=[xfirst trial_table2(Ntrial(i),[5 10 15 20])];
+    ntargety=[yfirst trial_table2(Ntrial(i),[6 11 16 21])];
     
     for target=1:4
         startt=ntarget_time(target);

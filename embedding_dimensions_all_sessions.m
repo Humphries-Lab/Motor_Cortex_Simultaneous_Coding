@@ -97,7 +97,7 @@ if plot_supp
 figure(fig_sup_1)
 subplot(2,1,1)
 plot([0 100],[threshold threshold])
-xlabel('N units')
+xlabel('N dimensions')
 ylabel('Variance explained [%]')
 box off
 
@@ -129,7 +129,7 @@ title(['Mean = ' num2str(mean([R.R_dist_speed]),'%.2f')])
 subplot(2,3,6)
 histogram([R.R_speed_dur])
 box off
-xlabel('Corr Distance-Speed')
+xlabel('Corr Duration-Speed')
 xlim([0 1])
 title(['Mean = ' num2str(mean([R.R_speed_dur]),'%.2f')])
 end

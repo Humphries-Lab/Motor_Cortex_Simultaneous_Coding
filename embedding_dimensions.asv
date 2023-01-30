@@ -32,13 +32,13 @@ function [variance,mov_distance,mov_duration,max_speed]=embedding_dimensions(Ses
 % variance: array containing the variance explained by each PC
 %
 % mov_distance= cell array containing the movement distance of all
-% movements selected for PCA. Each cell contains an array with the distance of each movement within a duration bin
+% movements selected for PCA. Each cell contains an array with the distance of each movement within a duration bin  
 %
 % mov_duration= cell array containing the movement duration of all
-% movements selected for PCA. Each cell contains an array with the duration of each movement within a duration bin
+% movements selected for PCA. Each cell contains an array with the duration of each movement within a duration bin 
 %
 % max_speed= cell array containing the maximum speed reached of all
-% movements selected for PCA. Each cell contains an array with the maximum speed of each movement within a duration bin
+% movements selected for PCA. Each cell contains an array with the maximum speed of each movement within a duration bin 
 %
 % 24/05/2023
 % Andrea Colins Rodriguez
@@ -48,17 +48,19 @@ if do_plot
     figure
     colour_dir=hsv(Ndir);
 end
-load(Session,Area,'trial_table2','cont')
-startt=trial_table2(1,1);
-endt=trial_table2(size(trial_table2,1),22);
-
+load(Session,Area,'trial_table2','coo')
 if strcmp(Area,'PMd')
-    neural_data=PMd.units;
+    load(Session,'PMd','trial_table2')
+    startt=trial_table2(1,1);
+    endt=trial_table2(size(trial_table2,1),22);
+    ISI=compute_ISI(PMd.units,startt,endt);
 else
-    neural_data=M1.units;
+    load(Session,'M1','trial_table2')
+    startt=trial_table2(1,1);
+    endt=trial_table2(size(trial_table2,1),22);
+    ISI=compute_ISI(M1.units,startt,endt);
 end
 
-ISI=compute_ISI(neural_data,startt,endt);
 sigma_filter=round(median(ISI)); %round(ms*sqrt(12))
 
 

@@ -1,4 +1,4 @@
-function [Neural_info,Mov_params,Reach_info]=neural_data_per_duration_normalised(session,Area,sigma_filter,t_from,t_upto,event,duration_range)
+function [Neural_info,Mov_params]=neural_data_per_duration_normalised(session,Area,sigma_filter,t_from,t_upto,event,duration_range)
 %% neural_data_per_duration_normalised selects the neural activity and the movement parameters for all movements within the duration range.
 % All neural trajectories are temporally scaled to the same final length 
 %
@@ -29,17 +29,12 @@ function [Neural_info,Mov_params,Reach_info]=neural_data_per_duration_normalised
 %
 % Neural_info = structure containing the following fields
 %                .FR = [nunits ntimebins n movements] each matrix contain the filtered spike trains for each selected movement.
-%                .spikes = [nunits ntimebins n movements] each matrix contain the spike trains for each selected movement.
 %
 % Mov_params = structure containing the following fields
 %                .distance= distance of all selected movement [cm].
 %                .duration = duration of all selected movement [ms].
 %                .max_distance = maximum speed of all selected movement [cm/s].
 %                .position= x and y coordinates of the origin target [cm].
-%
-% Reach_info = structure containing the following fields                
-%                .trial_number= trial number of each selected movement.
-%                .reach_number= number of the movement within the trial (1-4).
 %
 % 27/01/2023
 % Andrea Colins Rodriguez
@@ -59,7 +54,13 @@ Ntrial=1:size(trial_table2,1);
 Reach_info.trial_idx=[];
 ntimebins=600; %all outputs are scaled to have n timebins
 normalised_t=linspace(0,1,ntimebins);
-Neural_info.FR=zeros(size(neural_data,2),ntimebins);
+max_n_mov=size(trial_table2,1)*4;
+Neural_info.FR=zeros(size(neural_data,2),ntimebins,max_n_mov);
+
+Mov_params.duration=zeros(1,max_n_mov);
+Mov_params.position=zeros(max_n_mov,2);
+Mov_params.distance=zeros(1,max_n_mov);
+Mov_params.maximum_speed=zeros(1,max_n_mov);
 
 % Define filter w for the neural activity
 x = -5*sigma_filter:1:5*sigma_filter';  % x-axis values of the discretely sampled Gaussian, out to 5xSD
@@ -113,11 +114,6 @@ for i=1:numel(Ntrial)
                 xtime2=linspace(0,1,size(FR,2));
                 Neural_info.FR(:,:,counter)=interp1(xtime2,FR',normalised_t)';
                 
-                % trial and reach info
-                Reach_info.trial_idx=[Reach_info.trial_idx,ones(1,size(FR,2))*counter];
-                Reach_info.trial_number(counter)=Ntrial(i);
-                Reach_info.reach_number(counter)=target;
-                
                 % movement parameters
                 Mov_params.duration(counter)=mov_length(target);
                 Mov_params.position(counter,:)= [ntargetx(target) ntargety(target)];
@@ -133,5 +129,10 @@ for i=1:numel(Ntrial)
         end
     end
 end
+Neural_info.FR(:,:,counter:end)=[];
 
+Mov_params.duration(counter:end)=[];
+Mov_params.position(counter:end,:)=[];
+Mov_params.distance(counter:end)=[];
+Mov_params.maximum_speed(counter:end)=[];
 end

@@ -44,7 +44,7 @@ for isession=1:Nsessions
     Area=Areas{isession};
     session=Sessions{isession};
     
-    load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance')
+    load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','nsamples_condition')
     
     ndim(isession)=find(cumsum(variance)>threshold,1,'First');
     
@@ -134,7 +134,7 @@ for isession=1:Nsessions
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     
-    [~,Delta_distances,Hdist_tmp,Hdur_tmp]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim(isession),1,colourArea);
+    [~,Delta_distances,Hdist_tmp,Hdur_tmp]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim(isession),1,colourArea,nsamples_condition);
     %% add a plot with the histogram for each axis
     
     Hdist=[Hdist;Hdist_tmp];
@@ -183,7 +183,7 @@ ylim([0 0.025])
 box off
 end
 
-function [total_fraction,Delta_distances,All_dist_dir,All_dist_dur]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim,do_plot,ColourArea)
+function [total_fraction,Delta_distances,All_dist_dir,All_dist_dur]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim,do_plot,ColourArea,nsamples_condition)
 %% Test_distance_between_trajectories calculates the Hausdorff distance between
 %% trajectories of different durations and different directions
 %
@@ -228,7 +228,7 @@ Ndir=max(idx_dir);
 Nbins=max(idx_duration);
 Hdist_dir=zeros(Ndir,Ndir,Nbins);
 Hdist_dur=nan(Ndir,factorial(Nbins-1));
-%nsamp=nan(Ndir,factorial(Nbins-1));
+nsamp=nan(Ndir,factorial(Nbins-1));
 %idx_others=1:Ndir;
 %idx_others(round(Ndir/2))=[];
 
@@ -244,7 +244,7 @@ for i_dir=1:Ndir
             recurrence=pdist2(score(idx1,1:ndim),score(idx2,1:ndim));
             
             Hdist_dur(i_dir,counter)=max([min(recurrence),min(recurrence,[],2)']);
-            %nsamp(i_dir,counter)=min(nsamples_condition(i_dir,i_bin),nsamples_condition(i_dir,j_bin));
+            nsamp(i_dir,counter)=min(nsamples_condition(i_dir,i_bin),nsamples_condition(i_dir,j_bin));
             counter=counter+1;
         end
     end
@@ -300,6 +300,7 @@ for i_bin=1:Nbins
             hold on
             
             transparency=nsamp./max(nsamp(:));
+            
             for iplot=1:size(Hdist_dur,2)
                 s=scatter(Hdist_dur(i_dir,iplot),tmp(Ndir/2-1),8,ColourArea,'filled');
                 alpha(s,transparency(i_dir,iplot))
