@@ -1,4 +1,4 @@
-function Behaviour_variability(Session,Area,Ndir,Nbins)
+function Behaviour_variability(Session,Area,Ndir,edges_dur_bin)
 %% Behaviour_variability plots the distribution of each movement parameter
 % (Direction, duration, speed and distance)
 
@@ -12,9 +12,10 @@ function Behaviour_variability(Session,Area,Ndir,Nbins)
 % 23/01/2023
 % Andrea Colins Rodriguez
 
+Nbins=numel(edges_dur_bin)-1;
 colour_dir=hsv(Ndir);
 colour_dur=plasma(Nbins);
-
+ms=1000; %to convert from s to ms
 %these parameters are related to the neural activity. They don't really
 %matter for the purpose of the analyses of the behaviour
 sigma_filter=20;% this number doesn't matter because its related to the neural activity, not the behaviour
@@ -47,10 +48,14 @@ end
 %% Plot histogram of movement duration  
 subplot(4,4,14)
 hold on
-h=histogram(Mov_params.duration*1000,0:100:max(Mov_params.duration)*1000,'normalization','probability','EdgeAlpha',0,'FaceColor','k');
-middlebin=[250 350 450 550];
+dur_binsize=(edges_dur_bin(2)-edges_dur_bin(1))*ms;
+
+h=histogram(Mov_params.duration*ms,0:dur_binsize:max(Mov_params.duration)*ms,'normalization','probability','EdgeAlpha',0,'FaceColor','k');
+
+middlebin=edges_dur_bin(1:Nbins)*ms+dur_binsize/2;
+
 for i=1:numel(middlebin)
-bar(middlebin(i),h.Values(i+2),100,'FaceColor',colour_dur(i,:))
+bar(middlebin(i),h.Values(i+round(edges_dur_bin(1)*ms/dur_binsize)),dur_binsize,'FaceColor',colour_dur(i,:))
 end
 
 box off

@@ -1,4 +1,4 @@
-function embedding_dimensions_all_sessions(Sessions,Area,threshold,Ndir,Nbins,t_from,t_upto,dur_bin_start,session_N,do_plot,plot_supp)
+function embedding_dimensions_all_sessions(Sessions,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,do_plot,plot_supp)
 %% embedding_dimensions_all_sessions calculate the number of embedding dimensions for all recordings denoted by Sessions and Area
 %
 % INPUTS
@@ -58,7 +58,7 @@ R(max(session_N))=struct();
 for isession=1:size(Sessions,2)
     disp(['Starting PCA for recording ' num2str(isession)])
     
-    [variance,dist_mov_dir,mov_duration,max_speed]=embedding_dimensions(Sessions{isession}, Area{isession},Ndir,Nbins,t_from(isession),t_upto(isession),dur_bin_start,do_plot);
+    [variance,dist_mov_dir,mov_duration,max_speed]=embedding_dimensions(Sessions{isession}, Area{isession},Ndir,Nbins,t_from(isession),t_upto(isession),edges_dur_bin,do_plot);
     
     %% kinematics
     if isession==1 && plot_supp

@@ -18,8 +18,7 @@ pars.ts_fall = 0.1;
 pars.ramp_max = 10;         % maximum value of the ramp
 pars.input_projection = rand(Net.N,1); % projection of input to RNN units - overwritten when rotating
 pars.N=200;
-pars.rampTimeMax = 1000; % time of maximum value
-
+pars.rampTimeMax = 1000; % time of maximum 
 
 % spontaneous input?
 pars.I_background = 0.1;
@@ -42,5 +41,3 @@ pars.nPCs = 5;      % how many PCs of output to compute distances on
 %% common analysis parameters
 pars.epsilon = 1e-6;  % threshold for "no change"
 
-% threshold (percentil) to define recurrence of trajectories
-pars.threshold_rec=20;

@@ -37,16 +37,18 @@ max_sep=nan(Ndir*Nbins,1);
 M1=nan(Ndir*Nbins,1);
 t_from_new=nan(numel(Areas),1);
 t_upto_new=nan(numel(Areas),Nbins);
+ms=1000; %to convert from s to ms
+
 
 figure(fig1)
 for i_area=1:numel(Areas)
     Area=Areas{i_area};
     session=Sessions{i_area};
     
-    load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','t_from','t_upto','dur_bin_start')
+    load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','t_from','t_upto','edges_dur_bin')
     
     if i_area==1
-    plot_trajectories_prep_exec_after(score(idx_duration==1,:),idx_dir(idx_duration==1),t_from,dur_bin_start)
+    plot_trajectories_prep_exec_after(score(idx_duration==1,:),idx_dir(idx_duration==1),t_from,edges_dur_bin(1:Nbins))
     end
     
     if strcmp(Area,'M1')
@@ -63,7 +65,7 @@ for i_area=1:numel(Areas)
         score2=score(idx_duration==i_bin,:);
         
         %% Compute distace between trajectories
-        segment_length=round((t_upto(i_bin)-t_from)*1000);
+        segment_length=round((t_upto(i_bin)-t_from)*ms);
         distances=zeros(Ndir,Ndir,segment_length);
         for i=1:Ndir
             for j=1:Ndir
@@ -88,21 +90,23 @@ for i_area=1:numel(Areas)
             all_distances_time(i,:)=squeeze(mean(distances(i,dirs,:),2))./max_distance;
         end
 
-        [~,idx_prep]=min(mean(all_distances_time(:,1:round(-t_from*1000))));
-        [~,idx_max]=max(mean(all_distances_time(:,1:round(-t_from*1000))));
-        [~,idx_mov]=min(mean(all_distances_time(:,round(-t_from*1000)+1:end)));
+        [~,idx_prep]=min(mean(all_distances_time(:,1:round(-t_from*ms))));
+        [~,idx_max]=max(mean(all_distances_time(:,1:round(-t_from*ms))));
+        [~,idx_mov]=min(mean(all_distances_time(:,round(-t_from*ms)+1:end)));
         
-        start(counter)=(idx_prep+t_from*1000)/1000;
-        endt(counter)=(idx_mov-dur_bin_start(i_bin)*1000-100)/1000;
-        max_sep(counter)=(idx_max+t_from*1000)/1000;  
-        t1_tmp(i_bin)=(idx_prep+t_from*1000)/1000;
-        t2_tmp(i_bin)=(idx_mov-dur_bin_start(i_bin)*1000-100)/1000;
+        binsize=edges_dur_bin(2)-edges_dur_bin(1);
+        
+        start(counter)=(idx_prep+t_from*ms)/ms;
+        endt(counter)=(idx_mov-edges_dur_bin(i_bin)*ms-binsize*ms)/ms;
+        max_sep(counter)=(idx_max+t_from*ms)/ms;  
+        t1_tmp(i_bin)=(idx_prep+t_from*ms)/ms;
+        t2_tmp(i_bin)=(idx_mov-edges_dur_bin(i_bin)*ms-binsize)/ms;
         
         M1(counter)=strcmp(Areas{i_area},'M1');
         %% Plots!!
         % distance across directions
         subplot(2,6,5:6)
-        plot(t_from*1000:round(t_upto(i_bin)*1000-1),mean(all_distances_time),'Color',colourArea)
+        plot(t_from*ms:round(t_upto(i_bin)*ms-1),mean(all_distances_time),'Color',colourArea)
         hold on
         
         subplot(2,6,10)
@@ -131,7 +135,7 @@ for i_area=1:numel(Areas)
     end
     
    t_from_new(i_area)=round(mean(t1_tmp),3);
-   t_upto_new(i_area,:)=max(round(mean(t2_tmp),3),0)+dur_bin_start+0.1;
+   t_upto_new(i_area,:)=max(round(mean(t2_tmp),3),0)+edges_dur_bin(1:Nbins)+binsize;
    
 end
 

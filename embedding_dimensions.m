@@ -1,4 +1,4 @@
-function [variance,mov_distance,mov_duration,max_speed]=embedding_dimensions(Session, Area,Ndir,Nbins,t_from,t_upto,dur_bin_start,do_plot)
+function [variance,mov_distance,mov_duration,max_speed]=embedding_dimensions(Session, Area,Ndir,Nbins,t_from,t_upto,edges_dur_bin,do_plot)
 %% embedding_dimensions performs PCA on the neural data from Session and
 %% Area binning the movements into Ndir directions and Nbins durations
 % This function also saves the PCA results on a file for later analyses
@@ -71,11 +71,12 @@ nsamples_condition=zeros(Ndir,Nbins);
 mov_distance=cell(Nbins,1);
 mov_duration=cell(Nbins,1);
 max_speed=cell(Nbins,1);
-t_upto=dur_bin_start+0.1+t_upto;
+dur_binsize=(edges_dur_bin(2)-edges_dur_bin(1));
+t_upto=edges_dur_bin(1:Nbins)+dur_binsize+t_upto;
 
 
 for i_dur=1:Nbins
-    from_to=[dur_bin_start(i_dur) dur_bin_start(i_dur)+0.1]; % select movements in this range of duration only
+    from_to=[edges_dur_bin(i_dur) edges_dur_bin(i_dur+1)]; % select movements in this range of duration only
     
     
     [Neural_info,Mov_params]=neural_data_per_duration(cont,trial_table2,neural_data,sigma_filter,t_from,t_upto(i_dur),from_to);
@@ -111,7 +112,7 @@ for i_dur=1:Nbins
             idx_duration=[idx_duration;zeros(round((t_upto(i_dur)-t_from)*1000),1)+i_dur];
             
         else
-            disp([Sessio ' ' Area ' direction = ' num2str(i_dir) ' has less than 2 samples'])
+            disp([Session ' ' Area ' direction = ' num2str(i_dir) ' has less than 2 samples'])
             keyboard
         end
         
@@ -169,5 +170,5 @@ if do_plot
     
     
 end
-save(['../Output_files/PCA_' Session(1:end-4) '_' Area '.mat'],'coeffs','score','idx_dir','idx_duration','variance','dur_bin_start','sigma_filter','nsamples_condition','delete_units','normalisation','mean_norm','t_from','t_upto')
+save(['../Output_files/PCA_' Session(1:end-4) '_' Area '.mat'],'coeffs','score','idx_dir','idx_duration','variance','edges_dur_bin','sigma_filter','nsamples_condition','delete_units','normalisation','mean_norm','t_from','t_upto')
 end

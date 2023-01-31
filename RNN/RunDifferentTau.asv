@@ -1,34 +1,25 @@
-function RunDifferentTau(InputRange)
-%% Function to test MCtx RNN SOC model response to variation in time constant of the RNN
+function RunDifferentTau
+%% Script to test MCtx RNN SOC model response to variation in time constant of the RNN
 % Current version: Changing the tau of the RNN temporally scale the
 % trajectories preserving their shape.
-%
-% INPUT
-% 
-% InputRange: range of parameters of the vector input
-%
-% Note: to modify any other parameter, edit MCtx_RNN_SOC_common_parameters
-%
 % 31/01/2023
 % Mark Humphries
 % Andrea Colins Rodriguez
 
-clearvars -except InputRange
+clearvars
 
 run MCtx_RNN_SOC_common_parameters
 
-% parameters of the vector input
-pars.range = InputRange;
 
 %% parameters unqiue to this set of simulations
+pars.rampTimeMax = 1000;
 pars.Tmax = pars.duration(1) + pars.rampTimeMax + max(pars.ts)/pars.dt*10; % set same max duration, to cope with longest ramp
 
 ts=[0.8 1 1.2]*pars.ts; % select values of tau to evaluate
 
 plot_traj_upto=2350;
-
+pars.threshold_rec=20;
 tSteps = round(pars.Tmax ./ pars.dt);   % how many time-steps
-
 Ndir=10;
 
 % storage
@@ -191,9 +182,9 @@ for iAngle = 1:numel(pars.angle)
 end
 
 subplot(2,3,5)
-errorbar(angle_diff*180/pi,mean(distance_shifted),std(distance_shifted),'k','LineWidth',2)
+errorbar(angle_diff*,mean(distance_shifted),std(distance_shifted),'k','LineWidth',2)
 box off
-xlabel('Angle between input vectors [^o]')
+xlabel('Angle between input vectors (radians)')
 ylabel('Mean distance between projections')
-xlim([-180 180])
+xlim([-pi pi])
 end
