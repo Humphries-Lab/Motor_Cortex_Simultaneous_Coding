@@ -1,5 +1,4 @@
 %% Script to reproduce the results of the paper
-tic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Note: A few sessions contain simultaneous recordings from M1 and PMd.
 %
@@ -19,7 +18,6 @@ close all
 clearvars
 addpath(genpath('../'))
 mkdir('../Output_files')
-tic
 %% Define recordings to analyse
 
 session={'MC_S1_raw.mat','MC_S2_raw.mat','MC_S3_raw.mat','MC_S4_raw.mat',...
@@ -85,8 +83,9 @@ recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 4
+warning('off','stats:pca:ColRankDefX') % do not show the warning "Columns of X are linearly dependent to within machine precision."
 decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep)
-
+warning('on','stats:pca:ColRankDefX') % back on
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 5
 do_plot_supp=1;
@@ -106,4 +105,3 @@ RunDifferentTau(InputRange)
 InputRange=[0,1];
 RunDifferentTau(InputRange)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-toc
