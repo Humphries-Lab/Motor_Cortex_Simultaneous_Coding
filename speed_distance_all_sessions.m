@@ -1,8 +1,8 @@
 function speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 %% speed_distance_all_sessions compares the distance between
-%% trajectories corresponding to movement with different speed (same
+%% trajectories corresponding to movements with different speeds (same
 %% direction and distance) and movemements of adjacent bin directions (same speed)
-%% It then repeats the process for distance (same speed) vs directions 
+%% It then repeats the process for movement distance (same speed) vs directions 
 %
 % INPUTS
 %
@@ -15,7 +15,7 @@ function speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 % 
 % threshold: percentage of the variance to be explained by the first nPCs
 %
-% Ndir: number of direction to bin the movements
+% Ndir: number of directions to bin the movements
 %
 % t_from: start time of the neural activity relative to movement onset for all recordings[S]
 % e.g t_from=[-0.5 -0.5]

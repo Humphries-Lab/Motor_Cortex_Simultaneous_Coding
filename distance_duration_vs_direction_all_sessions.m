@@ -1,7 +1,7 @@
-function p=distance_duration_vs_direction_all_sessions(Sessions,Areas,threshold,Nbins,do_plot_supp)
+function distance_duration_vs_direction_all_sessions(Sessions,Areas,threshold,Ndir,Nbins,do_plot_supp)
 %% distance_duration_vs_direction_all_sessions compares the distance between
 %% trajectories corresponding to different movement durations (same
-%% direction) and movemements of adjacent bin directions (same duration)
+%% direction) and movements of adjacent bin directions (same duration)
 %
 % INPUTS
 %
@@ -19,11 +19,7 @@ function p=distance_duration_vs_direction_all_sessions(Sessions,Areas,threshold,
 % do_plot_supp: 1- plots example trajectories of different durations and
 % same direction for 1 recording 
 %               0- omits the plot above
-% 
-% OUTPUTS
-% p: p-values of the Delta distance (distances between trajectories of
-% adjacent direction bins- distance between trajectories of same duration)
-% for all recordings 
+%
 % 24/05/2023
 % Andrea Colins Rodriguez
 
@@ -35,10 +31,15 @@ normalised_t=linspace(0,1,final_length);
 Nsessions=numel(Sessions);
 p=zeros(1,Nsessions);
 pR2=zeros(1,Nsessions);
+R2_same=zeros(1,Nsessions);
+R2_other_dir=zeros(1,Nsessions);
+if do_plot_supp
 fig1=figure;
+end
 fig2=figure;
-Hdist=[];
-Hdur=[];
+Ncomb_total=Nbins*(Nbins-1)*2*Ndir;
+Hdist=nan(Nsessions*Ncomb_total,1);
+Hdur=nan(Nsessions*Ncomb_total,1);
 for isession=1:Nsessions
     
     Area=Areas{isession};
@@ -116,16 +117,16 @@ for isession=1:Nsessions
         colourArea=[89 156 153]./256;
     end
     
-    [R2_same,SIstd,SI_same]=R_same(score,idx_dir,idx_duration,ndim(isession),normalised_t);
-    [R2_other_dir,SI2std,SIallother]=R2_other(score,idx_dir,idx_duration,ndim(isession),normalised_t);
+    [R2_same(isession),SIstd,SI_same]=R_same(score,idx_dir,idx_duration,ndim(isession),normalised_t);
+    [R2_other_dir(isession),SI2std,SIallother]=R2_other(score,idx_dir,idx_duration,ndim(isession),normalised_t);
 
     [~,pR2(isession)]=ttest2(SI_same,SIallother);
     
     figure(fig2)
     subplot(2,3,1)
-    errorbar(isession,R2_same,SIstd,'.','Color',colourArea)
+    errorbar(isession,R2_same(isession),SIstd,'.','Color',colourArea)
     hold on
-    errorbar(isession,R2_other_dir,SI2std,'.','Color',[0.5 0.5 0.5])
+    errorbar(isession,R2_other_dir(isession),SI2std,'.','Color',[0.5 0.5 0.5])
     
     
     
@@ -137,8 +138,8 @@ for isession=1:Nsessions
     [~,Delta_distances,Hdist_tmp,Hdur_tmp]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim(isession),1,colourArea,nsamples_condition);
     %% add a plot with the histogram for each axis
     
-    Hdist=[Hdist;Hdist_tmp];
-    Hdur=[Hdur;Hdur_tmp];
+    Hdist((isession-1)*Ncomb_total+1:isession*Ncomb_total)=Hdist_tmp;
+    Hdur((isession-1)*Ncomb_total+1:isession*Ncomb_total)=Hdur_tmp;
     
     
    [~,p(isession)]=ttest(Delta_distances);
@@ -154,7 +155,6 @@ plot([0 Nsessions],[0 0],'Color',[0.5 0.5 0.5])
 box off
 ylabel('R^2')
 xlabel('Recording number')
-
 text(1,0.9,['mean = ' num2str(mean(R2_same),2)],'FontSize',8)
 text(1,-1,['mean = ' num2str(mean(R2_other_dir),2)],'FontSize',8)
 text(1, 0, ['Max p-value = ' num2str(max(pR2),2)],'FontSize',8)
@@ -173,160 +173,14 @@ xlim([0 0.025])
 ylim([0 0.025])
 
 axes('Position',[0.41,0.93,0.21,0.041]);
-histogram(Hdist,0:0.001:0.025,'Normalization','probability')
+histogram(Hdur,0:0.001:0.025,'Normalization','probability')
 xlim([0 0.025])
 box off
 
 axes('Position',[0.63,0.58,0.028,0.338]);
-histogram(Hdur,0:0.001:0.025,'Normalization','probability','orientation','horizontal')
+histogram(Hdist,0:0.001:0.025,'Normalization','probability','orientation','horizontal')
 ylim([0 0.025])
 box off
-end
-
-function [total_fraction,Delta_distances,All_dist_dir,All_dist_dur]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim,do_plot,ColourArea,nsamples_condition)
-%% Test_distance_between_trajectories calculates the Hausdorff distance between
-%% trajectories of different durations and different directions
-%
-% INPUTS
-%
-% score: Projection of the neural activity into the subspace. Rows are
-% samples, columns are neurons
-% 
-% idx_dir: array containing the direction bin of each row in the score
-% matrix
-% 
-% idx_duration: array containing the duration bin of each row in the score
-% matrix
-%
-% ndim: number of dimensions of the trajectories
-%
-% do_plot: 1- plots distance between trajectories of different durations vs
-%             distance between trajectories from adjacent direction bins (same
-%             duration).
-%          0- omits the plot above
-%
-% ColourArea: Colour of the dots for the plot above. 
-% 
-% OUTPUTS
-%
-% total_fraction: fraction of trajectories from same duration that are
-% closer than trajectories of adjacent bins
-%
-% Delta_distances: difference between distance between trajectories of adjacent direction bins and
-% trajectories of same duration.
-%
-% All_dist_dir: Distance between trajectories of same duration and
-% adjacent direction bins
-%
-% All_dist_dur:Distance between trajectories of same direction and
-% different duration
-%
-% 27/05/2023
-% Andrea Colins Rodriguez
-
-Ndir=max(idx_dir);
-Nbins=max(idx_duration);
-Hdist_dir=zeros(Ndir,Ndir,Nbins);
-Hdist_dur=nan(Ndir,factorial(Nbins-1));
-nsamp=nan(Ndir,factorial(Nbins-1));
-%idx_others=1:Ndir;
-%idx_others(round(Ndir/2))=[];
-
-%% calculate distance between trajectories with same direction but different durations
-for i_dir=1:Ndir
-    counter=1;
-    
-    for i_bin=1:Nbins-1
-        idx1=idx_dir==i_dir & idx_duration==i_bin;
-        for j_bin=i_bin+1:Nbins
-            idx2=idx_dir==i_dir & idx_duration==j_bin;
-            %% distance between trajectories
-            recurrence=pdist2(score(idx1,1:ndim),score(idx2,1:ndim));
-            
-            Hdist_dur(i_dir,counter)=max([min(recurrence),min(recurrence,[],2)']);
-            nsamp(i_dir,counter)=min(nsamples_condition(i_dir,i_bin),nsamples_condition(i_dir,j_bin));
-            counter=counter+1;
-        end
-    end
-end
-
-
-% if do_plot
-%     subplot(3,3,1)
-%     hold on
-%     Delta_ms=[100 200 300];
-%     Delta100=Hdist_dur(:,[1 4 6]);
-%     Delta200=Hdist_dur(:,[2 5]);
-%     Delta300=Hdist_dur(:,3);
-%     HausdorffD_mean=[mean(Delta100(:)) mean(Delta200(:)) mean(Delta300(:))];
-%     HausdorffD_SD=[std(Delta100(:)) std(Delta200(:)) std(Delta300(:))];
-%     %[hdelta200,pdelta200]=ttest2(Delta100(:),Delta300(:),'Vartype','unequal');
-%     [hdelta100,pdelta100]=ttest2(Delta100(:),Delta200(:),'alpha',0.025);
-%     [hdelta100b,pdelta100]=ttest2(Delta200(:),Delta300(:),'alpha',0.025);
-%     hdelta200=hdelta100 & hdelta100b;
-%     errorbar(Delta_ms,HausdorffD_mean,HausdorffD_SD,'Color',ColourArea)
-%     %plot(Delta_dur,mean(Hdist_dur)','Color',ColourArea)
-%     box off
-%     xlabel('Delta dur')
-%     ylabel('H Distance')
-% end
-
-%% Calculate distance between trajectories with duration but different directions
-Delta_distances=[];
-counter_points_above=[];
-All_dist_dur=[];
-All_dist_dir=[];
-
-for i_bin=1:Nbins
-    
-    for i_dir=1:Ndir
-        idx1=(idx_dir==i_dir & idx_duration==i_bin);
-        for j_dir=1:Ndir
-            idx2=(idx_dir==j_dir & idx_duration==i_bin);
-            recurrence=pdist2(score(idx1,1:ndim),score(idx2,1:ndim));
-            Hdist_dir(i_dir,j_dir,i_bin)=max([min(recurrence),min(recurrence,[],2)']);
-        end
-        
-        tmp=circshift(Hdist_dir(i_dir,:,i_bin),round(Ndir/2)-i_dir);
-        
-        counter_points_above=[counter_points_above, tmp(Ndir/2-1)>Hdist_dur(i_dir,:) ,tmp(Ndir/2+1)>Hdist_dur(i_dir,:)];
-        Delta_distances=[Delta_distances,tmp(Ndir/2-1)-Hdist_dur(i_dir,:),tmp(Ndir/2+1)-Hdist_dur(i_dir,:)];
-        All_dist_dur=[All_dist_dur;Hdist_dur(i_dir,:)';Hdist_dur(i_dir,:)'];
-        All_dist_dir=[All_dist_dir;ones(size(Hdist_dur,2),1)*tmp(Ndir/2-1);ones(size(Hdist_dur,2),1)*tmp(Ndir/2+1)];
-        
-        if do_plot
-            
-            subplot(2,3,2)
-            hold on
-            
-            transparency=nsamp./max(nsamp(:));
-            
-            for iplot=1:size(Hdist_dur,2)
-                s=scatter(Hdist_dur(i_dir,iplot),tmp(Ndir/2-1),8,ColourArea,'filled');
-                alpha(s,transparency(i_dir,iplot))
-                s=scatter(Hdist_dur(i_dir,iplot),tmp(Ndir/2+1),8,ColourArea,'filled');
-                alpha(s,transparency(i_dir,iplot))
-                
-            end
-        end
-    end
-    
-end
-
-total_fraction=sum(counter_points_above)/sum(~isnan(counter_points_above(:)));
-
-if do_plot
-    subplot(2,3,2)
-    plot([0 0.02],[0 0.02],'r')
-    errorbar(mean(All_dist_dur),mean(All_dist_dir),std(All_dist_dir),'.k');
-    errorbar(mean(All_dist_dur),mean(All_dist_dir),std(All_dist_dur),'horizontal','.k');
-    
-    box off
-    xlabel('Distance durations')
-    ylabel('Distance direction')
-    
-end
-
 end
 
 
@@ -439,7 +293,6 @@ SIall=R2_other_dir(:);
 SIstd=std(R2_other_dir(:))/sqrt(numel(R2_other_dir));
 R2_other_dir=nanmean(R2_other_dir(:));
 end
-
 
 function R2_scaled=scaled_TR_R2(X,Y,normalised_t)
 %% scaled_TR_R2 scales trajectories X and Y to a normalised_t lenght and

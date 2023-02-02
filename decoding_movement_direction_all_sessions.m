@@ -1,5 +1,5 @@
 function decoding_movement_direction_all_sessions(Sessions,Areas,threshold,Ndir,k_fold,Nrep)
-%% decoding_movement_direction_all_sessions predicts the movement direction bin and angle from the neural activity
+%% decoding_movement_direction_all_sessions predicts the movement direction bin and angle from the preparatory neural activity
 %
 % INPUTS
 %
@@ -12,16 +12,13 @@ function decoding_movement_direction_all_sessions(Sessions,Areas,threshold,Ndir,
 %
 % threshold: percentage of the variance to be explained by the first nPCs
 %
-% Ndir: number of direction to bin the movements
+% Ndir: number of directions to bin the movements
 %
 % k_fold: number of folds for Cross-Validation (CV)
 %
-% nrep: Number of repetitions of CV
+% Nrep: Number of repetitions of CV
 %
-% shuffle: 1- shuffle the labels/direction bins
-%          0- don't shuffle
-%
-%% 24/05/2023
+% 24/05/2023
 % Andrea Colins Rodriguez
 
 %% Overview

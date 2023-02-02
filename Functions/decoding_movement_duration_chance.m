@@ -1,7 +1,7 @@
 function error_by_dir_shift=decoding_movement_duration_chance(score,idx_dir,idx_duration,ref_bin,Ndim)
 %% decoding_movement_duration_chance predicts the duration of trajectories in score using as reference the trajectory of duration bin ref_bin
 % The output of this function is a matrix of the prediction error when the
-% eferece and sample trajectories are different. 
+% reference and sample trajectories are different. 
 %
 % INPUTS
 %
@@ -14,7 +14,7 @@ function error_by_dir_shift=decoding_movement_duration_chance(score,idx_dir,idx_
 % idx_duration: array containing the duration bin of each row in the score
 % matrix
 %
-% ref_bin: number of the duration bin used as reference
+% ref_bin: number of the duration bin to be used as reference
 %
 % Ndim: number of dimensions of the trajectories
 %
@@ -22,9 +22,9 @@ function error_by_dir_shift=decoding_movement_duration_chance(score,idx_dir,idx_
 % OUTPUTS
 %
 % error_by_dir_shift: Matrix containing the prediction error for all test
-% trajectories [ms]. Rows are directions shifted so that middle row
-% corresponds to 0 angle difference and first and end rows are the most
-% distant direction bins (~-+180\^o). Columns are the number of comparisons
+% trajectories [ms]. Rows are directions shifted so that the middle row
+% corresponds to ~0 angle difference and the first and end rows are the most
+% distant direction bins (~-+180^o). Columns are the number of comparisons
 % made (Ntest_bins*Ndir).
 %
 %

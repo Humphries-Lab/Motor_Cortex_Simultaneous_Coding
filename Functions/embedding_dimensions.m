@@ -1,4 +1,4 @@
-function [variance,mov_distance,mov_duration,max_speed]=embedding_dimensions(Session, Area,Ndir,Nbins,t_from,t_upto,edges_dur_bin,do_plot)
+function [variance,mov_distance,mov_duration,max_speed]=embedding_dimensions(Session,Area,Ndir,Nbins,t_from,t_upto,edges_dur_bin,do_plot)
 %% embedding_dimensions performs PCA on the neural data from Session and
 %% Area binning the movements into Ndir directions and Nbins durations
 % This function also saves the PCA results on a file for later analyses
@@ -21,7 +21,7 @@ function [variance,mov_distance,mov_duration,max_speed]=embedding_dimensions(Ses
 % t_upto: end time of the neural activity relative to movement end [S]
 % e.g t_from=0.3
 %
-% dur_bin_start= minimum duration of each duration bin [S]
+% edges_dur_bin= array containing the edges of each duration bin [S]
 %
 % do_plot= 1- plots the average FR of the population for each duration bin
 %             and the PCA trajectories for the first duration bin
@@ -47,6 +47,7 @@ function [variance,mov_distance,mov_duration,max_speed]=embedding_dimensions(Ses
 if do_plot
     figure
     colour_dir=hsv(Ndir);
+    colour_plasma=plasma(Nbins);
 end
 load(Session,Area,'trial_table2','cont')
 startt=trial_table2(1,1);
@@ -59,13 +60,7 @@ else
 end
 
 ISI=compute_ISI(neural_data,startt,endt);
-sigma_filter=round(median(ISI)); %round(ms*sqrt(12))
-
-
-average_cond=[];
-idx_dir=[];
-idx_duration=[];
-colour_plasma=plasma(Nbins);
+sigma_filter=round(median(ISI)); 
 
 nsamples_condition=zeros(Ndir,Nbins);
 mov_distance=cell(Nbins,1);
@@ -73,19 +68,23 @@ mov_duration=cell(Nbins,1);
 max_speed=cell(Nbins,1);
 dur_binsize=(edges_dur_bin(2)-edges_dur_bin(1));
 t_upto=edges_dur_bin(1:Nbins)+dur_binsize+t_upto;
+total_time_bins=sum(round((t_upto-t_from)*1000))*Ndir;
 
-
+average_cond=nan(size(neural_data,2),total_time_bins);
+idx_dir=nan(total_time_bins,1);
+idx_duration=nan(total_time_bins,1);
+counter=0;
+% Extract movements and related neural activity for eac duration bin
 for i_dur=1:Nbins
-    from_to=[edges_dur_bin(i_dur) edges_dur_bin(i_dur+1)]; % select movements in this range of duration only
     
+    current_dur_bin=[edges_dur_bin(i_dur) edges_dur_bin(i_dur+1)]; % select movements in this range of duration only
     
-    [Neural_info,Mov_params]=neural_data_per_duration(cont,trial_table2,neural_data,sigma_filter,t_from,t_upto(i_dur),from_to);
+    [Neural_info,Mov_params]=neural_data_per_duration(cont,trial_table2,neural_data,sigma_filter,t_from,t_upto(i_dur),current_dur_bin);
+    
     %Save Mov params for later analyses
     mov_distance{i_dur}=Mov_params.distance;
     mov_duration{i_dur}=Mov_params.duration;
     max_speed{i_dur}=Mov_params.max_speed;
-    
-    
     
     
     % bin by direction
@@ -107,10 +106,12 @@ for i_dur=1:Nbins
     for i_dir=1:Ndir
         nsamples_condition(i_dir,i_dur)=sum(direction1==i_dir);
         if nsamples_condition(i_dir,i_dur)>=2
-            average_cond=[average_cond,mean(Neural_info.FR(:,:,direction1==i_dir),3)];
-            idx_dir=[idx_dir;zeros(round((t_upto(i_dur)-t_from)*1000),1)+i_dir];
-            idx_duration=[idx_duration;zeros(round((t_upto(i_dur)-t_from)*1000),1)+i_dur];
-            
+            timebins=round((t_upto(i_dur)-t_from)*1000);
+            average_cond(:,counter+1:counter+timebins)=mean(Neural_info.FR(:,:,direction1==i_dir),3);
+            idx_dir(counter+1:counter+timebins)=zeros(timebins,1)+i_dir;
+            idx_duration(counter+1:counter+timebins)=zeros(timebins,1)+i_dur;
+
+            counter=counter+timebins;
         else
             disp([Session ' ' Area ' direction = ' num2str(i_dir) ' has less than 2 samples'])
             keyboard

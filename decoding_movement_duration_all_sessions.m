@@ -1,5 +1,7 @@
 function decoding_movement_duration_all_sessions(Sessions,Areas,Ndir,Nbins)
-%% INPUTS
+%% decoding_movement_duration_all_sessions predicts the duration of the neural trajectories of each recordings based on their relative speed to a reference trajectory
+%
+% INPUTS
 %
 % Sessions: cell array containing the names of the sessions to be analysed.
 % e.g {'MC_S1_raw.mat','MC_S2_raw.mat'}
@@ -8,7 +10,7 @@ function decoding_movement_duration_all_sessions(Sessions,Areas,Ndir,Nbins)
 % each session. Areas and Sessions must have the same number of elements.
 % e.g {'M1','M1'}
 % 
-% Ndir: number of direction to bin the movements
+% Ndir: number of directions to bin the movements
 %
 % Nbins: number of durations to bin the movements
 %
@@ -82,7 +84,7 @@ xlim([traj_length_M1(1)-100 traj_length_PMd(end)+100])
 
 
 %% shuffle test: Shuffle direction label to test how breaking the hypothesis of geometry changes the results
-% aim: produce a plot that shows difference in movement angle vs error of
+% aim: to produce a plot that shows the difference in movement angle vs error of
 % decoding
 clear error_duration_tmp
 angle_diff=linspace(0,360,Ndir+1)-180;

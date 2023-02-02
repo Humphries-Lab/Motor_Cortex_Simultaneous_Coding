@@ -1,16 +1,51 @@
-function [Acc_per_cv,error_angle,error_angle_bin]=decoding_movement_direction(selected_class,selected_angle,selected_neural,threshold,colour_dir,k_fold,Nrep,shuffle,do_plot)
-Ndir=max(selected_class);
+function [Acc_per_cv,error_angle,error_angle_bin]=decoding_movement_direction(direction,s_angle,neural_activity,threshold,colour_dir,k_fold,Nrep,shuffle,do_plot)
+%% decoding_movement_direction train a Naive Bayes model to decode the movement direction from the preparatory neural activity
+%
+% Model is k-fold cross-validated 
+%
+% INPUTS
+%
+% direction: direction bin of each sample
+%
+% s_angle: movement angle of each sample [rad]
+%
+% neural_activity: matrix containing the firing rate of the population of
+% each sample. Rows are samples, columns are neurons
+%
+% threshold: percentage of the variance to be explained by the first nPCs
+%
+% colour_dir: colour map indicating the colour of each direction
+%
+% k_fold: number of folds for Cross-Validation (CV)
+%
+% Nrep: Number of repetitions of CV
+%
+% shuffle: 1- shuffle the labels/direction bins
+%          0- don't shuffle
+%
+% OUTPUTS
+%
+% Acc_per_cv: matrix containing the accuracy of the predictions for each
+% fold. Rows are folds, columns are repetitions
+%
+% error_angle: % error_angle_bin: difference between angle movement and predicted angle
+% movement (as the summation of all angle vectors weighted by their posterior)
+%
+% error_angle_bin: difference between angle movement and predicted angle
+% movement (as the mean angle of the most likely direction bin)
+% 
+% Andrea Colins Rodriguez
+% 02/02/2023
+
+Ndir=max(direction);
 Acc_per_cv=zeros(k_fold,Nrep);
+
 %% Shuffle test: permute selected_class to estimate change levels
 if shuffle
-    selected_class=selected_class(randperm(numel(selected_class)));
+    direction=direction(randperm(numel(direction)));
 end
 
-%predictedLabels=[];
-% trueLabels=[];
-% predictedThetas=[];
-% trueThetas=[];
-% predictedThetas_bin=[];
+
 trueLabels=nan(50000,1);
 predictedThetas=nan(50000,1);
 trueThetas=nan(50000,1);
@@ -22,12 +57,10 @@ counterend=0;
 for i_rep=1:Nrep
     
     % Partition data (stratify per class)
-    c = cvpartition(selected_class,'KFold',k_fold);
+    c = cvpartition(direction,'KFold',k_fold);
     % preprocess all data
-    average_cond_1=selected_neural./repmat(range(selected_neural)+5,size(selected_neural,1),1);
-    
-    
-    
+    average_cond_1=neural_activity./repmat(range(neural_activity)+5,size(neural_activity,1),1);
+
     Acc_per_fold=zeros(k_fold,1);
     mean_error_iter=zeros(k_fold,1);
     std_error_iter=zeros(k_fold,1);
@@ -39,10 +72,10 @@ for i_rep=1:Nrep
         idx_testing = test(c,k);
         traning_neural=average_cond_1(idx_training,:);
         testing_neural=average_cond_1(idx_testing,:);
-        training_class=selected_class(idx_training);
-        testing_class=selected_class(idx_testing);
-        training_angles=selected_angle(idx_training);
-        testing_angles=selected_angle(idx_testing);
+        training_class=direction(idx_training);
+        testing_class=direction(idx_testing);
+        training_angles=s_angle(idx_training);
+        testing_angles=s_angle(idx_testing);
         xangle_training=zeros(1,Ndir);
         
         for i_dir=1:Ndir
@@ -63,7 +96,7 @@ for i_rep=1:Nrep
                 end
             end
         end
-        %train Naive Bayes
+        % train Naive Bayes
         Mdl = fitcnb(score(:,1:Ndim),training_class);
         
         
@@ -80,12 +113,6 @@ for i_rep=1:Nrep
         predictedThetas_bin(counter:counterend)=angle_bin;
         trueThetas(counter:counterend)=testing_angles;
 
-        %predictedLabels=[predictedLabels;predictedLabels_iter];
-%         trueLabels=[trueLabels;testing_class];
-%         predictedThetas=[predictedThetas;thetas_iter];
-%         predictedThetas_bin=[predictedThetas_bin;angle_bin];
-%         trueThetas=[trueThetas;testing_angles];
-        
         counter=counterend+1;
         
         

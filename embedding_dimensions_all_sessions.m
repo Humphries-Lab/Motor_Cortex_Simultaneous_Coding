@@ -1,5 +1,5 @@
 function embedding_dimensions_all_sessions(Sessions,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,do_plot,plot_supp)
-%% embedding_dimensions_all_sessions calculate the number of embedding dimensions for all recordings denoted by Sessions and Area
+%% embedding_dimensions_all_sessions calculate the number of embedding dimensions for all recordings denoted in Sessions and Area
 %
 % INPUTS
 %
@@ -22,7 +22,7 @@ function embedding_dimensions_all_sessions(Sessions,Area,threshold,Ndir,Nbins,t_
 % t_upto: end time of the neural activity relative to movement end for all recordings [S]
 % e.g t_from=[0.3 0.3]
 %
-% dur_bin_start = minimum duration of each duration bin [S]
+% edges_dur_bin= array containing the edges of each duration bin [S]
 %
 % session_N = Number of the behavioural session associated to Session and
 % Area. There should be as many behavioural sessions as unique names in the
@@ -40,7 +40,7 @@ function embedding_dimensions_all_sessions(Sessions,Area,threshold,Ndir,Nbins,t_
 %
 % plot_supp= 1- plots 1) the variance explained and the number of embedding
 %               dimensions for all recordings and 2) the correlation
-%               between the movements parameters (duration, distance, max speed)
+%               between  the parameters of the movements (duration, distance, max speed)
 %
 %            0- omit the above plot
 %

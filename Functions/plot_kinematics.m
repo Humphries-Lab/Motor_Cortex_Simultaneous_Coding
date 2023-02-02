@@ -1,5 +1,5 @@
 function plot_kinematics(mov_dist,mov_duration,max_speed,Nbins)
-%% plot_kinematics plots the correlation between movement distance,duration and distance
+%% plot_kinematics plots the correlation between movement distance, duration and distance
 %
 % INPUTS
 % mov_dist: a cell array containing Nbins cells. Each cell contains a vector with the

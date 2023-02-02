@@ -1,5 +1,12 @@
 %% Script to reproduce the results of the paper
-tic
+close all
+clearvars
+
+addpath(genpath('../'))
+
+mkdir('../Output_files')
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Note: A few sessions contain simultaneous recordings from M1 and PMd.
 %
@@ -15,11 +22,6 @@ tic
 % recordings from the same behavioural session.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-close all
-clearvars
-addpath(genpath('../'))
-mkdir('../Output_files')
-tic
 %% Define recordings to analyse
 
 session={'MC_S1_raw.mat','MC_S2_raw.mat','MC_S3_raw.mat','MC_S4_raw.mat',...
@@ -62,11 +64,13 @@ t_from=-0.5*ones(1,size(session_N,2));% from 500 ms before mov onset
 t_upto=0.3*ones(1,size(session_N,2)); %movement duration+ 300 ms
 
 plot_traj_all_rec=0; % plot trajectories for all recordings
-plot_supp=0; %Don't plot supplementary yet
+plot_supp=0; %Don't plot supplementary
 
+tic
 embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
+toc
 [new_t_1,new_t_2]=Trajectories_differ_by_dir_all_sessions(session,Area,threshold,Ndir,Nbins);
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% select the neural activity from the selected segments for each area
 
 t_from=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
@@ -76,28 +80,25 @@ plot_supp=1; %plot supplementary
 
 embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 3
 do_plot_supp=1;
 i_bin=1; % plot results for this bin only
 recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
 recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 4
 decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 5
+
 do_plot_supp=1;
-distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
+p=distance_duration_vs_direction_all_sessions(session,Area,threshold,Nbins,do_plot_supp);
 speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 6
 decoding_movement_duration_all_sessions(session,Area,Ndir,Nbins)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% Figure 7
 InputRange=[-1,1];
 RunDifferentTau(InputRange)
@@ -105,5 +106,3 @@ RunDifferentTau(InputRange)
 % for supp figure
 InputRange=[0,1];
 RunDifferentTau(InputRange)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-toc

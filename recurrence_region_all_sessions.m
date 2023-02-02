@@ -1,7 +1,7 @@
 function recurrence_region_all_sessions(Sessions,Areas,threshold,Ndir,Nbins,threshold_dist)
 %% recurrence_region_all_sessions defines a region of recurrence 
-%% for each recordings and checks how mant trajectories are inside this region at each moment in time
-
+%% for each recording and counts how many trajectories are inside this region at each moment in time
+%
 % INPUTS
 %
 % Sessions: cell array containing the names of the sessions to be analysed.
@@ -13,7 +13,7 @@ function recurrence_region_all_sessions(Sessions,Areas,threshold,Ndir,Nbins,thre
 % 
 % threshold: percentage of the variance to be explained by the first nPCs
 %
-% Ndir: number of direction to bin the movements
+% Ndir: number of directions to bin the movements
 %
 % Nbins: number of durations to bin the movements
 %

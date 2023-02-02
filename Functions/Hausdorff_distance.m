@@ -1,6 +1,6 @@
 function [fraction_above,p,Hdist_vel,Hdist]=Hausdorff_distance(score_vel,idx_dir,idx_vel,Ndim,colourArea,nplot)
-%% Hausdorff_distance calculates the Hausdorff distance between trjectories
-%% in score_vel. This function assumes there are only two speed bins. 
+%% Hausdorff_distance calculates the Hausdorff distance between trajectories
+%% in score_vel. This function assumes the data was binned into 2 speeds/distances. 
 %
 % INPUTS
 %
@@ -22,16 +22,16 @@ function [fraction_above,p,Hdist_vel,Hdist]=Hausdorff_distance(score_vel,idx_dir
 %
 % OUTPUTS
 %
-% fraction_above: fraction of trajectories from same speed/distance that are
+% fraction_above: fraction of trajectories from the same speed/distance that are
 % closer than trajectories of adjacent direction bins
 %
-% p: p-value related to the comparison of distance between trajectories of adjacent direction bins and
-% trajectories of same speed/distance. 
+% p: p-value related to the comparison of the distance between trajectories of adjacent direction bins and
+% trajectories of the same speed/distance. 
 %
-% Hdist_vel: Distance between trajectories of same direction and
+% Hdist_vel: Distance between trajectories of the same direction and
 % different speeds
 %
-% Hdist: Distance between trajectories of same speed and
+% Hdist: Distance between trajectories of the same speed and
 % adjacent direction bins
 %
 % 27/05/2023

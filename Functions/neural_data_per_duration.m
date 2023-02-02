@@ -23,11 +23,11 @@ function [Neural_info,Mov_params]=neural_data_per_duration(cont,trial_table2,neu
 % OUTPUTS
 %
 % Neural_info = structure containing the following fields
-%                .FR = [nunits ntimebins n movements] each matrix contain the filtered spike trains for each selected movement.
+%                .FR = [nunits ntimebins n movements] each matrix contains the filtered spike trains for each selected movement.
 %
 % Mov_params = structure containing the following fields
-%                .distance= distance of all selected movement [cm].
-%                .duration = duration of all selected movement [ms].
+%                .distance= distance of all selected movements [cm].
+%                .duration = duration of all selected movements [ms].
 %                .max_distance = maximum speed of all selected movement [cm/s].
 %                .position= x and y coordinates of the origin target [cm].
 %
@@ -36,8 +36,8 @@ function [Neural_info,Mov_params]=neural_data_per_duration(cont,trial_table2,neu
 % Andrea Colins Rodriguez
 
 Ntrial=1:size(trial_table2,1);
-
-ntimebins=round((t_upto-t_from)*1000);
+ms=1000;% to convert to ms or to index
+ntimebins=round((t_upto-t_from)*ms);
 max_n_mov=size(trial_table2,1)*4;
 
 %% preallocate memory
@@ -65,8 +65,8 @@ for i=1:numel(Ntrial)
     
     %reach
     mov_length=trial_table2(Ntrial(i),mov_offset_column)-trial_table2(Ntrial(i),mov_onset_column);
-    ntarget_time=trial_table2(Ntrial(i),mov_onset_column)+t_from-shiftbase/1000;
-    nonset_time=trial_table2(Ntrial(i),mov_onset_column)+t_upto+shiftbase/1000;
+    ntarget_time=trial_table2(Ntrial(i),mov_onset_column)+t_from-shiftbase/ms;
+    nonset_time=trial_table2(Ntrial(i),mov_onset_column)+t_upto+shiftbase/ms;
     
     % For the first movement, define the position of target 0 as the
     % position of the cursor at time of target onset 
@@ -77,8 +77,8 @@ for i=1:numel(Ntrial)
         xfirst=nan;
         yfirst=nan;
     else
-        xfirst= cont.pos(round((trial_table2(Ntrial(i),2)-1)*1000),1);
-        yfirst= cont.pos(round((trial_table2(Ntrial(i),2)-1)*1000),2);
+        xfirst= cont.pos(round((trial_table2(Ntrial(i),2)-1)*ms),1);
+        yfirst= cont.pos(round((trial_table2(Ntrial(i),2)-1)*ms),2);
     end
     
     ntargetx=[xfirst trial_table2(Ntrial(i),targetx_column)];
@@ -101,7 +101,7 @@ for i=1:numel(Ntrial)
                 filt= filter(w,1,sp_matrix,[],2);
                 sp_filtered=filt(:,2*shiftbase+1:end);
                 
-                % spikes and matrix2 should have ntimebins columns
+                % make sure sp_filtered has ntimebins columns
                 if size(sp_filtered,2)<ntimebins
                     sp_filtered=[sp_filtered,sp_filtered(:,end)];
                 elseif size(sp_filtered,2)>ntimebins
@@ -114,8 +114,8 @@ for i=1:numel(Ntrial)
                 Mov_params.position(counter,:)= [ntargetx(target) ntargety(target)];
                 Mov_params.distance(counter)=sqrt((ntargetx(target)-ntargetx(target+1)).^2+ (ntargety(target)-ntargety(target+1)).^2);
                
-                start2=round((startt-t_from+shiftbase/1000-1)*1000);  
-                speed=sqrt(sum(cont.vel(start2:start2+round(mov_length(target)*1000),:).^2,2));
+                start2=round((startt-t_from+shiftbase/ms-1)*ms);  
+                speed=sqrt(sum(cont.vel(start2:start2+round(mov_length(target)*ms),:).^2,2));
                 Mov_params.max_speed(counter)=max(speed);
 
                 % Neural activity 

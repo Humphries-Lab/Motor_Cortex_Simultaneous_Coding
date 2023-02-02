@@ -1,40 +1,59 @@
-function plot_trajectories_prep_exec_after(score,idx_dir,t_1,from)
+function plot_trajectories_prep_exec_after(score,idx_dir,t_from,duration_range)
+%% plot_trajectories_prep_exec_after plots the trajectories corresponding to different directions (of the same duration range) during movement preparation,
+%% movement execution and after movement end
+%
+% INPUTS 
+%
+% score: Projection of the neural activity into the subspace. Rows are
+% samples, columns are neurons
+% 
+% idx_dir: array containing the direction bin of each row in the score_vel
+% matrix
+%
+% t_from: start time of the neural activity relative to movement onset [S]
+%
+% duration_range= range of the durations of the selected movements [S] 
+%
+% 02/02/2023
+% Andrea Colins Rodriguez
+
 Ndir=max(idx_dir);
 colour_dir=hsv(Ndir);
-Nbin=1;
-mov_dur=round((from(Nbin)+0.1+abs(t_1))*1000);
-prep_time=round(abs(t_1)*1000);
+mov_onset=round(abs(t_from)*1000);
+mov_end=round((duration_range(2)+abs(t_from))*1000);
+
+
 for i_dir=1:Ndir
         
         idx=find(idx_dir==i_dir);
        
         subplot(2,6,1)
-        plot(score(idx(1:prep_time),1),score(idx(1:prep_time),2),'Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(1:mov_onset),1),score(idx(1:mov_onset),2),'Color',colour_dir(i_dir,:),'LineWidth',2)
         hold on
-        plot(score(idx(prep_time),1),score(idx(prep_time),2),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(mov_onset),1),score(idx(mov_onset),2),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
         
         subplot(2,6,2)
-        plot(score(idx(prep_time+1:mov_dur),1),score(idx(prep_time+1:mov_dur),2),'Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(mov_onset+1:mov_end),1),score(idx(mov_onset+1:mov_end),2),'Color',colour_dir(i_dir,:),'LineWidth',2)
         hold on
-        plot(score(idx(mov_dur),1),score(idx(mov_dur),2),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(mov_end),1),score(idx(mov_end),2),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
       
         subplot(2,6,3)
-        plot(score(idx(mov_dur+1:end),1),score(idx(mov_dur+1:end),2),'Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(mov_end+1:end),1),score(idx(mov_end+1:end),2),'Color',colour_dir(i_dir,:),'LineWidth',2)
         hold on
         plot(score(idx(end),1),score(idx(end),2),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
         
         subplot(2,6,7)
-        plot(score(idx(1:prep_time),3),score(idx(1:prep_time),4),'Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(1:mov_onset),3),score(idx(1:mov_onset),4),'Color',colour_dir(i_dir,:),'LineWidth',2)
         hold on
-        plot(score(idx(prep_time),3),score(idx(prep_time),4),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(mov_onset),3),score(idx(mov_onset),4),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
       
         subplot(2,6,8)
-        plot(score(idx(prep_time+1:mov_dur),3),score(idx(prep_time+1:mov_dur),4),'Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(mov_onset+1:mov_end),3),score(idx(mov_onset+1:mov_end),4),'Color',colour_dir(i_dir,:),'LineWidth',2)
         hold on
-        plot(score(idx(mov_dur),3),score(idx(mov_dur),4),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(mov_end),3),score(idx(mov_end),4),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
        
         subplot(2,6,9)
-        plot(score(idx(mov_dur+1:end),3),score(idx(mov_dur+1:end),4),'Color',colour_dir(i_dir,:),'LineWidth',2)
+        plot(score(idx(mov_end+1:end),3),score(idx(mov_end+1:end),4),'Color',colour_dir(i_dir,:),'LineWidth',2)
         hold on
         plot(score(idx(end),3),score(idx(end),4),'^','Color',colour_dir(i_dir,:),'LineWidth',2)
        
@@ -88,7 +107,7 @@ ylim([min(score(:,4))-0.001 max(score(:,4))+0.001])
 
 %% legend of colour directions
 colour_dir=hsv(Ndir);
-ax2=polaraxes('Position',[.8 .4 .15 .15],'Box','off');
+polaraxes('Position',[.8 .4 .15 .15],'Box','off');
 thetacolor_axis=(-pi+0.0001:2*pi/Ndir:pi)+pi/Ndir;
 coloraxis=ceil(Ndir*(thetacolor_axis+pi)/(2*pi));
 hold on
@@ -99,5 +118,4 @@ for i=1:numel(thetacolor_axis)
 end
 rticks([0 180])
 thetaticks([0 90 180 270])
-%thetaticklabels({'0' '\pi/2' '\pi' '3\pi/2'})
 end

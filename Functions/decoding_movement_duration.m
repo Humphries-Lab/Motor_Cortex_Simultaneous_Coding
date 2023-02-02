@@ -13,23 +13,23 @@ function [median_total_error,std_error,estimated_duration]=decoding_movement_dur
 % idx_duration: array containing the duration bin of each row in the score
 % matrix
 %
-% ref_bin: number of the duration bin used as reference
+% ref_bin: number of the duration bin to be used as reference
 %
 % Ndim: number of dimensions of the trajectories
 %
-% Nbins: number of durations to bin the movements
+% Nbins: number of durations bins 
 %
 % do_plot: 1- plots the average (across directions of the) time indices of the test trajectories vs the time
-%             indices of the reference trjectories
+%             indices of the reference trajectories
 %          0- omits the plot above
 %
 % OUTPUTS
 % 
 % median_total_error: Median error in the duration prediction across
-% all predicted trajectories duration 
+% all predicted durations
 %
-% std_error: standar deviation of the error in the duration prediction across
-% all predicted trajectories duration 
+% std_error: standard deviation of the error in the duration prediction across
+% all predicted durations
 %
 % estimated_duration: predicted duration for all test trajectories [ms]
 %

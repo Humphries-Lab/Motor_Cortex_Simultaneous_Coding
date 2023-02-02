@@ -12,7 +12,7 @@ function recurrence_all_sessions(Sessions,Areas,threshold,Ndir,i_bin,threshold_d
 % 
 % threshold: percentage of the variance to be explained by the first nPCs
 %
-% Ndir: number of direction to bin the movements
+% Ndir: number of directions to bin the movements
 %
 % i_bin: duration bin to be analysed
 %

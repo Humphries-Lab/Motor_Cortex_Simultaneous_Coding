@@ -10,17 +10,18 @@ function [t_from_new,t_upto_new]=Trajectories_differ_by_dir_all_sessions(Session
 % Areas: cell array containing the names of the areas to be analysed in
 % each session. Areas and Sessions must have the same number of elements.
 % e.g {'M1','M1'}
-% 
+%
 % threshold: percentage of the variance to be explained by the first nPCs
 %
-% Ndir: number of direction to bin the movements
+% Ndir: number of directions to bin the movements
+%
 % Nbins: number of durations to bin the movements
 %
 % OUTPUTS
 %
 % t_from_new= array containing the time at which the trajectories are
 % closest to each other before movement onset. Each element corresponds to
-% the value of each Session 
+% the value of each Session
 %
 % t_upto_new= array containing the time at which the trajectories are
 % closest to each other after the movement ends. Each element corresponds to
@@ -48,7 +49,8 @@ for i_area=1:numel(Areas)
     load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','t_from','t_upto','edges_dur_bin')
     
     if i_area==1
-    plot_trajectories_prep_exec_after(score(idx_duration==1,:),idx_dir(idx_duration==1),t_from,edges_dur_bin(1:Nbins))
+        %plot_trajectories for duration bin =1
+        plot_trajectories_prep_exec_after(score(idx_duration==1,:),idx_dir(idx_duration==1),t_from,edges_dur_bin(1:2))
     end
     
     if strcmp(Area,'M1')
@@ -89,7 +91,7 @@ for i_area=1:numel(Areas)
             dirs(i)=[];
             all_distances_time(i,:)=squeeze(mean(distances(i,dirs,:),2))./max_distance;
         end
-
+        
         [~,idx_prep]=min(mean(all_distances_time(:,1:round(-t_from*ms))));
         [~,idx_max]=max(mean(all_distances_time(:,1:round(-t_from*ms))));
         [~,idx_mov]=min(mean(all_distances_time(:,round(-t_from*ms)+1:end)));
@@ -98,7 +100,7 @@ for i_area=1:numel(Areas)
         
         start(counter)=(idx_prep+t_from*ms)/ms;
         endt(counter)=(idx_mov-edges_dur_bin(i_bin)*ms-binsize*ms)/ms;
-        max_sep(counter)=(idx_max+t_from*ms)/ms;  
+        max_sep(counter)=(idx_max+t_from*ms)/ms;
         t1_tmp(i_bin)=(idx_prep+t_from*ms)/ms;
         t2_tmp(i_bin)=(idx_mov-edges_dur_bin(i_bin)*ms-binsize)/ms;
         
@@ -112,7 +114,7 @@ for i_area=1:numel(Areas)
         subplot(2,6,10)
         plot(~M1(counter)+1,t1_tmp(i_bin) ,'.','Color',colourArea)
         hold on
-               
+        
         subplot(2,6,11)
         plot(~M1(counter)+1,max_sep(counter) ,'.','Color',colourArea)
         hold on
@@ -123,74 +125,79 @@ for i_area=1:numel(Areas)
         
         counter=counter+1;
         
-        if  i_bin==1
+        if  i_bin==2
             subplot(2,6,4)
-            errorbar(angle_diff,mean(all_distances),std(all_distances),'Color',colourArea)
-            xlabel('Angle difference [Degrees]')
-            ylabel('Normalised distance')
             hold on
-            box off
-            clear all_distances all_distances_time
+            errorbar(angle_diff,mean(all_distances),std(all_distances),'Color',colourArea)
+            
+            
         end
+        clear all_distances all_distances_time
     end
     
-   t_from_new(i_area)=round(mean(t1_tmp),3);
-   t_upto_new(i_area,:)=max(round(mean(t2_tmp),3),0)+edges_dur_bin(1:Nbins)+binsize;
-   
+    t_from_new(i_area)=round(mean(t1_tmp),3);
+    t_upto_new(i_area,:)=max(round(mean(t2_tmp),3),0)+edges_dur_bin(1:Nbins)+binsize;
+    
 end
+subplot(2,6,4)
+hold on
+xlabel('Angle difference [Degrees]')
+ylabel('Normalised distance')
+box off
 
-    subplot(2,6,5:6)
-        box off
-        xlabel('Time to movement onset [ms]')
-        ylabel('Average distace to other trajectories')
-        
-        
-    % minimum separation before movement onset
-    subplot(2,6,10)
-    hold on
-    errorbar(1,mean(start(M1==1)),std(start(M1==1)),'Color',[85 30 116]./256)
-    errorbar(2,mean(start(~M1==1)),std(start(M1~=1)),'Color',[89 156 153]./256)
-    box off
-    xlim([0.8  2.2])
-    xticks([1 2])
-    xticklabels({'M1','PMd'})
-    
-    title('Minimum sep before movement onset')
-    ylabel('Time to movement onset [s]')
-    [~,p_start]=ttest2(start(M1==1),start(M1~=1));
-    text(0.9,-0.5,['p-value = ' num2str(p_start,1)],'FontSize',8)
-    text(0.9,-0.4,['Mean M1 = ' num2str(mean(start(M1==1)),2)],'FontSize',8)
-    text(1.4,-0.2,['Mean PMd = ' num2str(mean(start(~M1==1)),2)],'FontSize',8)
-    
-    % maximum separation before movement onset   
-    subplot(2,6,11)
-    errorbar(1,mean(max_sep(M1==1)),std(max_sep(M1==1)),'Color',[85 30 116]./256)
-    errorbar(2,mean(max_sep(~M1==1)),std(max_sep(M1~=1)),'Color',[89 156 153]./256)
-    box off
-    ylabel('Time to movement onset') 
-    title('Time of maximum separation')
-    xlim([0.8  2.2])
-    xticks([1 2])
-    xticklabels({'M1','PMd'})
-    [~,p_max]=ttest2(max_sep(M1==1),max_sep(M1~=1));
-    text(0.9,-0.15,['p-value = ' num2str(p_max,1)],'FontSize',8)
-    text(0.9,-0.12,['Mean M1 = ' num2str(mean(max_sep(M1==1)),2)],'FontSize',8)
-    text(1.4,-0.02,['Mean PMd = ' num2str(mean(max_sep(M1~=1)),2)],'FontSize',8)
 
-    
-    % minimum separation after movement end
-    subplot(2,6,12)
-    errorbar(1,mean(endt(M1==1)),std(endt(M1==1)),'Color',[85 30 116]./256)
-    errorbar(2,mean(endt(M1~=1)),std(endt(M1~=1)),'Color',[89 156 153]./256)  
-    box off
-    xlim([0.8  2.2])
-    xticks([1 2])
-    xticklabels({'M1','PMd'})
-    title('Time of minimum separation after movement end')
-    ylabel('Time to movement end [s]')
-    [~,p_end]=ttest2(endt(M1==1),endt(M1~=1));
-    text(0.9,-0.31,['p-value = ' num2str(p_end,1)],'FontSize',8)
-    text(0.9,-0.2,['Mean M1 = ' num2str(mean(endt(M1==1)),2)],'FontSize',8)
-    text(1.4,0.2,['Mean PMd = ' num2str(mean(endt(M1~=1)),2)],'FontSize',8)
- 
+subplot(2,6,5:6)
+box off
+xlabel('Time to movement onset [ms]')
+ylabel('Average distace to other trajectories')
+
+
+% minimum separation before movement onset
+subplot(2,6,10)
+hold on
+errorbar(1,mean(start(M1==1)),std(start(M1==1)),'Color',[85 30 116]./256)
+errorbar(2,mean(start(~M1==1)),std(start(M1~=1)),'Color',[89 156 153]./256)
+box off
+xlim([0.8  2.2])
+xticks([1 2])
+xticklabels({'M1','PMd'})
+
+title('Minimum sep before movement onset')
+ylabel('Time to movement onset [s]')
+[~,p_start]=ttest2(start(M1==1),start(M1~=1));
+text(0.9,-0.5,['p-value = ' num2str(p_start,1)],'FontSize',8)
+text(0.9,-0.4,['Mean M1 = ' num2str(mean(start(M1==1)),2)],'FontSize',8)
+text(1.4,-0.2,['Mean PMd = ' num2str(mean(start(~M1==1)),2)],'FontSize',8)
+
+% maximum separation before movement onset
+subplot(2,6,11)
+errorbar(1,mean(max_sep(M1==1)),std(max_sep(M1==1)),'Color',[85 30 116]./256)
+errorbar(2,mean(max_sep(~M1==1)),std(max_sep(M1~=1)),'Color',[89 156 153]./256)
+box off
+ylabel('Time to movement onset')
+title('Time of maximum separation')
+xlim([0.8  2.2])
+xticks([1 2])
+xticklabels({'M1','PMd'})
+[~,p_max]=ttest2(max_sep(M1==1),max_sep(M1~=1));
+text(0.9,-0.15,['p-value = ' num2str(p_max,1)],'FontSize',8)
+text(0.9,-0.12,['Mean M1 = ' num2str(mean(max_sep(M1==1)),2)],'FontSize',8)
+text(1.4,-0.02,['Mean PMd = ' num2str(mean(max_sep(M1~=1)),2)],'FontSize',8)
+
+
+% minimum separation after movement end
+subplot(2,6,12)
+errorbar(1,mean(endt(M1==1)),std(endt(M1==1)),'Color',[85 30 116]./256)
+errorbar(2,mean(endt(M1~=1)),std(endt(M1~=1)),'Color',[89 156 153]./256)
+box off
+xlim([0.8  2.2])
+xticks([1 2])
+xticklabels({'M1','PMd'})
+title('Time of minimum separation after movement end')
+ylabel('Time to movement end [s]')
+[~,p_end]=ttest2(endt(M1==1),endt(M1~=1));
+text(0.9,-0.31,['p-value = ' num2str(p_end,1)],'FontSize',8)
+text(0.9,-0.2,['Mean M1 = ' num2str(mean(endt(M1==1)),2)],'FontSize',8)
+text(1.4,0.2,['Mean PMd = ' num2str(mean(endt(M1~=1)),2)],'FontSize',8)
+
 end

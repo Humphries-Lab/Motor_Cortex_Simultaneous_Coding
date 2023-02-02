@@ -1,13 +1,23 @@
 function Behaviour_variability(Session,Area,Ndir,edges_dur_bin)
 %% Behaviour_variability plots the distribution of each movement parameter
-% (Direction, duration, speed and distance)
-
-% Behaviour_variability(Session,Area,Ndir,Nbins) plots the distribution of each movement parameter
-% of the session Session and area Area. 
+% (Direction, duration, speed and distance) in the Session
 % Movements are binned into Ndir directions and Nbins durations
-
+%
+% INPUTS 
+%
+% Session: Name of the session to be analysed.
+% e.g 'MC_S1_raw.mat'
+%
+% Area: Name of the area to be analysed in the Session.
+% e.g 'M1'
+%
+% Ndir: number of directions to bin the movements
+%
+% edges_dur_bin= array containing the edges of each duration bin [S]
+%
+%
 % Example
-% Behaviour_variability('MC_S1_raw.mat','M1',8,4)
+% Behaviour_variability('MC_S1_raw.mat','M1',8,[200 300 400 500 600])
 %
 % 23/01/2023
 % Andrea Colins Rodriguez
@@ -17,8 +27,8 @@ colour_dir=hsv(Ndir);
 colour_dur=plasma(Nbins);
 ms=1000; %to convert from s to ms
 %these parameters are related to the neural activity. They don't really
-%matter for the purpose of the analyses of the behaviour
-sigma_filter=20;% this number doesn't matter because its related to the neural activity, not the behaviour
+%matter for the purpose of the analysis of the behaviour
+sigma_filter=20;
 t_from=-0.5;
 t_upto=0.2;
 

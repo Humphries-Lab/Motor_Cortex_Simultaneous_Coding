@@ -1,4 +1,4 @@
-function [Neural_info,Mov_params]=neural_data_per_duration_normalised(session,Area,sigma_filter,t_from,t_upto,event,duration_range)
+function [Neural_info,Mov_params]=neural_data_per_duration_normalised(Session,Area,sigma_filter,t_from,t_upto,duration_range)
 %% neural_data_per_duration_normalised selects the neural activity and the movement parameters for all movements within the duration range.
 % All neural trajectories are temporally scaled to the same final length 
 %
@@ -16,11 +16,7 @@ function [Neural_info,Mov_params]=neural_data_per_duration_normalised(session,Ar
 % e.g t_from=-0.5
 %
 % t_upto= end time of the neural activity relative to the movement onset [S]
-% e.g t_from=0.6
-%
-% event = Indicates the event to which the neural activity will be aligned
-%         1- Target onset
-%         2- Movement onset
+% e.g t_from=0.3
 %
 % duration_range= range of the durations of the movements [S] that will be
 % selected. e.g [0.2 0.3]
@@ -28,30 +24,26 @@ function [Neural_info,Mov_params]=neural_data_per_duration_normalised(session,Ar
 % OUTPUTS
 %
 % Neural_info = structure containing the following fields
-%                .FR = [nunits ntimebins n movements] each matrix contain the filtered spike trains for each selected movement.
+%                .FR = [nunits ntimebins n movements] each matrix contains the filtered spike trains for each selected movement.
 %
 % Mov_params = structure containing the following fields
-%                .distance= distance of all selected movement [cm].
-%                .duration = duration of all selected movement [ms].
-%                .max_distance = maximum speed of all selected movement [cm/s].
+%                .distance= distance of all selected movements [cm].
+%                .duration = duration of all selected movements [ms].
+%                .max_distance = maximum speed of all selected movements [cm/s].
 %                .position= x and y coordinates of the origin target [cm].
 %
 % 27/01/2023
 % Andrea Colins Rodriguez
 
-load(session,Area,'cont','trial_table2')
+load(Session,Area,'cont','trial_table2')
 if strcmp(Area,'PMd')
     neural_data=PMd.units;
 elseif strcmp(Area,'M1')
     neural_data=M1.units;
 end
 
-
-event_t=event-2;
 Ntrial=1:size(trial_table2,1);
-
-
-Reach_info.trial_idx=[];
+ms=1000; % to convert to ms
 ntimebins=600; %all outputs are scaled to have n timebins
 normalised_t=linspace(0,1,ntimebins);
 max_n_mov=size(trial_table2,1)*4;
@@ -73,11 +65,11 @@ for i=1:numel(Ntrial)
     
     %reach
     mov_length=trial_table2(Ntrial(i),[3 8 13 18]+1)-trial_table2(Ntrial(i),[3 8 13 18]);
-    ntarget_time=trial_table2(Ntrial(i),[3 8 13 18]+event_t)+t_from-shiftbase/1000;
-    nonset_time=trial_table2(Ntrial(i),[3 8 13 18]+1+event_t)+t_upto+shiftbase/1000;
+    ntarget_time=trial_table2(Ntrial(i),[3 8 13 18])+t_from-shiftbase/ms;
+    nonset_time=trial_table2(Ntrial(i),[3 8 13 18]+1)+t_upto+shiftbase/ms;
     
-    movement_init_t=round((trial_table2(Ntrial(i),[3 8 13 18])-1)*1000);
-    movement_end_t=round((trial_table2(Ntrial(i),[3 8 13 18]+1)-1)*1000);
+    movement_init_t=round((trial_table2(Ntrial(i),[3 8 13 18])-1)*ms);
+    movement_end_t=round((trial_table2(Ntrial(i),[3 8 13 18]+1)-1)*ms);
     
     % For the first movement, define the position of target 0 as the
     % position of the cursor at time of target onset
@@ -88,8 +80,8 @@ for i=1:numel(Ntrial)
         xfirst=nan;
         yfirst=nan;
     else
-        xfirst= cont.pos(round((trial_table2(Ntrial(i),2)-1)*1000),1);
-        yfirst= cont.pos(round((trial_table2(Ntrial(i),2)-1)*1000),2);
+        xfirst= cont.pos(round((trial_table2(Ntrial(i),2)-1)*ms),1);
+        yfirst= cont.pos(round((trial_table2(Ntrial(i),2)-1)*ms),2);
     end
     
     ntargetx=[xfirst trial_table2(Ntrial(i),[5 10 15 20])];
