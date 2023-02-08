@@ -37,7 +37,6 @@ threshold_dist=10; %threshold of the distance (theta) for recurrence analyses
 % decoding direction parameters
 k_fold=6; %Number of folds for cross-validation for predicting movement direction
 Nrep=10; %Number of repetitions for cross-validation for predicting movement direction
-shuffle=0; %Perform shuffle of direction labels
 
 edges_dur_bin=(0:Nbins)*dur_bin_size+start_dur_bin; %Movement duration for each bin [S]
 

@@ -32,12 +32,13 @@ function [t_from_new,t_upto_new]=Trajectories_differ_by_dir_all_sessions(Session
 
 fig1=figure;
 counter=1;
-start=nan(Ndir*Nbins,1);
-endt=nan(Ndir*Nbins,1);
-max_sep=nan(Ndir*Nbins,1);
-M1=nan(Ndir*Nbins,1);
-t_from_new=nan(numel(Areas),1);
-t_upto_new=nan(numel(Areas),Nbins);
+Nareas=numel(Areas);
+start=nan(Nareas*Nbins,1);
+endt=nan(Nareas*Nbins,1);
+max_sep=nan(Nareas*Nbins,1);
+M1=nan(Nareas*Nbins,1);
+t_from_new=nan(Nareas,1);
+t_upto_new=nan(Nareas,Nbins);
 ms=1000; %to convert from s to ms
 
 
