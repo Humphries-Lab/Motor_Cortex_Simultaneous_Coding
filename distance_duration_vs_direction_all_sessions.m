@@ -14,6 +14,8 @@ function distance_duration_vs_direction_all_sessions(Sessions,Areas,threshold,Nd
 % 
 % threshold: percentage of the variance to be explained by the first nPCs
 %
+% Ndir: number of directions to bin the movements
+%
 % Nbins: number of durations to bin the movements
 %
 % do_plot_supp: 1- plots example trajectories of different durations and
@@ -30,23 +32,29 @@ final_length=600;
 normalised_t=linspace(0,1,final_length);
 Nsessions=numel(Sessions);
 p=zeros(1,Nsessions);
+pR_noise=nan(Nsessions,1);
 pR2=zeros(1,Nsessions);
 R2_same=zeros(1,Nsessions);
 R2_other_dir=zeros(1,Nsessions);
+mean_r=nan(Nsessions,1);
+fraction_explained=zeros(1,Nsessions);
+
 if do_plot_supp
 fig1=figure;
 end
+
 fig2=figure;
 Ncomb_total=Nbins*(Nbins-1)*2*Ndir;
 Hdist=nan(Nsessions*Ncomb_total,1);
 Hdur=nan(Nsessions*Ncomb_total,1);
+
 for isession=1:Nsessions
     
     Area=Areas{isession};
     session=Sessions{isession};
     
-    load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','nsamples_condition')
-    
+    load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','nsamples_condition','r')
+    Hdist_same=nan(Nbins,Ndir);
     ndim(isession)=find(cumsum(variance)>threshold,1,'First');
     
     %% Plot example trajectories for same direction different durations
@@ -121,21 +129,23 @@ for isession=1:Nsessions
     [R2_other_dir(isession),SI2std,SIallother]=R2_other(score,idx_dir,idx_duration,ndim(isession),normalised_t);
 
     [~,pR2(isession)]=ttest2(SI_same,SIallother);
+    [~,pR_noise(isession)]=ttest2(SI_same,r);
     
     figure(fig2)
     subplot(2,3,1)
     errorbar(isession,R2_same(isession),SIstd,'.','Color',colourArea)
     hold on
     errorbar(isession,R2_other_dir(isession),SI2std,'.','Color',[0.5 0.5 0.5])
-    
-    
+    errorbar(isession,mean(r),std(r)/sqrt(numel(r)),'Color','k')
+    mean_r(isession)=mean(r);
+    fraction_explained(isession)=(R2_same(isession)-R2_other_dir(isession))/(mean(r)-R2_other_dir(isession));
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Test if Hausdorff distance for different durations is shorter than for different directions
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     
-    [~,Delta_distances,Hdist_tmp,Hdur_tmp]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim(isession),1,colourArea,nsamples_condition);
+    [~,Delta_distances,Hdist_tmp,Hdur_tmp,Delta_dist_all_same]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim(isession),1,colourArea,nsamples_condition,Hdist_same);
     %% add a plot with the histogram for each axis
     
     Hdist((isession-1)*Ncomb_total+1:isession*Ncomb_total)=Hdist_tmp;
@@ -143,13 +153,19 @@ for isession=1:Nsessions
     
     
    [~,p(isession)]=ttest(Delta_distances);
-    
-    subplot(2,3,3)
+   %[~,p_delta_distance_same]=ttest(Delta_dist_all_same);
+
+    subplot(2,3,4)
     errorbar(isession,mean(Delta_distances),std(Delta_distances),'.','Color',colourArea)
     hold on
     
+       subplot(2,3,5)
+       hold on
+    errorbar(isession,mean(Delta_dist_all_same),std(Delta_dist_all_same),'.','Color',colourArea)
+    
     clear Delta_distances fraction_above idx_duration idx_dir
 end
+
 subplot(2,3,1)
 plot([0 Nsessions],[0 0],'Color',[0.5 0.5 0.5])
 box off
@@ -158,177 +174,43 @@ xlabel('Recording number')
 text(1,0.9,['mean = ' num2str(mean(R2_same),2)],'FontSize',8)
 text(1,-1,['mean = ' num2str(mean(R2_other_dir),2)],'FontSize',8)
 text(1, 0, ['Max p-value = ' num2str(max(pR2),2)],'FontSize',8)
+text(6,0.8,['mean = ' num2str(mean(mean_r,'omitnan'),2)],'FontSize',8)
+text(7,-1,['% explained = ' num2str(mean(fraction_explained),2)],'FontSize',8)
 
-
-subplot(2,3,3)
+subplot(2,3,4)
 plot([0 Nsessions],[0 0],'Color',[0.5 0.5 0.5])
 box off
 ylabel('\Delta Distance')
 xlabel('Recording')
 text(1,-0.001,['max p-value = ' num2str(max(p),'%.e')])
+ylim([-0.005 0.025])
 
 
 subplot(2,3,2)
 xlim([0 0.025])
 ylim([0 0.025])
+% 
+% subplot(2,3,4)
+% xlim([0 0.025])
+% ylim([0 0.025])
+% plot([0 0.025],[0 0.025],'r')
+% box off
+
+% subplot(2,3,5)
+% plot([0 13],[0 0],'Color',[0.5 0.5 0.5])
+% ylim([0 0.025])
+% ylim([-0.005 0.025])
 
 axes('Position',[0.41,0.93,0.21,0.041]);
 histogram(Hdur,0:0.001:0.025,'Normalization','probability')
 xlim([0 0.025])
 box off
+disp('----------------------------------')
+
+pvalues=table(Sessions',Areas',pR_noise)
 
 axes('Position',[0.63,0.58,0.028,0.338]);
 histogram(Hdist,0:0.001:0.025,'Normalization','probability','orientation','horizontal')
 ylim([0 0.025])
 box off
-end
-
-
-function [R2_same_dir,SIstd,SIall]=R_same(score,idx_dir,idx_duration,ndim,normalised_t)
-%% R2_same calculates the coefficient of determination between trajectories
-%% of same directions
-%
-% INPUTS
-%
-% score: Projection of the neural activity into the subspace. Rows are
-% samples, columns are neurons
-% 
-% idx_dir: array containing the direction bin of each row in the score
-% matrix
-% 
-% idx_duration: array containing the duration bin of each row in the score
-% matrix
-%
-% ndim: number of dimensions of the trajectories
-%
-% normalised_t: vector of timebins to normalise trajectories 
-% 
-% OUTPUTS
-%
-% R2_other_dir: mean coefficient of determination (R2) across all trajectories
-%
-% SIstd: standard error of the mean R2 across all trajectories
-%
-% SIall: array of coefficient of determination (R2) across all trajectories
-%
-% 24/05/2023
-% Andrea Colins Rodriguez
-
-Ndir=max(idx_dir);
-Nbins=max(idx_duration);
-R2_same_dir=zeros(Ndir,Nbins-1);
-
-for i_dir=1:Ndir
-    
-    counter=1;
-    for i_bin=1:Nbins
-        idx=idx_dir==i_dir & idx_duration==i_bin;
-        for j_bin=i_bin+1:max(idx_duration)
-            idx_j=idx_dir==i_dir & idx_duration==j_bin;
-            R2_same_dir(i_dir,counter)=scaled_TR_R2(score(idx,1:ndim),score(idx_j,1:ndim),normalised_t);
-               counter=counter+1;
-        end
-    end
-end
-
-SIall=R2_same_dir(:);
-SIstd=std(R2_same_dir(:))/sqrt(numel(R2_same_dir));
-R2_same_dir=nanmean(R2_same_dir(:));
-
-end
-
-function [R2_other_dir,SIstd,SIall]=R2_other(score,idx_dir,idx_duration,ndim,normalised_t)
-%% R2_other calculates the coefficient of determination between trajectories
-%% of different directions
-%
-% INPUTS
-%
-% score: Projection of the neural activity into the subspace. Rows are
-% samples, columns are neurons
-% 
-% idx_dir: array containing the direction bin of each row in the score
-% matrix
-% 
-% idx_duration: array containing the duration bin of each row in the score
-% matrix
-%
-% ndim: number of dimensions of the trajectories
-%
-% normalised_t: vector of timebins to normalise trajectories 
-% 
-% OUTPUTS
-%
-% R2_other_dir: mean coefficient of determination (R2) across all trajectories
-%
-% SIstd: standard error of the mean R2 across all trajectories
-%
-% SIall: array of coefficient of determination (R2) across all trajectories
-%
-% 24/05/2023
-% Andrea Colins Rodriguez
-
-
-Ndir=max(idx_dir);
-Nbins=max(idx_duration);
-R2_other_dir=zeros(Ndir,Nbins-1);
-
-for i_dir=1:Ndir
-    counter=1;
-    for j_dir=i_dir+1:Ndir
-        
-        for i_bin=1:Nbins
-            idx=idx_dir==i_dir & idx_duration==i_bin;
-            
-            for j_bin=i_bin+1:Nbins
-                idx_j=idx_dir==j_dir & idx_duration==j_bin;
-                
-                R2_other_dir(i_dir,counter)=scaled_TR_R2(score(idx,1:ndim),score(idx_j,1:ndim),normalised_t);
-                counter=counter+1;
-            end
-        end
-    end
-end
-
-SIall=R2_other_dir(:);
-SIstd=std(R2_other_dir(:))/sqrt(numel(R2_other_dir));
-R2_other_dir=nanmean(R2_other_dir(:));
-end
-
-function R2_scaled=scaled_TR_R2(X,Y,normalised_t)
-%% scaled_TR_R2 scales trajectories X and Y to a normalised_t lenght and
-%% computes their coefficient of determination
-% 
-% INPUTS
-%
-% X: n-dimensional trajectory. Rows are times, columns are dimensions 
-%
-% Y: n-dimensional trajectory. Rows are times, columns are dimensions 
-%
-% normalised_t: vector of timebins to normalise trajectories 
-%
-% OUTPUTS
-%
-% SI: Coefficient of determination between the scaled trajectories.
-%
-% 24/05/2023
-% Andrea Colins Rodriguez
-
-%normalise time
-Xtime=linspace(0,1,size(X,1));
-Ytime=linspace(0,1,size(Y,1));
-% interpolate to match all vector lengths
-Xnorm= interp1(Xtime,X,normalised_t);
-Ynorm= interp1(Ytime,Y,normalised_t);
-
-R2_scaled=R2(Xnorm,Ynorm);
-end
-function r=R2(X,Y)
-%% R2 Computes the coefficient of determination between n-dimensional
-%% trajectories X and Y
-X2=reshape(X,numel(X),1);
-Y2=reshape(Y,numel(Y),1);
-ymean=mean(Y2);
-Sres=sum((Y2-X2).^2);
-Stot=sum((Y2-ymean).^2);
-r=1-Sres/Stot;
 end

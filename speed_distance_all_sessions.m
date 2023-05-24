@@ -2,7 +2,7 @@ function speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 %% speed_distance_all_sessions compares the distance between
 %% trajectories corresponding to movements with different speeds (same
 %% direction and distance) and movemements of adjacent bin directions (same speed)
-%% It then repeats the process for movement distance (same speed) vs directions 
+%% It then repeats the process for movement distance (same speed) vs directions
 %
 % INPUTS
 %
@@ -12,7 +12,7 @@ function speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 % Areas: cell array containing the names of the areas to be analysed in
 % each session. Areas and Sessions must have the same number of elements.
 % e.g {'M1','M1'}
-% 
+%
 % threshold: percentage of the variance to be explained by the first nPCs
 %
 % Ndir: number of directions to bin the movements
@@ -37,12 +37,30 @@ Distance_vel=nan(Nsessions,Ndir);
 Distance_dist=nan(Nsessions,Ndir);
 Distance_v_dir=nan(Nsessions,32);
 Distance_d_dir=nan(Nsessions,32);
+do_plot_r2=0;
+
 
 for isession=1:Nsessions
-
-    [fraction_above_vel(isession),p_vel(isession),fraction_above_dist(isession),p_dist(isession),average_speed_bin(isession,:),average_dist_bin(isession,:),Distance_vel(isession,:),Distance_v_dir(isession,:),Distance_dist(isession,:),Distance_d_dir(isession,:)]=speed_distance(session{isession}, Area{isession},threshold,Ndir,t_from(isession),t_upto(isession));
-
+    
+    [fraction_above_vel(isession),p_vel(isession),fraction_above_dist(isession),p_dist(isession),average_speed_bin(isession,:),average_dist_bin(isession,:),Distance_vel(isession,:),Distance_v_dir(isession,:),Distance_dist(isession,:),Distance_d_dir(isession,:),R2]=speed_distance(session{isession}, Area{isession},threshold,Ndir,t_from(isession),t_upto(isession));
+    
+    if do_plot_r2
+        % compute coefficient of determination between trajectories of diff
+        % speed or distances
+        plot_R2(R2,Area{isession},isession)
+        [~,p_vel_R(isession)]=ttest2(R2.vel_same_dir,R2.vel_other_dir);
+        [~,p_dist_R(isession)]=ttest2(R2.dist_same_dir,R2.dist_other_dir);
+    end
+    
 end
+if do_plot_r2
+    subplot(2,3,1)
+    text(1, 0, [' max p-val = ' num2str(max(p_vel_R),2)])
+    
+    subplot(2,3,2)
+    text(1, 0, [' max p-val = ' num2str(max(p_dist_R),2)])
+end
+
 subplot(2,3,5)
 plot([0 0.025],[0 0.025],'k')
 xlabel('Distance speed')
@@ -52,21 +70,21 @@ ylim([0 0.025])
 text(0.005,0.02,[' max p-value = ' num2str(max(p_vel))],'FontSize',8)
 
 
-subplot(2,3,6)
-plot([0 0.025],[0 0.025],'k')
-xlabel('Distance distance')
-ylabel('Distance closest directions')
-xlim([0 0.025])
-ylim([0 0.025])
-text(0.005,0.02,[' max p-value = ' num2str(max(p_dist))],'FontSize',8)
-disp('--------------------------------')
-disp('Recordings which p-values > 0.05 (Distance vs direction, FIG 5F, right)')
-Session_name=session(p_dist>0.05)';
-Area_name=Area(p_dist>0.05)';
-pvalue_dist=p_dist(p_dist>0.05);
-pvalues=table(Session_name,Area_name,pvalue_dist)
-
-disp('--------------------------------')
+% subplot(2,3,6)
+% plot([0 0.025],[0 0.025],'k')
+% xlabel('Distance distance')
+% ylabel('Distance closest directions')
+% xlim([0 0.025])
+% ylim([0 0.025])
+% text(0.005,0.02,[' max p-value = ' num2str(max(p_dist))],'FontSize',8)
+% disp('--------------------------------')
+% disp('Recordings which p-values > 0.05 (Distance vs direction, FIG 5F, right)')
+% Session_name=session(p_dist>0.05)';
+% Area_name=Area(p_dist>0.05)';
+% pvalue_dist=p_dist(p_dist>0.05);
+% pvalues=table(Session_name,Area_name,pvalue_dist)
+% 
+% disp('--------------------------------')
 
 
 axes('Position',[0.4116    0.47    0.21   0.041]);
@@ -81,23 +99,45 @@ ylim([0 0.025])
 ylabel('Distance Closest direction')
 box off
 
-axes('Position',[ 0.6936    0.47    0.2100    0.0410]);
-histogram(Distance_dist(:),'Normalization','probability')
-xlim([0 0.025])
-box off
+% axes('Position',[ 0.6936    0.47    0.2100    0.0410]);
+% histogram(Distance_dist(:),'Normalization','probability')
+% xlim([0 0.025])
+% box off
 
-axes('Position',[ 0.9152    0.1187    0.0164    0.3380]);
-histogram(Distance_d_dir(:),'Normalization','probability','orientation','horizontal')
-ylim([0 0.025])
-box off
+% axes('Position',[ 0.9152    0.1187    0.0164    0.3380]);
+% histogram(Distance_d_dir(:),'Normalization','probability','orientation','horizontal')
+% ylim([0 0.025])
+% box off
 
- disp('--------------------------------')
- disp(['Mean lower speed = ' num2str(mean(average_speed_bin(:,1))) ' [cm/s]'])
- disp(['Mean higher speed = ' num2str(mean(average_speed_bin(:,2))) ' [cm/s]'])
- disp('--------------------------------')
- disp(['Mean shorter distance = ' num2str(mean(average_dist_bin(:,1))) ' [cm]'])
- disp(['Mean longer distance = ' num2str(mean(average_dist_bin(:,2))) ' [cm]'])
- disp('--------------------------------')
+disp('--------------------------------')
+disp(['Mean lower speed = ' num2str(mean(average_speed_bin(:,1))) ' [cm/s]'])
+disp(['Mean higher speed = ' num2str(mean(average_speed_bin(:,2))) ' [cm/s]'])
+disp('--------------------------------')
+%disp(['Mean shorter distance = ' num2str(mean(average_dist_bin(:,1))) ' [cm]'])
+%disp(['Mean longer distance = ' num2str(mean(average_dist_bin(:,2))) ' [cm]'])
+%disp('--------------------------------')
 
+
+end
+
+function plot_R2(R2,Area,isession)
+
+if strcmp(Area,'M1')
+    colourArea=[85 30 116]./256;
+else
+    colourArea=[89 156 153]./256;
+end
+
+
+subplot(2,3,1)
+
+hold on
+errorbar(isession,mean(R2.vel_same_dir),std(R2.vel_same_dir)/sqrt(numel(R2.vel_same_dir)),'.','Color',colourArea)
+errorbar(isession,mean(R2.vel_other_dir),std(R2.vel_other_dir)/sqrt(numel(R2.vel_other_dir)),'.','Color',[0.5 0.5 0.5])
+
+subplot(2,3,2)
+hold on
+errorbar(isession,mean(R2.dist_same_dir),std(R2.dist_same_dir)/sqrt(numel(R2.dist_same_dir)),'.','Color',colourArea)
+errorbar(isession,mean(R2.dist_other_dir),std(R2.dist_other_dir)/sqrt(numel(R2.dist_other_dir)),'.','Color',[0.5 0.5 0.5])
 
 end

@@ -9,7 +9,7 @@ function embedding_dimensions_all_sessions(Sessions,Area,threshold,Ndir,Nbins,t_
 % Areas: cell array containing the names of the areas to be analysed in
 % each session. Areas and Sessions must have the same number of elements.
 % e.g {'M1','M1'}
-% 
+%
 % threshold: percentage of the variance to be explained by the first nPCs
 %
 % Ndir: number of direction to bin the movements
@@ -27,7 +27,7 @@ function embedding_dimensions_all_sessions(Sessions,Area,threshold,Ndir,Nbins,t_
 % session_N = Number of the behavioural session associated to Session and
 % Area. There should be as many behavioural sessions as unique names in the
 % array Session. If a Session contains simultaneous recordings from M1 and PMd, they
-% belong to the same behavioural session. e.g 
+% belong to the same behavioural session. e.g
 % session={'MC_S1_raw.mat','MC_S2_raw.mat','MM_S1_raw.mat','MM_S1_raw.mat'};
 % Area={'M1','M1','M1','PMd'};
 % session_N=[1 2 3 3]
@@ -49,8 +49,8 @@ function embedding_dimensions_all_sessions(Sessions,Area,threshold,Ndir,Nbins,t_
 % Andrea Colins Rodriguez
 
 if plot_supp
-fig_sup_1=figure;
-fig_sup_2=figure;
+    fig_sup_1=figure;
+    fig_sup_2=figure;
 end
 
 embedding_dim=zeros(size(Sessions));
@@ -64,9 +64,9 @@ for isession=1:size(Sessions,2)
     if isession==1 && plot_supp
         figure(fig_sup_2)
         plot_kinematics(dist_mov_dir,mov_duration,max_speed,Nbins)
-
+        
     end
-
+    
     R(session_N(isession)).R_dist_dur=corr([dist_mov_dir{1:Nbins}]',[mov_duration{1:Nbins}]');
     R(session_N(isession)).R_dist_speed=corr([dist_mov_dir{1:Nbins}]',[max_speed{1:Nbins}]');
     R(session_N(isession)).R_speed_dur=corr([max_speed{1:Nbins}]',[mov_duration{1:Nbins}]');
@@ -75,62 +75,76 @@ for isession=1:size(Sessions,2)
     embedding_dim(isession)=find(cumsum(variance)>threshold,1,'First');
     
     if plot_supp
-    if strcmp(Area{isession},'M1')
-        colourArea=[85 30 116]./256;
-    else
-        colourArea=[89 156 153]./256;
-    end
-    
-    figure(fig_sup_1)
-    subplot(2,1,1)
-    plot(cumsum(variance),'Color',colourArea)
-    hold on
-    
-    subplot(2,1,2)
-    hold on
-    plot(isession,embedding_dim(isession),'o','Color',colourArea)
+        if strcmp(Area{isession},'M1')
+            colourArea=[85 30 116]./256;
+        else
+            colourArea=[89 156 153]./256;
+        end
+        
+        figure(fig_sup_1)
+        subplot(1,3,1)
+        plot(cumsum(variance),'Color',colourArea)
+        hold on
+        
+        subplot(1,3,2)
+        hold on
+        plot(isession,embedding_dim(isession),'o','Color',colourArea)
+
+
+        
+        subplot(1,3,3)
+        hold on
+        plot(isession,numel(variance),'o','Color',colourArea)
     end
     clear variance dist_mov_dir mov_duration max_speed
     
 end
 if plot_supp
-figure(fig_sup_1)
-subplot(2,1,1)
-plot([0 100],[threshold threshold])
-xlabel('N dimensions')
-ylabel('Variance explained [%]')
-box off
-
-subplot(2,1,2)
-hold on
-box off
-xlabel('N session')
-ylabel('Embedding dimensions')
-ylim([0 13])
-legend(Area)
-%%
-figure(fig_sup_2)
-
-subplot(2,3,4)
-histogram([R.R_dist_dur])
-box off
-xlabel('Corr Distance-Duration')
-ylabel('Number of sessions')
-xlim([0 1])
-title(['Mean = ' num2str(mean([R.R_dist_dur]),'%.2f')])
-
-subplot(2,3,5)
-histogram([R.R_dist_speed])
-box off
-xlabel('Corr Distance-Speed')
-xlim([0 1])
-title(['Mean = ' num2str(mean([R.R_dist_speed]),'%.2f')])
-
-subplot(2,3,6)
-histogram([R.R_speed_dur])
-box off
-xlabel('Corr Duration-Speed')
-xlim([0 1])
-title(['Mean = ' num2str(mean([R.R_speed_dur]),'%.2f')])
+    figure(fig_sup_1)
+    subplot(1,3,1)
+    plot([0 100],[threshold threshold])
+    xlabel('N dimensions')
+    ylabel('Variance explained [%]')
+    box off
+    
+    subplot(1,3,2)
+    hold on
+    box off
+    xlabel('N recording')
+    ylabel('Embedding dimensions')
+    ylim([0 13])
+    legend(Area)
+    
+    subplot(1,3,3)
+    hold on
+    box off
+    xlabel('N recording')
+    ylabel('Number of neurons')
+    ylim([0 100])
+    legend(Area)
+    %%
+    figure(fig_sup_2)
+    
+    subplot(2,3,4)
+    histogram([R.R_dist_dur])
+    box off
+    xlabel('Corr Distance-Duration')
+    ylabel('Number of sessions')
+    xlim([0 1])
+    title(['Mean = ' num2str(mean([R.R_dist_dur]),'%.2f')])
+    
+    subplot(2,3,5)
+    histogram([R.R_dist_speed])
+    box off
+    xlabel('Corr Distance-Speed')
+    xlim([0 1])
+    title(['Mean = ' num2str(mean([R.R_dist_speed]),'%.2f')])
+    
+    subplot(2,3,6)
+    histogram([R.R_speed_dur])
+    box off
+    xlabel('Corr Duration-Speed')
+    xlim([0 1])
+    title(['Mean = ' num2str(mean([R.R_speed_dur]),'%.2f')])
 end
 end
