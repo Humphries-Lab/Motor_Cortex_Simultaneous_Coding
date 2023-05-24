@@ -3,14 +3,15 @@
 % Note: A few sessions contain simultaneous recordings from M1 and PMd.
 %
 % We define:
+%
 % Session: Behavioural session. A file that contain one set of movements
-% and their kinematic parameters. e.g the file MM_S1_raw..mat
+% and their kinematic parameters. e.g the file MM_S1_raw.mat
 %
 % Area: Neural recording corresponding to one area. e.g. 'M1' or 'PMd'
 %
 % Recording: A recording is defined by a session and an area.
 
-% This way ('MM_S1_raw..mat','M1') and ('MM_S1_raw..mat','PMd') are two
+% This way ('MM_S1_raw.mat','M1') and ('MM_S1_raw.mat','PMd') are two
 % recordings from the same behavioural session.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -50,7 +51,7 @@ Behaviour_spikes_per_trial(session{11}, Area{11},Ndir,trial)
 % Example session stats
 Behaviour_variability(session{11}, Area{11},Ndir,edges_dur_bin)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 2
 % before selecting the end and start of each area, select neural activity from 500 ms before the
 % movement onset upto 300 ms after the movement end
@@ -72,7 +73,6 @@ t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)]
 plot_supp=1; %plot supplementary
 
 embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 3
 do_plot_supp=1;
@@ -87,13 +87,15 @@ decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep
 warning('on','stats:pca:ColRankDefX') % back on
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 5
+upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
 do_plot_supp=1;
+%fig2=figure;
 distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
 speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 6
-decoding_movement_duration_all_sessions(session,Area,Ndir,Nbins)
+decoding_movement_duration_all_sessions(session,Area,threshold,Ndir,Nbins)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 7
