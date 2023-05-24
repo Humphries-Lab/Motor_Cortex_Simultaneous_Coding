@@ -1,4 +1,4 @@
-function [total_fraction,Delta_distances,All_dist_dir,All_dist_dur]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim,do_plot,ColourArea,nsamples_condition)
+function [total_fraction,Delta_distances,All_dist_dir,All_dist_dur,Delta_dist_all_same]=Test_distance_between_trajectories(score,idx_dir,idx_duration,ndim,do_plot,ColourArea,nsamples_condition,Hdist_same)
 %% Test_distance_between_trajectories calculates the Hausdorff distance between
 %% trajectories of different durations and different directions
 %
@@ -72,7 +72,7 @@ end
 
 
 %% Calculate distance between trajectories with same duration but different directions
-
+Delta_dist_all_same=[];
 Ncomp_bins=Nbins-1;
 counter_points_above=nan(Ncomp_bins*Ndir*Nbins*2,1);
 
@@ -107,6 +107,12 @@ for i_bin=1:Nbins
         icomp=icomp+1;
         
         if do_plot
+            if ~isnan(Hdist_same(i_bin,i_dir))
+            subplot(2,3,4)
+            hold on
+            plot(dist_bin,Hdist_same(i_bin,i_dir)*ones(1,size(dist_bin,2)),'.k')
+            Delta_dist_all_same=[Delta_dist_all_same,Hdist_same(i_bin,i_dir)*ones(1,size(dist_bin,2))-dist_bin];
+            end
             
             subplot(2,3,2)
             hold on

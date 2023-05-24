@@ -1,4 +1,4 @@
-function [fraction_above_speed,p_speed,fraction_above_dist,p_dist,average_speed_bin,average_dist_bin,Distance_speed,Distance_dir_speed,Distance_dist,Distance_dir_dist]=speed_distance(Session, Area,threshold,Ndir,t_from,t_upto)
+function [fraction_above_speed,p_speed,fraction_above_dist,p_dist,average_speed_bin,average_dist_bin,Distance_speed,Distance_dir_speed,Distance_dist,Distance_dir_dist,R2]=speed_distance(Session, Area,threshold,Ndir,t_from,t_upto)
 %% speed_distance compares the distance between trajectories corresponding
 %% to different speeds (& distances) vs adjacent direction bins
 %
@@ -70,7 +70,7 @@ load(['../Output_files/PCA_' Session(1:end-4) '_' Area '.mat'],'coeffs','varianc
 %better do this by percentil
 direction1=ceil(Ndir*(Mov_params.direction+pi)/(2*pi));
 
-limit_vel=median(Mov_params.max_speed(abs(Mov_params.distance-threshold_dist)<1));
+limit_vel=median(Mov_params.max_speed);
 speed_discrete=ones(size(Mov_params.max_speed));
 speed_discrete(Mov_params.max_speed>limit_vel)=2;
 
@@ -90,27 +90,17 @@ for i_dir=1:Ndir
      for i_vel=1:2
         
         % to select only the ones with the same distance
+                
+        averages_vel=[averages_vel,mean(Neural_info.FR(:,:,speed_discrete==i_vel & direction1==i_dir & abs(Mov_params.distance-threshold_dist)<1),3)];
+        idx_vel_2=[idx_vel_2;zeros(final_length,1)+i_vel];
         
-        averages_vel(:,final_length*counter+1:final_length*(counter+1))=mean(Neural_info.FR(:,:,speed_discrete==i_vel & direction1==i_dir & abs(Mov_params.distance-threshold_dist)<1),3);
-        idx_vel_2(final_length*counter+1:final_length*(counter+1))=zeros(final_length,1)+i_vel;
-        
-        averages_dist(:,final_length*counter+1:final_length*(counter+1))=mean(Neural_info.FR(:,:,dist_discrete==i_vel & direction1==i_dir & abs(Mov_params.max_speed-threshold_speed)<2),3);
-        idx_dir_2(final_length*counter+1:final_length*(counter+1))=zeros(final_length,1)+i_dir;
-        
+        averages_dist=[averages_dist,mean(Neural_info.FR(:,:,dist_discrete==i_vel & direction1==i_dir & abs(Mov_params.max_speed-threshold_speed)<2),3)];
+        idx_dir_2=[idx_dir_2;zeros(final_length,1)+i_dir];
+         
         counter=counter+1;
         
-%         idx_vel_2=[idx_vel_2;zeros(final_length,1)+i_vel];
-%         
-%         averages_dist=[averages_dist,mean(Neural_info.FR(:,:,dist_discrete==i_vel & direction1==i_dir & abs(Mov_params.max_speed-threshold_speed)<2),3)];
-%         idx_dir_2=[idx_dir_2;zeros(final_length,1)+i_dir];
-        
-        
-%         averages_vel=[averages_vel,mean(Neural_info.FR(:,:,speed_discrete==i_vel & direction1==i_dir & abs(Mov_params.distance-threshold_dist)<1),3)];
-%         idx_vel_2=[idx_vel_2;zeros(final_length,1)+i_vel];
-%         
-%         averages_dist=[averages_dist,mean(Neural_info.FR(:,:,dist_discrete==i_vel & direction1==i_dir & abs(Mov_params.max_speed-threshold_speed)<2),3)];
-%         idx_dir_2=[idx_dir_2;zeros(final_length,1)+i_dir];
-         
+      
+ 
     end
 end
 
@@ -124,18 +114,28 @@ end
 % 
 % [~,score_vel,~,~,exp_1]=pca(averages_vel);
 % [~,score_dist,~,~,exp_dist_1]=pca(averages_dist);
+colour_dir=hsv(Ndir);
 
 
-% soft normalization
+% % soft normalization
 averages_vel(delete_units,:)=[];
 averages_dist(delete_units,:)=[];
 averages_vel=averages_vel'./repmat(normalisation,size(averages_vel,2),1);
 averages_dist=averages_dist'./repmat(normalisation,size(averages_dist,2),1);
-Ndim=find(cumsum(variance)>threshold,1,'First');
+ Ndim=find(cumsum(variance)>threshold,1,'First');
 %projecting trajectories onto the subspace defined from all durations and
 %all dir
 score_vel=averages_vel*coeffs(:,1:Ndim);
 score_dist=averages_dist*coeffs(:,1:Ndim);
+
+% figure
+% hold on
+%     for i_dir=1:Ndir
+%         for i_speed=1:2
+%             idx=idx_dir_2==i_dir & idx_vel_2==i_speed;
+%             plot3(score_dist(idx,1),score_dist(idx,2),score_dist(idx,3),'Color',colour_dir(i_dir,:)/i_speed)    
+%         end
+%     end
 
 %% Hausdorff distance for different speeds
 
@@ -144,5 +144,13 @@ score_dist=averages_dist*coeffs(:,1:Ndim);
 %% now for distance
 [fraction_above_dist,p_dist,Distance_dist,Distance_dir_dist]=Hausdorff_distance(score_dist,idx_dir_2,idx_vel_2,Ndim,colourArea,6);
 
+%% R^2
+final_length=600;
+normalised_t=linspace(0,1,final_length);
+[~,~,R2.vel_same_dir]=R_same(score_vel,idx_dir_2,idx_vel_2,Ndim,normalised_t);
+[~,~,R2.vel_other_dir]=R2_other(score_vel,idx_dir_2,idx_vel_2,Ndim,normalised_t);
+
+[~,~,R2.dist_same_dir]=R_same(score_dist,idx_dir_2,idx_vel_2,Ndim,normalised_t);
+[~,~,R2.dist_other_dir]=R2_other(score_dist,idx_dir_2,idx_vel_2,Ndim,normalised_t);
 end
 
