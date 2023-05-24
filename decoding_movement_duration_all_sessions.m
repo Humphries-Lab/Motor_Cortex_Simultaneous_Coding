@@ -1,4 +1,4 @@
-function decoding_movement_duration_all_sessions(Sessions,Areas,Ndir,Nbins)
+function decoding_movement_duration_all_sessions(Sessions,Areas,threshold,Ndir,Nbins)
 %% decoding_movement_duration_all_sessions predicts the duration of the neural trajectories of each recordings based on their relative speed to a reference trajectory
 %
 % INPUTS
@@ -10,6 +10,8 @@ function decoding_movement_duration_all_sessions(Sessions,Areas,Ndir,Nbins)
 % each session. Areas and Sessions must have the same number of elements.
 % e.g {'M1','M1'}
 % 
+% threshold: percentage of the variance to be explained by the first nPCs
+%
 % Ndir: number of directions to bin the movements
 %
 % Nbins: number of durations to bin the movements
@@ -21,7 +23,6 @@ figure
 ref_bin=2;
 Nsessions=size(Sessions,2);
 ndim=zeros(Nsessions,1);
-threshold=80;
 
 
 estimated_dur_all=zeros(Ndir*Nsessions,Nbins-1);
