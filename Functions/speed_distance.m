@@ -1,4 +1,4 @@
-function [fraction_above_speed,p_speed,fraction_above_dist,p_dist,average_speed_bin,average_dist_bin,Distance_speed,Distance_dir_speed,Distance_dist,Distance_dir_dist,R2]=speed_distance(Session, Area,threshold,Ndir,t_from,t_upto)
+function [fraction_above_speed,p_speed,fraction_above_dist,p_dist,average_speed_bin,average_dist_bin,Distance_speed,Distance_dir_speed,Distance_dist,Distance_dir_dist,R2,Dur_var_exp]=speed_distance(Session, Area,threshold,Ndir,t_from,t_upto)
 %% speed_distance compares the distance between trajectories corresponding
 %% to different speeds (& distances) vs adjacent direction bins
 %
@@ -89,8 +89,7 @@ counter=0;
 for i_dir=1:Ndir
      for i_vel=1:2
         
-        % to select only the ones with the same distance
-                
+        % to select only the ones with the same distance    
         averages_vel=[averages_vel,mean(Neural_info.FR(:,:,speed_discrete==i_vel & direction1==i_dir & abs(Mov_params.distance-threshold_dist)<1),3)];
         idx_vel_2=[idx_vel_2;zeros(final_length,1)+i_vel];
         
@@ -98,9 +97,8 @@ for i_dir=1:Ndir
         idx_dir_2=[idx_dir_2;zeros(final_length,1)+i_dir];
          
         counter=counter+1;
-        
-      
- 
+        % if do dPCA, then reshape here and do dpca below
+
     end
 end
 
@@ -123,7 +121,66 @@ averages_dist(delete_units,:)=[];
 averages_vel=averages_vel'./repmat(normalisation,size(averages_vel,2),1);
 averages_dist=averages_dist'./repmat(normalisation,size(averages_dist,2),1);
  Ndim=find(cumsum(variance)>threshold,1,'First');
-%projecting trajectories onto the subspace defined from all durations and
+
+ %% dPCA bit
+
+%  for i_dur=1:2
+%     for i_dir=1:Ndir
+%         % force to take the same number of points for all conditions
+%         idx=idx_dir_2==i_dir & idx_vel_2==i_dur;
+%         % normalising the trajectories by their length
+%         FR_dPCA(:,i_dir,i_dur,:)=interp1(linspace(0,1,sum(idx==1))',averages_vel(idx,:),linspace(0,1,600)')';
+%     end
+% end
+
+%combinedParams = {{1, [1 3]}, {2, [2 3]}, {3}, {[1 2], [1 2 3]}};
+%margNames = {'Direction', 'Duration','Condition-independent','D/D Interaction'};
+% combinedParams = {{1, [1 3]}, {2, [2 3]}, {3}};
+% margNames = {'Direction', 'Duration','Condition-independent'};
+% margColours =  [0.5 0.5 0.5; 1 0.5 0.5; 0.5 1 0.5; 0.5 0.5 1];
+% 
+% [W,V,whichMarg] = dpca(FR_dPCA, 20, 'combinedParams', combinedParams);
+% explVar = dpca_explainedVariance(FR_dPCA, W, V, ...
+%     'combinedParams', combinedParams);
+% 
+% % Variance explained by direction component in %
+ Dur_var_exp=[0 0 0];
+% if sum(whichMarg==1)>0
+%     Dur_var_exp(1)=sum(explVar.componentVar(whichMarg==1));
+% end
+% if sum(whichMarg==2)>0
+%     Dur_var_exp(2)=sum(explVar.componentVar(whichMarg==2));
+% end
+% if sum(whichMarg==3)>0
+%     Dur_var_exp(3)=sum(explVar.componentVar(whichMarg==3));
+% end
+% 
+% disp(['Variance explained by speed Component = ',num2str(Dur_var_exp)])
+% find(whichMarg==3,2,'first')
+
+% ICs=W(:,find(whichMarg==3,2,'first'));
+% DurationCs=W(:,find(whichMarg==1,1,'first'));
+% 
+% X = FR_dPCA(:,:)';
+% Xcen = bsxfun(@minus, X, mean(X));
+% ZIC = Xcen * ICs;
+% ZDur = Xcen * DurationCs;
+% dataDim=size(X);
+% Zfull = reshape(ZIC', [length(2) dataDim(2:end)]);
+% figure
+% plot3(ZIC(:,1),ZIC(:,2),ZDur)
+
+% %dpca_plot(FR_dPCA, W, V, @dpca_plot_default, ...
+%     'explainedVar', explVar,...
+%     'time', linspace(0,1,size(FR_dPCA,4)),                        ...
+%     'timeEvents', 0,               ...
+%     'marginalizationNames', margNames, ...
+%     'marginalizationColours', margColours, ...
+%     'whichMarg', whichMarg);
+
+
+ 
+ %projecting trajectories onto the subspace defined from all durations and
 %all dir
 score_vel=averages_vel*coeffs(:,1:Ndim);
 score_dist=averages_dist*coeffs(:,1:Ndim);
@@ -138,13 +195,17 @@ score_dist=averages_dist*coeffs(:,1:Ndim);
 %     end
 
 %% Hausdorff distance for different speeds
-
-[fraction_above_speed,p_speed,Distance_speed,Distance_dir_speed]=Hausdorff_distance(score_vel,idx_dir_2,idx_vel_2,Ndim,colourArea,5);
+%figure
+[fraction_above_speed,p_speed,Distance_speed,Distance_dir_speed]=Hausdorff_distance(score_vel,idx_dir_2,idx_vel_2,Ndim,colourArea,3);
 
 %% now for distance
-[fraction_above_dist,p_dist,Distance_dist,Distance_dir_dist]=Hausdorff_distance(score_dist,idx_dir_2,idx_vel_2,Ndim,colourArea,6);
+%[fraction_above_dist,p_dist,Distance_dist,Distance_dir_dist]=Hausdorff_distance(score_dist,idx_dir_2,idx_vel_2,Ndim,colourArea,6);
 
 %% R^2
+fraction_above_dist=fraction_above_speed;
+p_dist=p_speed;
+Distance_dist=Distance_speed;
+Distance_dir_dist=Distance_dir_speed;
 final_length=600;
 normalised_t=linspace(0,1,final_length);
 [~,~,R2.vel_same_dir]=R_same(score_vel,idx_dir_2,idx_vel_2,Ndim,normalised_t);

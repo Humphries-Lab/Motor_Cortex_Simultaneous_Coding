@@ -30,6 +30,7 @@ Nsessions=size(session,2);
 fraction_above_vel=zeros(Nsessions,1);
 p_vel=zeros(Nsessions,1);
 fraction_above_dist=zeros(Nsessions,1);
+Dur_var_exp=zeros(Nsessions,3);
 p_dist=zeros(Nsessions,1);
 average_speed_bin=zeros(Nsessions,2);
 average_dist_bin=average_speed_bin;
@@ -40,9 +41,9 @@ Distance_d_dir=nan(Nsessions,32);
 do_plot_r2=0;
 
 
-for isession=1:Nsessions
+for isession=1:Nsessions-1
     
-    [fraction_above_vel(isession),p_vel(isession),fraction_above_dist(isession),p_dist(isession),average_speed_bin(isession,:),average_dist_bin(isession,:),Distance_vel(isession,:),Distance_v_dir(isession,:),Distance_dist(isession,:),Distance_d_dir(isession,:),R2]=speed_distance(session{isession}, Area{isession},threshold,Ndir,t_from(isession),t_upto(isession));
+    [fraction_above_vel(isession),p_vel(isession),fraction_above_dist(isession),p_dist(isession),average_speed_bin(isession,:),average_dist_bin(isession,:),Distance_vel(isession,:),Distance_v_dir(isession,:),Distance_dist(isession,:),Distance_d_dir(isession,:),R2,Dur_var_exp(isession,:)]=speed_distance(session{isession}, Area{isession},threshold,Ndir,t_from(isession),t_upto(isession));
     
     if do_plot_r2
         % compute coefficient of determination between trajectories of diff
@@ -61,7 +62,7 @@ if do_plot_r2
     text(1, 0, [' max p-val = ' num2str(max(p_dist_R),2)])
 end
 
-subplot(2,3,5)
+subplot(2,3,3)
 plot([0 0.025],[0 0.025],'k')
 xlabel('Distance speed')
 ylabel('Distance closest directions')
@@ -116,8 +117,17 @@ disp('--------------------------------')
 %disp(['Mean shorter distance = ' num2str(mean(average_dist_bin(:,1))) ' [cm]'])
 %disp(['Mean longer distance = ' num2str(mean(average_dist_bin(:,2))) ' [cm]'])
 %disp('--------------------------------')
+disp(['Variance explained by speed = ',num2str(mean(Dur_var_exp)),' +- ', num2str(std(Dur_var_exp))])
 
-
+% figure
+% plot(Dur_var_exp','.-')
+% ylabel('Variance explained')
+% box off
+% xlim([0.8 3.2])
+% ylim([0 100])
+% 
+% mean(Dur_var_exp)
+% std(Dur_var_exp)
 end
 
 function plot_R2(R2,Area,isession)
@@ -129,15 +139,15 @@ else
 end
 
 
-subplot(2,3,1)
+subplot(2,3,3)
 
 hold on
 errorbar(isession,mean(R2.vel_same_dir),std(R2.vel_same_dir)/sqrt(numel(R2.vel_same_dir)),'.','Color',colourArea)
 errorbar(isession,mean(R2.vel_other_dir),std(R2.vel_other_dir)/sqrt(numel(R2.vel_other_dir)),'.','Color',[0.5 0.5 0.5])
 
-subplot(2,3,2)
-hold on
-errorbar(isession,mean(R2.dist_same_dir),std(R2.dist_same_dir)/sqrt(numel(R2.dist_same_dir)),'.','Color',colourArea)
-errorbar(isession,mean(R2.dist_other_dir),std(R2.dist_other_dir)/sqrt(numel(R2.dist_other_dir)),'.','Color',[0.5 0.5 0.5])
+% subplot(2,3,3)
+% hold on
+% errorbar(isession,mean(R2.dist_same_dir),std(R2.dist_same_dir)/sqrt(numel(R2.dist_same_dir)),'.','Color',colourArea)
+% errorbar(isession,mean(R2.dist_other_dir),std(R2.dist_other_dir)/sqrt(numel(R2.dist_other_dir)),'.','Color',[0.5 0.5 0.5])
 
 end

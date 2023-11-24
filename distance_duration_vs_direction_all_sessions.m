@@ -33,6 +33,7 @@ normalised_t=linspace(0,1,final_length);
 Nsessions=numel(Sessions);
 p=zeros(1,Nsessions);
 pR_noise=nan(Nsessions,1);
+p_delta_distance_same=nan(Nsessions,1);
 pR2=zeros(1,Nsessions);
 R2_same=zeros(1,Nsessions);
 R2_other_dir=zeros(1,Nsessions);
@@ -53,8 +54,8 @@ for isession=1:Nsessions
     Area=Areas{isession};
     session=Sessions{isession};
     
-    load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','nsamples_condition','r')
-    Hdist_same=nan(Nbins,Ndir);
+    load(['../Output_files/PCA_' session(1:end-4) '_' Area '.mat'],'score','idx_dir','idx_duration','variance','nsamples_condition','r','Hdist_same')
+    %Hdist_same=nan(Nbins,Ndir);
     ndim(isession)=find(cumsum(variance)>threshold,1,'First');
     
     %% Plot example trajectories for same direction different durations
@@ -132,7 +133,7 @@ for isession=1:Nsessions
     [~,pR_noise(isession)]=ttest2(SI_same,r);
     
     figure(fig2)
-    subplot(2,3,1)
+    subplot(2,3,6)
     errorbar(isession,R2_same(isession),SIstd,'.','Color',colourArea)
     hold on
     errorbar(isession,R2_other_dir(isession),SI2std,'.','Color',[0.5 0.5 0.5])
@@ -150,10 +151,10 @@ for isession=1:Nsessions
     
     Hdist((isession-1)*Ncomb_total+1:isession*Ncomb_total)=Hdist_tmp;
     Hdur((isession-1)*Ncomb_total+1:isession*Ncomb_total)=Hdur_tmp;
-    
+
     
    [~,p(isession)]=ttest(Delta_distances);
-   %[~,p_delta_distance_same]=ttest(Delta_dist_all_same);
+   [~,p_delta_distance_same(isession)]=ttest(Delta_dist_all_same,0,'Tail','right');
 
     subplot(2,3,4)
     errorbar(isession,mean(Delta_distances),std(Delta_distances),'.','Color',colourArea)
@@ -166,7 +167,7 @@ for isession=1:Nsessions
     clear Delta_distances fraction_above idx_duration idx_dir
 end
 
-subplot(2,3,1)
+subplot(2,3,6)
 plot([0 Nsessions],[0 0],'Color',[0.5 0.5 0.5])
 box off
 ylabel('R^2')
@@ -185,23 +186,19 @@ xlabel('Recording')
 text(1,-0.001,['max p-value = ' num2str(max(p),'%.e')])
 ylim([-0.005 0.025])
 
-
 subplot(2,3,2)
+xlabel('\Delta Duration')
+ylabel('\Delta within bin')
 xlim([0 0.025])
 ylim([0 0.025])
-% 
-% subplot(2,3,4)
-% xlim([0 0.025])
-% ylim([0 0.025])
-% plot([0 0.025],[0 0.025],'r')
-% box off
 
-% subplot(2,3,5)
-% plot([0 13],[0 0],'Color',[0.5 0.5 0.5])
-% ylim([0 0.025])
-% ylim([-0.005 0.025])
+subplot(2,3,1)
+xlim([0 0.025])
+ylim([0 0.025])
 
-axes('Position',[0.41,0.93,0.21,0.041]);
+
+
+axes('Position',[0.15,0.93,0.21,0.041]);
 histogram(Hdur,0:0.001:0.025,'Normalization','probability')
 xlim([0 0.025])
 box off
@@ -209,8 +206,23 @@ disp('----------------------------------')
 
 pvalues=table(Sessions',Areas',pR_noise)
 
-axes('Position',[0.63,0.58,0.028,0.338]);
+axes('Position',[0.3,0.58,0.028,0.338]);
 histogram(Hdist,0:0.001:0.025,'Normalization','probability','orientation','horizontal')
 ylim([0 0.025])
 box off
+
+subplot(2,3,2)
+xlim([0 0.025])
+ylim([0 0.025])
+plot([0 0.025],[0 0.025],'r')
+box off
+
+subplot(2,3,5)
+plot([0 13],[0 0],'Color',[0.5 0.5 0.5])
+ylim([0 0.025])
+ylim([-0.005 0.025])
+
+pvalues_control=table(Sessions',Areas',p_delta_distance_same)
+disp(['Average p-value delta control =', num2str(mean(p_delta_distance_same))])
+sum(p_delta_distance_same<0.05)
 end

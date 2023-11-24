@@ -108,13 +108,13 @@ for i_bin=1:Nbins
         
         if do_plot
             if ~isnan(Hdist_same(i_bin,i_dir))
-            subplot(2,3,4)
+            subplot(2,3,2)
             hold on
-            plot(dist_bin,Hdist_same(i_bin,i_dir)*ones(1,size(dist_bin,2)),'.k')
-            Delta_dist_all_same=[Delta_dist_all_same,Hdist_same(i_bin,i_dir)*ones(1,size(dist_bin,2))-dist_bin];
+            scatter(dist_bin,Hdist_same(i_bin,i_dir)*ones(1,size(dist_bin,2)),8,ColourArea,'filled')
+            Delta_dist_all_same=[Delta_dist_all_same,dist_bin-Hdist_same(i_bin,i_dir)*ones(1,size(dist_bin,2))];
             end
             
-            subplot(2,3,2)
+            subplot(2,3,1)
             hold on
       
             transparency=nsamp(i_bin,:,i_dir)./max_transparency;
@@ -135,7 +135,7 @@ end
 total_fraction=sum(counter_points_above)/sum(~isnan(counter_points_above(:)));
 
 if do_plot
-    subplot(2,3,2)
+    subplot(2,3,1)
     plot([0 0.02],[0 0.02],'r')
     errorbar(mean(All_dist_dur),mean(All_dist_dir),std(All_dist_dir),'.k');
     errorbar(mean(All_dist_dur),mean(All_dist_dir),std(All_dist_dur),'horizontal','.k');
