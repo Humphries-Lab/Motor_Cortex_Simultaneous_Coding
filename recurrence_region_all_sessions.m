@@ -26,7 +26,7 @@ function recurrence_region_all_sessions(Sessions,Areas,threshold,Ndir,Nbins,thre
 ref_bin=2; % duration bin used as reference to define the region of recurrence
 upto=200;% number of points to analyse from the beginning of prep
 
-fig1=figure;
+fig1=gcf;
 colormap(flipud(colormap('gray')))
 colour_dur=plasma(Nbins);
 colour_dir=hsv(Ndir);
@@ -51,47 +51,47 @@ for isession=1:numel(Areas)
         if i_bin==ref_bin
 
             [limit,center]=define_recurrence_region(score(idx_duration==i_bin,1:ndim),idx_dir(idx_duration==i_bin),threshold_dist);
-            
-            if isession==1
-                min_all=min(min(score(:,[1 2])));
-                max_all=max(max(score(:,[1 2])));
-                [X,Y,Z] = sphere;
+%            
+%             if isession==1
+%                 min_all=min(min(score(:,[1 2])));
+%                 max_all=max(max(score(:,[1 2])));
+%                 [X,Y,Z] = sphere;
                 
-                subplot(2,2,1)
-                colormap(colormap('white')*0.5)
-                mesh(X.*limit+center(1),Y.*limit+center(2),Z.*limit+center(3),'FaceAlpha','0.5')
-                
-                hold on
-                xlim([min_all max_all])
-                ylim([min_all max_all])
-                zlim([min_all max_all])
-                xlabel('PC 1')
-                ylabel('PC 2')
-                zlabel('PC 3')
-                
-                subplot(2,2,3)
-                colormap(colormap('white')*0.5)
-                mesh(X.*limit+center(2),Y.*limit+center(3),Z.*limit+center(4),'FaceAlpha','0.5')
-                
-                hold on
-                xlim([min_all max_all])
-                ylim([min_all max_all])
-                zlim([min_all max_all])
-                xlabel('PC 2')
-                ylabel('PC 3')
-                zlabel('PC 4')
-                
-                for i_dir=1:Ndir
-                    subplot(2,2,1)
-                    plot3(score(idx_dir==i_dir & idx_duration==i_bin,1),score(idx_dir==i_dir & idx_duration==i_bin,2),score(idx_dir==i_dir & idx_duration==i_bin,3),'Color',colour_dir(i_dir,:),'LineWidth',1)
-                    hold on
-                    
-                    subplot(2,2,3)
-                    plot3(score(idx_dir==i_dir & idx_duration==i_bin,2),score(idx_dir==i_dir & idx_duration==i_bin,3),score(idx_dir==i_dir & idx_duration==i_bin,4),'Color',colour_dir(i_dir,:),'LineWidth',1)
-                    hold on
-                end
-            end
-        end
+                %subplot(2,2,1)
+                %colormap(colormap('white')*0.5)
+                %mesh(X.*limit+center(1),Y.*limit+center(2),Z.*limit+center(3),'FaceAlpha','0.5')
+%                 
+%                 hold on
+%                 xlim([min_all max_all])
+%                 ylim([min_all max_all])
+%                 zlim([min_all max_all])
+%                 xlabel('PC 1')
+%                 ylabel('PC 2')
+%                 zlabel('PC 3')
+%                 
+%                 subplot(2,2,3)
+%                 colormap(colormap('white')*0.5)
+%                 mesh(X.*limit+center(2),Y.*limit+center(3),Z.*limit+center(4),'FaceAlpha','0.5')
+%                 
+%                 hold on
+%                 xlim([min_all max_all])
+%                 ylim([min_all max_all])
+%                 zlim([min_all max_all])
+%                 xlabel('PC 2')
+%                 ylabel('PC 3')
+%                 zlabel('PC 4')
+%                 
+%                 for i_dir=1:Ndir
+%                     subplot(2,2,1)
+%                     plot3(score(idx_dir==i_dir & idx_duration==i_bin,1),score(idx_dir==i_dir & idx_duration==i_bin,2),score(idx_dir==i_dir & idx_duration==i_bin,3),'Color',colour_dir(i_dir,:),'LineWidth',1)
+%                     hold on
+%                     
+%                     subplot(2,2,3)
+%                     plot3(score(idx_dir==i_dir & idx_duration==i_bin,2),score(idx_dir==i_dir & idx_duration==i_bin,3),score(idx_dir==i_dir & idx_duration==i_bin,4),'Color',colour_dir(i_dir,:),'LineWidth',1)
+%                     hold on
+%                 end
+%            end
+       end
         
         %% compute recurrence time
         segment_length=round((t_upto(i_bin)-t_from)*1000);
@@ -111,10 +111,10 @@ for isession=1:numel(Areas)
         
         figure(fig1)
         if strcmp(Areas{isession},'M1')
-            subplot(2,2,2)
+            subplot(4,4,9)
             hold on
         else
-            subplot(2,2,4)
+            subplot(4,4,13)
             hold on
         end
         
@@ -131,10 +131,10 @@ for isession=1:numel(Areas)
 end
 
 figure(fig1)
-subplot(2,2,2)
+subplot(4,4,9)
 title('M1')
 box off
-subplot(2,2,4)
+subplot(4,4,13)
 title('PMd')
 xlabel('Time to movement onset [ms]')
 ylabel('Number of trajectories in the recurrence region')
