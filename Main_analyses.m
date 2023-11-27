@@ -46,10 +46,10 @@ edges_dur_bin=(0:Nbins)*dur_bin_size+start_dur_bin; %Movement duration for each 
 %% Figure 1-behaviour
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Example trial
-trial=4;
-Behaviour_spikes_per_trial(session{11}, Area{11},Ndir,trial)
+%trial=4;
+%Behaviour_spikes_per_trial(session{11}, Area{11},Ndir,trial)
 % Example session stats
-Behaviour_variability(session{11}, Area{11},Ndir,edges_dur_bin)
+%Behaviour_variability(session{11}, Area{11},Ndir,edges_dur_bin)
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 2-dPCA
@@ -59,7 +59,7 @@ t_upto=0.3*ones(1,size(session_N,2)); %movement duration+ 300 ms
 plot_traj_all_rec=0; % plot trajectories for all recordings
 plot_supp=0; %Don't plot supplementary yet
 
-%embedding_dimensions_all_sessions_dpca(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
+embedding_dimensions_all_sessions_dpca(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 3- Direction

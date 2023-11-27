@@ -60,9 +60,9 @@ else
     neural_data=M1.units;
 end
 
-%ISI=compute_ISI(neural_data,startt,endt);
-%sigma_filter=round(median(ISI))
-sigma_filter=50;
+ISI=compute_ISI(neural_data,startt,endt);
+sigma_filter=round(median(ISI));
+
 
 nsamples_condition=zeros(Ndir,Nbins);
 mov_distance=cell(Nbins,1);
@@ -93,19 +93,6 @@ for i_dur=1:Nbins
     Neural_all{i_dur}=Neural_info;
     % bin by direction
     direction1=ceil(Ndir*(Mov_params.direction+pi)/(2*pi));
-
-    if do_plot
-        xtime=round(t_from*ms):1:round(t_upto(i_dur)*ms-1);
-        FR=mean(mean(Neural_info.FR,3));
-
-        subplot(4,5,1:3)
-        plot(xtime,FR,'Color',colour_plasma(i_dur,:))
-        hold on
-        ylabel('Firing rate')
-        title([ Area ' ' Session ])
-
-
-    end
 
 
     for i_dir=1:Ndir
@@ -160,8 +147,17 @@ margColours =  [0.5 0.5 0.5; 1 0.5 0.5; 0.5 1 0.5; 0.5 0.5 1];
 [W,V,whichMarg] = dpca(FR_dPCA, 15, 'combinedParams', combinedParams);
 explVar = dpca_explainedVariance(FR_dPCA, W, V, ...
     'combinedParams', combinedParams);
+variance=explVar.cumulativeDPCA;
 
+NdimdPCA=15;%find(variance>=80,1,'First') 
+if isempty(NdimdPCA)
+    NdimdPCA=15;
+end
 % Variance explained by direction component in %
+W=W(:,1:NdimdPCA);
+V=V(:,1:NdimdPCA);
+whichMarg=whichMarg(:,1:NdimdPCA);
+
 Dur_var_exp=[0 0 0];
 if sum(whichMarg==1)>0
     Dur_var_exp(1)=sum(explVar.componentVar(whichMarg==1));
@@ -181,5 +177,5 @@ dpca_plot(FR_dPCA, W, V, @dpca_plot_default, ...
     'marginalizationNames', margNames, ...
     'marginalizationColours', margColours, ...
     'whichMarg', whichMarg);
-variance=explVar.cumulativeDPCA;
+
 end

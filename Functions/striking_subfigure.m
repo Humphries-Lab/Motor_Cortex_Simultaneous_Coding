@@ -89,6 +89,7 @@ for i_dur=1:Nbins
     FR=FR(:,abs(Mov_params.direction(iddir))<0.3927);
     current_dur=round(ms*Mov_params.duration(abs(Mov_params.direction(iddir))<0.3927)-t_from*ms);
     figure
+    set(gca,'Color',[0 0 0])
    hold on
    Ntrials=size(FR,2);
    colour_dur=plasma(Ntrials);
@@ -101,6 +102,7 @@ for i_dur=1:Nbins
     FR2=squeeze(mean(Neural_info.FR(:,:,iddir),1));
     colour_dur=plasma(Ntrials*1.1);
     figure
+    set(gca,'Color',[0 0 0])
     for i_dir=1:Ndir
     FRtmp=FR2(:,direction1==i_dir);
     current_dur=round(ms*duration(direction1==i_dir)-t_from*ms);

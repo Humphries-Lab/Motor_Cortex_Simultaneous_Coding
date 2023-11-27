@@ -152,7 +152,9 @@ if plot_supp
 end
 
 figure
-plot(var_exp_dur_all','.-')
+plot(var_exp_dur_all','.-','Color',[0.5 0.5 0.5])
+hold on 
+errorbar(1:3,mean(var_exp_dur_all),std(var_exp_dur_all),'.')
 ylabel('Variance explained')
 box off
 xlim([0.8 3.2])
@@ -161,5 +163,5 @@ ylim([0 100])
 mean(var_exp_dur_all)
 std(var_exp_dur_all)
 
-disp(['Variance explained by duration = ',mean(var_exp_dur_all),' +- ',std(var_exp_dur_all)])
+disp(['Variance explained by duration = ',num2str(mean(var_exp_dur_all)),' +- ',num2str(std(var_exp_dur_all))])
 end
