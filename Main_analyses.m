@@ -59,7 +59,7 @@ t_upto=0.3*ones(1,size(session_N,2)); %movement duration+ 300 ms
 plot_traj_all_rec=0; % plot trajectories for all recordings
 plot_supp=0; %Don't plot supplementary yet
 
-embedding_dimensions_all_sessions_dpca(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
+%embedding_dimensions_all_sessions_dpca(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 3- Direction
@@ -90,20 +90,20 @@ warning('on','stats:pca:ColRankDefX') % back on
 %upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
 do_plot_supp=1;
 %fig2=figure;
-distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
-speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
+%distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
+%speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 6- Decoding duration
 
-decoding_movement_duration_all_sessions(session,Area,threshold,Ndir,Nbins)
+%decoding_movement_duration_all_sessions(session,Area,threshold,Ndir,Nbins)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 7- Recurrence/ Initial condition hyp
 do_plot_supp=1;
 i_bin=1; % plot results for this bin only
-%recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
-%recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
+recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
+recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Figure 8- RNN
