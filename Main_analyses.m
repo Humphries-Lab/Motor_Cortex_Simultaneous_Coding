@@ -100,7 +100,7 @@ do_plot_supp=1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 7- Recurrence/ Initial condition hyp
-do_plot_supp=1;
+do_plot_supp=0;
 i_bin=1; % plot results for this bin only
 recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
 recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)

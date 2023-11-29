@@ -257,13 +257,13 @@ for i_bin=1:Ndur
         subplot(2,8,[11 12 13])
         plot3(score(idx(t_from:t_upto(i_bin)),1),score(idx(t_from:t_upto(i_bin)),2),score(idx(t_from:t_upto(i_bin)),3),'Color',colour_dir(i_dir,:)./sqrt(i_bin))
         hold on
-        plot3(score(idx(t_from-50:t_from),1),score(idx(t_from-50:t_from),2),score(idx(t_from-50:t_from),3),':','Color',colour_dir(i_dir,:)./sqrt(i_bin))
+        %plot3(score(idx(t_from-50:t_from),1),score(idx(t_from-50:t_from),2),score(idx(t_from-50:t_from),3),'--','Color',colour_dir(i_dir,:)./sqrt(i_bin))
         plot3(score(idx(t_from),1),score(idx(t_from),2),score(idx(t_from),3),'s','MarkerSize',8,'Color',colour_dur(i_bin,:),'MarkerFaceColor',colour_dur(i_bin,:))
         
         subplot(2,8,[14 15 16])
         plot3(score(idx(t_from:t_upto(i_bin)),1),score(idx(t_from:t_upto(i_bin)),2),score(idx(t_from:t_upto(i_bin)),3),'Color',colour_dir(i_dir,:)./sqrt(i_bin))
         hold on
-        plot3(score(idx(t_from-50:t_from),1),score(idx(t_from-50:t_from),2),score(idx(t_from-50:t_from),3),':','Color',colour_dir(i_dir,:)./sqrt(i_bin))
+        %plot3(score(idx(t_from-50:t_from),1),score(idx(t_from-50:t_from),2),score(idx(t_from-50:t_from),3),'--','Color',colour_dir(i_dir,:)./sqrt(i_bin))
         plot3(score(idx(t_from),1),score(idx(t_from),2),score(idx(t_from),3),'s','MarkerSize',8,'Color',colour_dur(i_bin,:),'MarkerFaceColor',colour_dur(i_bin,:))
        
     end
