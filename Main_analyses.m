@@ -82,7 +82,7 @@ plot_supp=1; %plot supplementary
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 4- Decoding direction
 warning('off','stats:pca:ColRankDefX') % do not show the warning "Columns of X are linearly dependent to within machine precision."
-%decoding_movement_direction_all_sessions(session,Area,threshold,Ndir,k_fold,Nrep)
+decoding_movement_direction_all_sessions_v2(session,Area,threshold,Ndir,k_fold,Nrep)
 warning('on','stats:pca:ColRankDefX') % back on
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

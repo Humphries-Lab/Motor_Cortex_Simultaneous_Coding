@@ -1,4 +1,4 @@
-function [Acc_per_cv,error_angle,error_angle_bin]=decoding_movement_direction(coeff,direction,s_angle,neural_activity,colour_dir,k_fold,Nrep,shuffle,do_plot)
+function [Acc_per_cv,error_angle,error_angle_bin]=decoding_movement_direction(coeff,direction,s_angle,neural_activity,threshold,colour_dir,k_fold,Nrep,shuffle,do_plot)
 %% decoding_movement_direction train a Naive Bayes model to decode the movement direction from the preparatory neural activity
 %
 % Model is k-fold cross-validated 
@@ -65,13 +65,13 @@ for i_rep=1:Nrep
     Acc_per_fold=zeros(k_fold,1);
     mean_error_iter=zeros(k_fold,1);
     std_error_iter=zeros(k_fold,1);
-    %Ndim=zeros(k_fold,1);
+    Ndim=zeros(k_fold,1);
     
     for k=1:k_fold
         %% Step 4
         idx_training = training(c,k);
         idx_testing = test(c,k);
-        training_neural=neural_activity(idx_training,:);
+        traning_neural=neural_activity(idx_training,:);
         testing_neural=neural_activity(idx_testing,:);
         training_class=direction(idx_training);
         testing_class=direction(idx_testing);
@@ -91,8 +91,7 @@ for i_rep=1:Nrep
         %[coeff,score,~,~,variance]=pca(traning_neural);
         %Ndim(k)=find(cumsum(variance)>threshold,1,'First');
         %scores_test=(testing_neural-repmat(mean(traning_neural),size(testing_neural,1),1))*coeff(:,1:Ndim);
-        score=training_neural*coeff;
-        scores_test=testing_neural*coeff;
+        scores_test=averages_vel*coeff(:,1:Ndim);
         
         if do_plot
             if k==1 && i_rep==1
@@ -106,7 +105,7 @@ for i_rep=1:Nrep
         end
         % train Naive Bayes
         
-        Mdl = fitcnb(score,training_class);
+        Mdl = fitcnb(score(:,1:Ndim),training_class);
         
         
         %% Step 5
