@@ -195,13 +195,27 @@ ylim([0 0.025])
 subplot(2,3,1)
 xlim([0 0.025])
 ylim([0 0.025])
+axis square
+phi = -pi/4;
+R = [cos(phi),-sin(phi);sin(phi),cos(phi)];
+a=0.025*sqrt(2)/2;
+h=histogram(Hdur-Hdist,-2*a:0.001:a,'Normalization','probability');
+
+coords=[h.BinEdges(1:end-1);h.Values];
+coords = R * coords;
+plot(coords(1,:),coords(2,:))
 
 
+%axes('Position',[0.15,0.58,0.2,0.2]);
+%h=histogram(Hdur,-2*a:0.001:a,'Normalization','probability');
 
-axes('Position',[0.15,0.93,0.21,0.041]);
-histogram(Hdur,0:0.001:0.025,'Normalization','probability')
-xlim([0 0.025])
-box off
+%xlim([-a a])
+%ylim([0 0.3])
+
+%view(45,90)
+%axis square
+%box off
+
 disp('----------------------------------')
 
 pvalues=table(Sessions',Areas',pR_noise)
