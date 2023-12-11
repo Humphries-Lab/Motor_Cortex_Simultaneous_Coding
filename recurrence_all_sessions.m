@@ -24,9 +24,11 @@ function recurrence_all_sessions(Sessions,Areas,threshold,Ndir,i_bin,threshold_d
 %
 % 26/01/2023
 % Andrea Colins Rodriguez
+
+
 ndim=zeros(numel(Areas),1);
 colour_dir=hsv(Ndir);
-
+colour_dur=plasma(4);
 upto=200;% number of points to analyse from the beginning of prep
 
 nrows_plot=max(sum(strcmp(Areas,'M1')),sum(strcmp(Areas,'PMd')));
@@ -40,6 +42,7 @@ if do_plot_supp
 end
 
 colormap(flipud(colormap('gray')))
+MDistance=zeros(numel(Areas)*Ndir,4);
 
 for iarea=1:numel(Areas)
     Area=Areas{iarea};
@@ -63,11 +66,15 @@ for iarea=1:numel(Areas)
 
 
     if iarea==1
-        figure(fig1)
-       
-        plot_initial_condition(score,idx_dir,idx_duration,round(-t_from*1000),round(1000*t_upto),colour_dir)
-
+        do_plot_traj=1;
+    else
+        do_plot_traj=0;
     end
+
+    figure(fig1)
+
+    MDistance_tmp=plot_initial_condition(score,idx_dir,idx_duration,round(-t_from*1000),round(1000*t_upto),colour_dir,do_plot_traj);
+    MDistance(Ndir*(iarea-1)+1:Ndir*iarea,:)=MDistance_tmp;
 
     ndim(iarea)=find(cumsum(variance)>threshold,1,'First');
     score=score(idx_duration==i_bin,:);
@@ -85,6 +92,7 @@ for iarea=1:numel(Areas)
         hold on
         start=find(idx_dir==1,1,'First');
         plot3(score(start,1),score(start,2),score(start,3),'.','MarkerSize',12,'Color',colour_dir(1,:,:))
+        plot3(score(start-t_from*1000,1),score(start-t_from*1000,2),score(start-t_from*1000,3),'s','MarkerSize',8,'MarkerFaceColor','b')
 
         xlabel('PC 1')
         ylabel('PC 2')
@@ -97,6 +105,8 @@ for iarea=1:numel(Areas)
         ylim([1 size(recurrence,1)])
         colormap(flipud(colormap('gray')))
         box off
+        axis square
+
         total_time=size(score,1);
 
         for i_line=1:Ndir
@@ -136,6 +146,7 @@ for iarea=1:numel(Areas)
             ylim([t_from*1000 t_upto(i_bin)*1000])
             xlabel('Time from movement onset [ms]')
             ylabel('Time from movement onset [ms]')
+            axis square
             box off
         end
     end
@@ -202,6 +213,17 @@ for iarea=1:numel(Areas)
 
 
 end
+
+[~,p_val]=ttest2(MDistance(:,2),MDistance(:,4),'Vartype','unequal');
+
+subplot(4,8,[11 12 13]+8)
+errorbar(0:100:300,mean(MDistance),std(MDistance),'Color',[0.5 0.5 0.5])
+xlim([0 320])
+ylim([0 0.025])
+ylabel('Distance between starting points')
+xlabel('\Delta durations [ms]')
+
+disp([' P-value difference initial conditions' num2str(p_val)])
 end
 
 function times_idx=recurrence_time(recurrencebin,first_points,sigma_filter)
@@ -247,37 +269,70 @@ end
 end
 
 
-function plot_initial_condition(score,idx_dir,idx_duration,t_from,t_upto,colour_dir)
+function MDistance=plot_initial_condition(score,idx_dir,idx_duration,t_from,t_upto,colour_dir,do_plot)
 Ndir=max(idx_dir);
 Ndur=max(idx_duration);
 colour_dur=plasma(Ndur);
 tmp=rgb2hsv(colour_dir);
+%t_from=t_from+100;
 colour_dir=hsv2rgb([tmp(:,1),tmp(:,2)/3,tmp(:,3)*0+0.95]);
 for i_bin=1:Ndur
-    for i_dir=[1 5 6 7]
+    for i_dir=1:Ndir
         idx=find(idx_dir==i_dir & idx_duration==i_bin);
-        subplot(2,8,[11 12 13])
-        plot3(score(idx(t_from:t_upto(i_bin)),1),score(idx(t_from:t_upto(i_bin)),2),score(idx(t_from:t_upto(i_bin)),3),'Color',colour_dir(i_dir,:)./(i_bin.^(1/3)),'LineWidth',1)
-        hold on
-        plot3(score(idx(t_from),1),score(idx(t_from),2),score(idx(t_from),3),'s','MarkerSize',8,'Color',colour_dur(i_bin,:),'MarkerFaceColor',colour_dur(i_bin,:))
-        
-        subplot(2,8,[14 15 16])
-        plot3(score(idx(t_from:t_upto(i_bin)),1),score(idx(t_from:t_upto(i_bin)),2),score(idx(t_from:t_upto(i_bin)),3),'Color',colour_dir(i_dir,:)./(i_bin.^(1/3)),'LineWidth',1)
-        hold on
+        IC(i_dir,:,i_bin)=score(idx(t_from),1:3);
+        if do_plot   && (i_dir==1)
+            subplot(4,8,[11 12 13]+16)
+            plot(score(idx(t_from-100:t_from+100),2),score(idx(t_from-100:t_from+100),3),'Color',colour_dir(i_dir,:)./(i_bin.^(1/3)),'LineWidth',1)
+            hold on
+            plot(score(idx(t_from),2),score(idx(t_from),3),'s','MarkerSize',8,'Color',colour_dur(i_bin,:),'MarkerFaceColor',colour_dur(i_bin,:))
+        end
 
-        plot3(score(idx(t_from),1),score(idx(t_from),2),score(idx(t_from),3),'s','MarkerSize',8,'Color',colour_dur(i_bin,:),'MarkerFaceColor',colour_dur(i_bin,:))
-       
+        if do_plot   && (i_dir==1 ||  i_dir==4 || i_dir==6)
+            subplot(4,8,[14 15 16]+8)
+            plot(linspace(0,1,t_upto(i_bin)-t_from+1),score(idx(t_from:t_upto(i_bin)),1),'Color',colour_dir(i_dir,:)./(i_bin.^(1/3)))
+            hold on
+            plot(0,score(idx(t_from),1),'s','MarkerSize',6,'Color',colour_dur(i_bin,:),'MarkerFaceColor',colour_dur(i_bin,:))
+
+            subplot(4,8,[14 15 16]+16)
+            plot(linspace(0,1,t_upto(i_bin)-t_from+1),score(idx(t_from:t_upto(i_bin)),2),'Color',colour_dir(i_dir,:)./(i_bin.^(1/3)))
+            hold on
+            plot(0,score(idx(t_from),2),'s','MarkerSize',6,'Color',colour_dur(i_bin,:),'MarkerFaceColor',colour_dur(i_bin,:))
+
+            %         subplot(2,8,[14 15 16])
+            %         plot(score(idx(t_from:t_upto(i_bin)),2),score(idx(t_from:t_upto(i_bin)),3),'Color',colour_dir(i_dir,:)./(i_bin.^(1/3)),'LineWidth',1)
+            %         hold on
+            %         plot(score(idx(t_from),2),score(idx(t_from),3),'s','MarkerSize',8,'Color',colour_dur(i_bin,:),'MarkerFaceColor',colour_dur(i_bin,:))
+        end
     end
 end
+subplot(4,8,[11 12 13]+8)
+hold on
+Z2=zeros(Ndir,Ndur);
+for i_dir=1:Ndir
+    Z=squareform(pdist(squeeze(IC(i_dir,:,:))'));
+    Z2(i_dir,:)=Z(1,:);
+    plot(0:100:300,Z(1,:),'.','Color',colour_dir(i_dir,:)./(2.^(1/3)))
+end
+MDistance=Z2;
 
-subplot(2,8,[11 12 13])
-xlabel('PC 1')
-ylabel('PC 2')
-zlabel('PC 3')
 
-subplot(2,8,[14 15 16])
-xlabel('PC 1')
+subplot(4,8,[11 12 13]+16)
+box off
+xlabel('PC 2')
+ylabel('PC 3')
+
+subplot(4,8,[14 15 16]+8)
+box off
+%xlabel('Normalised time')
+ylabel('PC 1')
+
+subplot(4,8,[14 15 16]+16)
+box off
+xlabel('Normalised time')
 ylabel('PC 2')
-zlabel('PC 3')
-view(-90.6429,73.5081)
+% subplot(2,8,[14 15 16])
+% xlabel('Normalised time')
+% ylabel('PC 2')
+%zlabel('PC 3')
+%view(-90.6429,73.5081)
 end

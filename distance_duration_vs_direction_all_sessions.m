@@ -39,6 +39,7 @@ R2_same=zeros(1,Nsessions);
 R2_other_dir=zeros(1,Nsessions);
 mean_r=nan(Nsessions,1);
 fraction_explained=zeros(1,Nsessions);
+Delta_all=[];
 
 if do_plot_supp
 fig1=figure;
@@ -151,7 +152,7 @@ for isession=1:Nsessions
     
     Hdist((isession-1)*Ncomb_total+1:isession*Ncomb_total)=Hdist_tmp;
     Hdur((isession-1)*Ncomb_total+1:isession*Ncomb_total)=Hdur_tmp;
-
+    Delta_all=[Delta_all;Delta_dist_all_same];
     
    [~,p(isession)]=ttest(Delta_distances);
    [~,p_delta_distance_same(isession)]=ttest(Delta_dist_all_same,0,'Tail','right');
@@ -191,21 +192,15 @@ xlabel('\Delta Duration')
 ylabel('\Delta within bin')
 xlim([0 0.025])
 ylim([0 0.025])
+diag_hist(Delta_all,0.025)
+axis square
 
 subplot(2,3,1)
 xlim([0 0.025])
 ylim([0 0.025])
 axis square
-phi = -pi/4;
-R = [cos(phi),-sin(phi);sin(phi),cos(phi)];
-a=0.025*sqrt(2)/2;
-h=histogram(Hdur-Hdist,-2*a:0.001:a,'Normalization','probability');
 
-coords=[h.BinEdges(1:end-1);h.Values];
-coords = R * coords;
-plot(coords(1,:),coords(2,:))
-
-
+diag_hist(Hdur-Hdist,0.025)
 %axes('Position',[0.15,0.58,0.2,0.2]);
 %h=histogram(Hdur,-2*a:0.001:a,'Normalization','probability');
 
@@ -220,16 +215,17 @@ disp('----------------------------------')
 
 pvalues=table(Sessions',Areas',pR_noise)
 
-axes('Position',[0.3,0.58,0.028,0.338]);
-histogram(Hdist,0:0.001:0.025,'Normalization','probability','orientation','horizontal')
-ylim([0 0.025])
-box off
+% axes('Position',[0.3,0.58,0.028,0.338]);
+% histogram(Hdist,0:0.001:0.025,'Normalization','probability','orientation','horizontal')
+% ylim([0 0.025])
+% box off
 
 subplot(2,3,2)
 xlim([0 0.025])
 ylim([0 0.025])
 plot([0 0.025],[0 0.025],'r')
 box off
+%diag_hist(Hdur-Hdist,0.025)
 
 subplot(2,3,5)
 plot([0 13],[0 0],'Color',[0.5 0.5 0.5])
