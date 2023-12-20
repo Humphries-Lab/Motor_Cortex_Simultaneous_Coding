@@ -41,9 +41,9 @@ Distance_d_dir=nan(Nsessions,32);
 do_plot_r2=0;
 
 
-for isession=1:Nsessions-1
+for isession=1:Nsessions
     
-    [fraction_above_vel(isession),p_vel(isession),fraction_above_dist(isession),p_dist(isession),average_speed_bin(isession,:),average_dist_bin(isession,:),Distance_vel(isession,:),Distance_v_dir(isession,:),Distance_dist(isession,:),Distance_d_dir(isession,:),R2,Dur_var_exp(isession,:)]=speed_distance(session{isession}, Area{isession},threshold,Ndir,t_from(isession),t_upto(isession));
+    [fraction_above_vel(isession),p_vel(isession),fraction_above_dist(isession),p_dist(isession),average_speed_bin(isession,:),average_dist_bin(isession,:),Distance_vel(isession,:),Distance_v_dir(isession,:),Distance_dist(isession,:),Distance_d_dir(isession,:),R2]=speed_distance(session{isession}, Area{isession},threshold,Ndir,t_from(isession),t_upto(isession));
     
     if do_plot_r2
         % compute coefficient of determination between trajectories of diff
@@ -69,7 +69,9 @@ ylabel('Distance closest directions')
 xlim([0 0.025])
 ylim([0 0.025])
 text(0.005,0.02,[' max p-value = ' num2str(max(p_vel))],'FontSize',8)
-
+tmp=reshape(repmat(Distance_vel,4,1),13,32);
+diag_hist(tmp(:)-Distance_v_dir(:),0.025)
+axis square
 
 % subplot(2,3,6)
 % plot([0 0.025],[0 0.025],'k')
@@ -88,17 +90,17 @@ text(0.005,0.02,[' max p-value = ' num2str(max(p_vel))],'FontSize',8)
 % disp('--------------------------------')
 
 
-axes('Position',[0.4116    0.47    0.21   0.041]);
-histogram(Distance_vel(:),'Normalization','probability')
-xlim([0 0.025])
-xlabel('Distance Speed')
-box off
-
-axes('Position',[ 0.6331    0.1116    0.0164    0.34]);
-histogram(Distance_v_dir(:),'Normalization','probability','orientation','horizontal')
-ylim([0 0.025])
-ylabel('Distance Closest direction')
-box off
+% axes('Position',[0.4116    0.47    0.21   0.041]);
+% histogram(Distance_vel(:),'Normalization','probability')
+% xlim([0 0.025])
+% xlabel('Distance Speed')
+% box off
+% 
+% axes('Position',[ 0.6331    0.1116    0.0164    0.34]);
+% histogram(Distance_v_dir(:),'Normalization','probability','orientation','horizontal')
+% ylim([0 0.025])
+% ylabel('Distance Closest direction')
+% box off
 
 % axes('Position',[ 0.6936    0.47    0.2100    0.0410]);
 % histogram(Distance_dist(:),'Normalization','probability')

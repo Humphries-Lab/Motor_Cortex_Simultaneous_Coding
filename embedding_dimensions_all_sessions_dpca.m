@@ -56,11 +56,13 @@ end
 embedding_dim=zeros(size(Sessions));
 R(max(session_N))=struct();
 var_exp_dur_all=zeros(size(Sessions,2),3);
+InnerP=zeros(size(Sessions));
+InnerPdir=zeros(size(Sessions));
 for isession=1:size(Sessions,2)
     disp(['Starting PCA for recording ' num2str(isession)])
     
     %[variance,dist_mov_dir,mov_duration,max_speed]=embedding_dimensions(Sessions{isession}, Area{isession},Ndir,Nbins,t_from(isession),t_upto(isession),edges_dur_bin,do_plot);
-    [variance,dist_mov_dir,mov_duration,max_speed,Dur_var_exp]=embedding_dimensions_dpca(Sessions{isession}, Area{isession},Ndir,Nbins,t_from(isession),t_upto(isession),edges_dur_bin,do_plot);
+    [variance,dist_mov_dir,mov_duration,max_speed,Dur_var_exp,InnerP(isession),InnerPdir(isession)]=embedding_dimensions_dpca(Sessions{isession}, Area{isession},Ndir,Nbins,t_from(isession),t_upto(isession),edges_dur_bin,do_plot);
     var_exp_dur_all(isession,:)=Dur_var_exp;
     
     %% kinematics
@@ -162,6 +164,7 @@ ylim([0 100])
 
 mean(var_exp_dur_all)
 std(var_exp_dur_all)
-
 disp(['Variance explained by duration = ',num2str(mean(var_exp_dur_all)),' +- ',num2str(std(var_exp_dur_all))])
+disp(['Inner product duration vs dir = ',num2str(mean(InnerP)),' +- ',num2str(std(InnerP))])
+disp(['Inner product dir vs dir = ',num2str(mean(InnerPdir)),' +- ',num2str(std(InnerPdir))])
 end

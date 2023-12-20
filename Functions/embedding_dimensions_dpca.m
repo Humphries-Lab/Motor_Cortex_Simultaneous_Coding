@@ -1,4 +1,4 @@
-function [variance,mov_distance,mov_duration,max_speed,Dur_var_exp]=embedding_dimensions_dpca(Session,Area,Ndir,Nbins,t_from,t_upto,edges_dur_bin,do_plot)
+function [variance,mov_distance,mov_duration,max_speed,Dur_var_exp,InnerP,InnerPdir]=embedding_dimensions_dpca(Session,Area,Ndir,Nbins,t_from,t_upto,edges_dur_bin,do_plot)
 %% embedding_dimensions performs PCA on the neural data from Session and
 %% Area binning the movements into Ndir directions and Nbins durations
 % This function also saves the PCA results on a file for later analyses
@@ -149,7 +149,7 @@ explVar = dpca_explainedVariance(FR_dPCA, W, V, ...
     'combinedParams', combinedParams);
 variance=explVar.cumulativeDPCA;
 
-NdimdPCA=15;%find(variance>=80,1,'First') 
+NdimdPCA=15;%find(variance>=80,1,'First')
 if isempty(NdimdPCA)
     NdimdPCA=15;
 end
@@ -159,8 +159,23 @@ V=V(:,1:NdimdPCA);
 whichMarg=whichMarg(:,1:NdimdPCA);
 
 Dur_var_exp=[0 0 0];
+%figure
+[newwhichMarg,idxMarg]=sort(whichMarg,'ascend');
+newV=V(:,idxMarg);
+newW=W(:,idxMarg);
+%newexplVar=explVar(idxMarg);
+%imagesc(abs(V'*V))
+%clim([0 1])
+[i,j]=significant_notOrth(FR_dPCA,newV,newW,margColours);
+
+totalNorth=sum(newwhichMarg(i)==1 & newwhichMarg(j)==2) % non orthogonal vectors
+
+[InnerP]=innerProduct(V(:,whichMarg==1),V(:,whichMarg==2));
+InnerPdir=innerProduct(V(:,whichMarg==1),V(:,whichMarg==3));
+
 if sum(whichMarg==1)>0
     Dur_var_exp(1)=sum(explVar.componentVar(whichMarg==1));
+
 end
 if sum(whichMarg==2)>0
     Dur_var_exp(2)=sum(explVar.componentVar(whichMarg==2));
@@ -168,14 +183,57 @@ end
 if sum(whichMarg==3)>0
     Dur_var_exp(3)=sum(explVar.componentVar(whichMarg==3));
 end
-disp(['Variance explained by duration Component = ',num2str(Dur_var_exp)])
+%disp(['Variance explained by duration Component = ',num2str(Dur_var_exp)])
 
-dpca_plot(FR_dPCA, W, V, @dpca_plot_default, ...
-    'explainedVar', explVar,...
-    'time', linspace(0,1,size(FR_dPCA,4)),                        ...
-    'timeEvents', 0,               ...
-    'marginalizationNames', margNames, ...
-    'marginalizationColours', margColours, ...
-    'whichMarg', whichMarg);
+%[iNorth,jNorth]=dpca_plot(FR_dPCA, newW, newV, @dpca_plot_default, ...
+    % 'explainedVar', explVar,...
+    % 'time', linspace(0,1,size(FR_dPCA,4)),                        ...
+    % 'timeEvents', 0,               ...
+    % 'marginalizationNames', margNames, ...
+    % 'marginalizationColours', margColours, ...
+    % 'whichMarg', newwhichMarg);
 
+end
+
+function [InnerP,p]=innerProduct(Vdir,Vdur)
+ndim=min(size(Vdir,2),size(Vdur,2));
+% don't include the diagonal
+tmp=abs(Vdir(:,1:ndim)'*Vdur(:,1:ndim));
+InnerP=mean(tmp(tmp<0.999),'all');
+n=15;
+p = betacdf((tmp(tmp<0.999)+1)/2,(n-1)/2,(n-1)/2)-betacdf(1-(tmp(tmp<0.999))/2,(n-1)/2,(n-1)/2);
+end
+
+function [i,j]=significant_notOrth(Xfull,V,W,marginalizationColours)
+X = Xfull(:,:)';
+Xcen = bsxfun(@minus, X, mean(X));
+Z = Xcen * W;
+numCompToShow=size(V,2);
+a = corr(Z(:,1:numCompToShow));
+%a = a*0;
+b = V(:,1:numCompToShow)'*V(:,1:numCompToShow);
+
+% display(['Maximal correlation: ' num2str(max(abs(a(a<0.999))))])
+% display(['Minimal angle: ' num2str(acosd(max(abs(b(b<0.999)))))])
+
+[~, psp] = corr(V(:,1:numCompToShow), 'type', 'Kendall');
+%[cpr, ppr] = corr(V(:,1:numCompToShow));
+%map = tril(a,-1)+triu(b);
+
+%L = length(marginalizationColours);
+%image(round(map*128)+128 + L)
+
+%xlabel('Component')
+%ylabel('Component')
+
+%cb = colorbar('location', 'southoutside');
+%set(cb, 'xlim', [L+1 L+256], 'XTick', [L+1:65:L+256 L+256], 'XTickLabel', -1:0.5:1)
+
+%hold on
+% [i,j] = ind2sub(size(triu(b,1)), ...
+%     find(abs(triu(b,1)) > 3.3/sqrt(size(V,1)) & psp<0.001)); % & abs(csp)>0.02));
+% 
+[i,j] = ind2sub(size(triu(b,1)), ...
+    find(abs(triu(b,1)) > 3.3/sqrt(size(V,1)) & psp<0.01)); % & abs(csp)>0.02));
+%plot(j,i,'k*')
 end

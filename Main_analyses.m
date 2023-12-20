@@ -76,8 +76,8 @@ t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)]
 
 plot_supp=1; %plot supplementary
 
-%embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
-%upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
+embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
+upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 4- Decoding direction
@@ -91,12 +91,12 @@ plot_supp=1; %plot supplementary
 do_plot_supp=1;
 %fig2=figure;
 distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
-%speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
+speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 6- Decoding duration
 
-%decoding_movement_duration_all_sessions(session,Area,threshold,Ndir,Nbins)
+decoding_movement_duration_all_sessions(session,Area,threshold,Ndir,Nbins)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 7- Recurrence/ Initial condition hyp
@@ -107,8 +107,8 @@ recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Figure 8- RNN
-InputRange=[-1,1];
-RunDifferentTau(InputRange)
+%InputRange=[-1,1];
+%RunDifferentTau(InputRange)
 
 % for supp figure
 %InputRange=[0,1];
