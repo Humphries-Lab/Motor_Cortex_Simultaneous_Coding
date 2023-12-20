@@ -230,6 +230,7 @@ ylim([0 0.025])
 ylabel('Distance between starting points')
 xlabel('\Delta durations [ms]')
 text(100, 0.01,['Corr = ' num2str(corrDelta)])
+
 disp([' P-value difference initial conditions' num2str(p_val)])
 end
 
@@ -277,6 +278,7 @@ end
 
 
 function [MDistance,ICdirmean]=plot_initial_condition(score,idx_dir,idx_duration,t_from,t_upto,colour_dir,do_plot)
+
 Ndir=max(idx_dir);
 Ndur=max(idx_duration);
 colour_dur=plasma(Ndur);
@@ -288,6 +290,7 @@ ICdir=zeros(Ndir,Ndur);
 for i_bin=1:Ndur
     for i_dir=1:Ndir
         idx=find(idx_dir==i_dir & idx_duration==i_bin);
+
         idxnextdir=find(idx_dir==nextdir(i_dir) & idx_duration==i_bin);
 
         ICdir(i_dir,i_bin)=sqrt(sum((score(idx(t_from),1:3)-score(idxnextdir(t_from),1:3)).^2));
@@ -322,11 +325,11 @@ subplot(4,8,[11 12 13]+8)
 hold on
 Z2=zeros(Ndir,Ndur);
 ICdirmean=mean(ICdir,2);
+
 for i_dir=1:Ndir
     Z=squareform(pdist(squeeze(IC(i_dir,:,:))'));
     Z2(i_dir,:)=Z(1,:);
     plot(0:100:300,Z(1,:),'.','Color',colour_dir(i_dir,:)./(2.^(1/3)))
-    %plot([0 300],[mean(ICdirmean(i_dir)) mean(ICdirmean(i_dir))],'k')
 end
 MDistance=Z2;
 

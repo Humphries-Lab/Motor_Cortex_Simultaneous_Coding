@@ -90,8 +90,9 @@ upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur
 %upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
 do_plot_supp=1;
 %fig2=figure;
-distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
-speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
+%distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
+%speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 6- Decoding duration
