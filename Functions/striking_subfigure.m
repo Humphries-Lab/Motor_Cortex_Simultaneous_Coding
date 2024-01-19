@@ -88,6 +88,8 @@ for i_dur=1:Nbins
     FR=squeeze(mean(Neural_info.FR(:,:,iddir),1));
     FR=FR(:,abs(Mov_params.direction(iddir))<0.3927);
     current_dur=round(ms*Mov_params.duration(abs(Mov_params.direction(iddir))<0.3927)-t_from*ms);
+    
+    
     figure
     set(gca,'Color',[0 0 0])
    hold on
@@ -100,9 +102,12 @@ for i_dur=1:Nbins
     direction1=ceil(Ndir*(Mov_params.direction(iddir)+pi)/(2*pi));
     duration=Mov_params.duration(iddir);
     FR2=squeeze(mean(Neural_info.FR(:,:,iddir),1));
-    colour_dur=plasma(Ntrials*1.1);
+    colour_dur=flipud(plasma(Ntrials*1.1));
+    
+    %% circle
     figure
-    set(gca,'Color',[0 0 0])
+    %set(gca,'Color',[0 0 0])
+    
     for i_dir=1:Ndir
     FRtmp=FR2(:,direction1==i_dir);
     current_dur=round(ms*duration(direction1==i_dir)-t_from*ms);
@@ -113,9 +118,12 @@ for i_dur=1:Nbins
     hold on
     
     end
+    
+    end
     rlim([0.006 0.07])
     axis off
-    end
+    ax=gca;
+    ax.Color=[0 0 0];
     % s=surface(1:size(FR,2),1:size(FR,1),FR);
     % s.EdgeColor = 'none';
    %imagesc(squeeze(mean(Neural_info.FR(:,:,iddir),1)))
@@ -128,18 +136,7 @@ for i_dur=1:Nbins
     % bin by direction
     direction1=ceil(Ndir*(Mov_params.direction+pi)/(2*pi));
     
-    if do_plot
-        xtime=round(t_from*ms):1:round(t_upto(i_dur)*ms-1);
-        FR=mean(mean(Neural_info.FR,3));
-        
-        subplot(4,5,1:3)
-        plot(xtime,FR,'Color',colour_plasma(i_dur,:))
-        hold on
-        ylabel('Firing rate')
-        title([ Area ' ' Session ])
-        
-        
-    end
+    
     
     
     for i_dir=1:Ndir
