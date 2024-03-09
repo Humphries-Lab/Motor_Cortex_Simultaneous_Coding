@@ -74,10 +74,10 @@ plot_supp=0; %Don't plot supplementary yet
 t_from=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
 t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];%movement duration+ 200 ms for M1 and 50 ms for PMd
 
-plot_supp=1; %plot supplementary
+plot_supp=0; %plot supplementary
 
-embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
-upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
+%embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
+%upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 4- Decoding direction
@@ -91,20 +91,20 @@ upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur
 do_plot_supp=1;
 %fig2=figure;
 %distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
-%speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
+speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 6- Decoding duration
 
-decoding_movement_duration_all_sessions(session,Area,threshold,Ndir,Nbins)
+%decoding_movement_duration_all_sessions(session,Area,threshold,Ndir,Nbins)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 7- Recurrence/ Initial condition hyp
-do_plot_supp=0;
-i_bin=1; % plot results for this bin only
-recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
-recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
+% do_plot_supp=0;
+% i_bin=1; % plot results for this bin only
+% recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
+% recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Figure 8- RNN

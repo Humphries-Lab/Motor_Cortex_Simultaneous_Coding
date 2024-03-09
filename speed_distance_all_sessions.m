@@ -38,12 +38,13 @@ Distance_vel=nan(Nsessions,Ndir);
 Distance_dist=nan(Nsessions,Ndir);
 Distance_v_dir=nan(Nsessions,32);
 Distance_d_dir=nan(Nsessions,32);
+power_sample=nan(Nsessions,6);
 do_plot_r2=0;
 
 
 for isession=1:Nsessions
     
-    [fraction_above_vel(isession),p_vel(isession),fraction_above_dist(isession),p_dist(isession),average_speed_bin(isession,:),average_dist_bin(isession,:),Distance_vel(isession,:),Distance_v_dir(isession,:),Distance_dist(isession,:),Distance_d_dir(isession,:),R2]=speed_distance(session{isession}, Area{isession},threshold,Ndir,t_from(isession),t_upto(isession));
+    [fraction_above_vel(isession),p_vel(isession),fraction_above_dist(isession),p_dist(isession),average_speed_bin(isession,:),average_dist_bin(isession,:),Distance_vel(isession,:),Distance_v_dir(isession,:),Distance_dist(isession,:),Distance_d_dir(isession,:),R2,power_sample(isession,:)]=speed_distance(session{isession}, Area{isession},threshold,Ndir,t_from(isession),t_upto(isession));
     
     if do_plot_r2
         % compute coefficient of determination between trajectories of diff
@@ -54,6 +55,8 @@ for isession=1:Nsessions
     end
     
 end
+
+disp(['Mean power sample speed = ' num2str(mean(power_sample))])
 if do_plot_r2
     subplot(2,3,1)
     text(1, 0, [' max p-val = ' num2str(max(p_vel_R),2)])

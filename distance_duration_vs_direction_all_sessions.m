@@ -200,7 +200,7 @@ xlim([0 0.025])
 ylim([0 0.025])
 axis square
 
-diag_hist(Hdur-Hdist,0.025)
+%diag_hist(Hdur-Hdist,0.025)
 %axes('Position',[0.15,0.58,0.2,0.2]);
 %h=histogram(Hdur,-2*a:0.001:a,'Normalization','probability');
 

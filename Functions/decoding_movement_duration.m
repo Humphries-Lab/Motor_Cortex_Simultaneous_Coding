@@ -79,9 +79,9 @@ for i_dir=1:Ndir
     error_duration(i_dir,:)=abs(estimated_duration(i_dir,:)-traj_length);
     
     
-    subplot(2,3,4)
-    plot(traj_length,estimated_duration(i_dir,:),'.','Color',colour_dir(i_dir,:))
-    hold on
+    %subplot(2,3,4)
+    %plot(traj_length-500,estimated_duration(i_dir,:)-500,'.','Color',colour_dir(i_dir,:))
+    %hold on
     
     subplot(2,3,5)
     plot(traj_length,100*abs(estimated_duration(i_dir,:)-traj_length)./traj_length,'.','Color',colour_dir(i_dir,:))

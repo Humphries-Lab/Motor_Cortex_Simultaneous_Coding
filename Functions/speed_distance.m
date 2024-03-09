@@ -1,4 +1,4 @@
-function [fraction_above_speed,p_speed,fraction_above_dist,p_dist,average_speed_bin,average_dist_bin,Distance_speed,Distance_dir_speed,Distance_dist,Distance_dir_dist,R2]=speed_distance(Session, Area,threshold,Ndir,t_from,t_upto)
+function [fraction_above_speed,p_speed,fraction_above_dist,p_dist,average_speed_bin,average_dist_bin,Distance_speed,Distance_dir_speed,Distance_dist,Distance_dir_dist,R2,power_sample]=speed_distance(Session, Area,threshold,Ndir,t_from,t_upto)
 %% speed_distance compares the distance between trajectories corresponding
 %% to different speeds (& distances) vs adjacent direction bins
 %
@@ -61,7 +61,7 @@ else
     colourArea=[89 156 153]./256;
 end
 
-load(['../Output_files/PCA_' Session(1:end-4) '_' Area '.mat'],'coeffs','variance','delete_units','normalisation','sigma_filter')
+load(['../Output_files/PCA_' Session(1:end-4) '_' Area '.mat'],'coeffs','variance','delete_units','normalisation','sigma_filter','nsamples_condition')
 
 
 [Neural_info,Mov_params]=neural_data_per_duration_normalised(Session,Area,sigma_filter,t_from,t_upto,from_to);
@@ -85,13 +85,15 @@ averages_vel=nan(size(Neural_info.FR,1),Ndir*2*final_length);
 averages_dist=nan(size(Neural_info.FR,1),Ndir*2*final_length);
 idx_vel_2=nan(Ndir*2*final_length,1);
 idx_dir_2=nan(Ndir*2*final_length,1);
-counter=0;
+counter=1;
+Nsamples=nan(Ndir*2,1);
 for i_dir=1:Ndir
      for i_vel=1:2
         
         % to select only the ones with the same distance
-                
-        averages_vel=[averages_vel,mean(Neural_info.FR(:,:,speed_discrete==i_vel & direction1==i_dir & abs(Mov_params.distance-threshold_dist)<1),3)];
+        constant_dist=(speed_discrete==i_vel & direction1==i_dir & abs(Mov_params.distance-threshold_dist)<1);
+        Nsamples(counter)=sum(constant_dist);
+        averages_vel=[averages_vel,mean(Neural_info.FR(:,:,constant_dist),3)];
         idx_vel_2=[idx_vel_2;zeros(final_length,1)+i_vel];
         
         averages_dist=[averages_dist,mean(Neural_info.FR(:,:,dist_discrete==i_vel & direction1==i_dir & abs(Mov_params.max_speed-threshold_speed)<2),3)];
@@ -104,7 +106,8 @@ for i_dir=1:Ndir
     end
 end
 
-
+power_sample=[mean(Nsamples) mean(nsamples_condition,'all') mean(Nsamples) mean(nsamples_condition,'all') median(Nsamples) median(nsamples_condition,'all')];
+power_sample=[100*power_sample(1:2)./power_sample(1) power_sample(3:end)];
 %% Project same directions coloring different times
 %soft normalization
 % averages_vel(delete_units,:)=[];
@@ -114,7 +117,7 @@ end
 % 
 % [~,score_vel,~,~,exp_1]=pca(averages_vel);
 % [~,score_dist,~,~,exp_dist_1]=pca(averages_dist);
-colour_dir=hsv(Ndir);
+%colour_dir=hsv(Ndir);
 
 
 % % soft normalization
