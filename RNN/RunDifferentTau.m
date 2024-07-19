@@ -47,7 +47,7 @@ I_ramp = makeRampInput(pars.dt,pars.duration(end)-pars.duration(1),pars.fall_dur
 
 fig2=figure;
 
-colour_dir=hsv(Ndir);
+colour_dir=My_hsv(Ndir);
 colour_dur=plasma(nTau);
 pars.angle = linspace(0,2*pi,Ndir+1); % want 11 of these... % different rotations of that vector: matching different reach angles in discrete analysis
 pars.angle(end) = [];               % to get 10 reach angles, equally separated
@@ -120,7 +120,7 @@ for iAngle=1:Ndir
     
     subplot(2,3,6),
     hold on
-    plot(ts,output_dur,'Color',colour_dir(iAngle,:))
+    plot(ts,output_dur,'Color',colour_dir(iAngle,:),'LineWidth',2)
     
     
 end

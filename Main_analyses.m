@@ -18,6 +18,8 @@
 close all
 clearvars
 addpath(genpath('../'))
+dir_dpca='C:/Users/controlmotor/Desktop/Andrea/codes_from_papers/kobak2016';% folder where dpca toolbox is
+addpath(dir_dpca)
 mkdir('../Output_files')
 %% Define recordings to analyse
 
@@ -46,10 +48,11 @@ edges_dur_bin=(0:Nbins)*dur_bin_size+start_dur_bin; %Movement duration for each 
 %% Figure 1-behaviour
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Example trial
-%trial=4;
-%Behaviour_spikes_per_trial(session{11}, Area{11},Ndir,trial)
-% Example session stats
-%Behaviour_variability(session{11}, Area{11},Ndir,edges_dur_bin)
+trial=4;
+Behaviour_spikes_per_trial(session{11}, Area{11},Ndir,trial)
+% Example session stats just for plotting purposes, reported corr values
+% are computed later
+Behaviour_variability(session{11}, Area{11},Ndir,edges_dur_bin)
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 2-dPCA
@@ -59,57 +62,45 @@ t_upto=0.3*ones(1,size(session_N,2)); %movement duration+ 300 ms
 plot_traj_all_rec=0; % plot trajectories for all recordings
 plot_supp=0; %Don't plot supplementary yet
 
-%embedding_dimensions_all_sessions_dpca(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
+embedding_dimensions_all_sessions_dpca(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Figure 3- Direction
 % before selecting the end and start of each area, select neural activity from 500 ms before the
 % movement onset upto 300 ms after the movement end
 
-%embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
-%[new_t_1,new_t_2]=Trajectories_differ_by_dir_all_sessions(session,Area,threshold,Ndir,Nbins);
+embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
+[new_t_1,new_t_2]=Trajectories_differ_by_dir_all_sessions(session,Area,threshold,Ndir,Nbins);
 
 %% select the neural activity from the selected segments for each area
 
 t_from=[-0.25*ones(1,sum(strcmp(Area,'M1'))),-0.45*ones(1,sum(strcmp(Area,'PMd')))];
 t_upto=[0.2*ones(sum(strcmp(Area,'M1')),1);0.05*ones(sum(strcmp(Area,'PMd')),1)];%movement duration+ 200 ms for M1 and 50 ms for PMd
 
-plot_supp=0; %plot supplementary
+plot_supp=1; %plot supplementary
 
-%embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
-%upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
+embedding_dimensions_all_sessions(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin,session_N,plot_traj_all_rec,plot_supp);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Figure 4- Decoding direction
-%warning('off','stats:pca:ColRankDefX') % do not show the warning "Columns of X are linearly dependent to within machine precision."
-%decoding_movement_direction_all_sessions_v2(session,Area,threshold,Ndir,k_fold,Nrep)
-%warning('on','stats:pca:ColRankDefX') % back on
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Figure 5- Duration
-%upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
+%% Figure 4- Duration
+upper_bound_similarity(session,Area,threshold,Ndir,Nbins,t_from,t_upto,edges_dur_bin)
 do_plot_supp=1;
 %fig2=figure;
-%distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
+distance_duration_vs_direction_all_sessions(session,Area,threshold,Ndir,Nbins,do_plot_supp);
 speed_distance_all_sessions(session,Area,threshold,Ndir,t_from,t_upto)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Figure 6- Decoding duration
+%% Figure 5- Decoding duration
 
-%decoding_movement_duration_all_sessions(session,Area,threshold,Ndir,Nbins)
+decoding_movement_duration_all_sessions(session,Area,threshold,Ndir,Nbins)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Figure 7- Recurrence/ Initial condition hyp
-% do_plot_supp=0;
-% i_bin=1; % plot results for this bin only
-% recurrence_all_sessions(session,Area,threshold,Ndir,i_bin,threshold_dist,do_plot_supp)
-% recurrence_region_all_sessions(session,Area,threshold,Ndir,Nbins,threshold_dist)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Figure 8- RNN
-%InputRange=[-1,1];
-%RunDifferentTau(InputRange)
+%% Figure 6- RNN
+InputRange=[-1,1];
+RunDifferentTau(InputRange)
 
 % for supp figure
 %InputRange=[0,1];

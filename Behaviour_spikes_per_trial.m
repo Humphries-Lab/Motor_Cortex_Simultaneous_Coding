@@ -37,7 +37,7 @@ if strcmp(Area,'M1')
     clear M1
 end
 ms=1000;% to convert to ms
-colour_dir=hsv(Ndir);
+colour_dir=My_hsv(Ndir);
 startt=trial_table2(Ntrial,1);
 endt=trial_table2(Ntrial,22);
 

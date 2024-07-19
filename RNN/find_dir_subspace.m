@@ -80,14 +80,14 @@ for iAngle = 1:numel(pars.angle)
     temporalPCs2(1+(iAngle-1)*Npoints_per_dir:iAngle*Npoints_per_dir,:)=temporalPCs(tInput(1)+1+(iAngle-1)*tSteps:tSteps+(iAngle-1)*tSteps,1:pars.nPCs);
     
     subplot(2,3,1)
-    plot(temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,1),'Color',colour_dir(iAngle,:))
+    plot(temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,1),'Color',colour_dir(iAngle,:),'LineWidth',2)
     hold on
     subplot(2,3,4)
-    plot(temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,2),'Color',colour_dir(iAngle,:))
+    plot(temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,2),'Color',colour_dir(iAngle,:),'LineWidth',2)
     hold on
     
     subplot(2,3,2)
-    plot3(temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,1),temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,2),temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,3),'Color',colour_dir(iAngle,:))
+    plot3(temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,1),temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,2),temporalPCs(1+(iAngle-1)*tSteps:iAngle*tSteps,3),'Color',colour_dir(iAngle,:),'LineWidth',2)
     hold on
 
 end

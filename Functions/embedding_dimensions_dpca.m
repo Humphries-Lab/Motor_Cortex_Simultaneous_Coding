@@ -1,5 +1,5 @@
 function [variance,mov_distance,mov_duration,max_speed,Dur_var_exp,InnerP,InnerPdir]=embedding_dimensions_dpca(Session,Area,Ndir,Nbins,t_from,t_upto,edges_dur_bin,do_plot)
-%% embedding_dimensions performs PCA on the neural data from Session and
+%% embedding_dimensions performs dPCA on the neural data from Session and
 %% Area binning the movements into Ndir directions and Nbins durations
 % This function also saves the PCA results on a file for later analyses
 %
@@ -47,7 +47,7 @@ ms=1000;
 
 if do_plot
     figure
-    colour_dir=hsv(Ndir);
+    colour_dir=My_hsv(Ndir);
     colour_plasma=plasma(Nbins);
 end
 load(Session,Area,'trial_table2','cont')
@@ -77,14 +77,15 @@ idx_dir=nan(total_time_bins,1);
 idx_duration=nan(total_time_bins,1);
 counter=0;
 Neural_all=cell(Nbins,1);
+
+
 % Extract movements and related neural activity for eac duration bin
 for i_dur=1:Nbins
 
     current_dur_bin=[edges_dur_bin(i_dur) edges_dur_bin(i_dur+1)]; % select movements in this range of duration only
 
     [Neural_info,Mov_params]=neural_data_per_duration(cont,trial_table2,neural_data,sigma_filter,t_from,t_upto(i_dur),current_dur_bin);
-    %[Neural_info,Mov_params]=neural_data_per_duration_normalised(cont,trial_table2,neural_data,sigma_filter,t_from,t_upto(i_dur),current_dur_bin);
-
+  
     %Save Mov params for later analyses
     mov_distance{i_dur}=Mov_params.distance;
     mov_duration{i_dur}=Mov_params.duration;
@@ -153,22 +154,17 @@ NdimdPCA=15;%find(variance>=80,1,'First')
 if isempty(NdimdPCA)
     NdimdPCA=15;
 end
+
 % Variance explained by direction component in %
 W=W(:,1:NdimdPCA);
 V=V(:,1:NdimdPCA);
 whichMarg=whichMarg(:,1:NdimdPCA);
 
 Dur_var_exp=[0 0 0];
-%figure
+
 [newwhichMarg,idxMarg]=sort(whichMarg,'ascend');
 newV=V(:,idxMarg);
 newW=W(:,idxMarg);
-%newexplVar=explVar(idxMarg);
-%imagesc(abs(V'*V))
-%clim([0 1])
-[i,j]=significant_notOrth(FR_dPCA,newV,newW,margColours);
-
-totalNorth=sum(newwhichMarg(i)==1 & newwhichMarg(j)==2) % non orthogonal vectors
 
 [InnerP]=innerProduct(V(:,whichMarg==1),V(:,whichMarg==2));
 InnerPdir=innerProduct(V(:,whichMarg==1),V(:,whichMarg==3));
@@ -183,15 +179,16 @@ end
 if sum(whichMarg==3)>0
     Dur_var_exp(3)=sum(explVar.componentVar(whichMarg==3));
 end
-%disp(['Variance explained by duration Component = ',num2str(Dur_var_exp)])
 
-%[iNorth,jNorth]=dpca_plot(FR_dPCA, newW, newV, @dpca_plot_default, ...
-    % 'explainedVar', explVar,...
-    % 'time', linspace(0,1,size(FR_dPCA,4)),                        ...
-    % 'timeEvents', 0,               ...
-    % 'marginalizationNames', margNames, ...
-    % 'marginalizationColours', margColours, ...
-    % 'whichMarg', newwhichMarg);
+if do_plot
+My_dpca_plot(FR_dPCA, newW, newV, @My_dpca_plot_default, ...
+    'explainedVar', explVar,...
+    'time', linspace(0,1,size(FR_dPCA,4)),                        ...
+    'timeEvents', 0,               ...
+    'marginalizationNames', margNames, ...
+    'marginalizationColours', margColours, ...
+    'whichMarg', newwhichMarg);
+end
 
 end
 
@@ -202,38 +199,4 @@ tmp=abs(Vdir(:,1:ndim)'*Vdur(:,1:ndim));
 InnerP=mean(tmp(tmp<0.999),'all');
 n=15;
 p = betacdf((tmp(tmp<0.999)+1)/2,(n-1)/2,(n-1)/2)-betacdf(1-(tmp(tmp<0.999))/2,(n-1)/2,(n-1)/2);
-end
-
-function [i,j]=significant_notOrth(Xfull,V,W,marginalizationColours)
-X = Xfull(:,:)';
-Xcen = bsxfun(@minus, X, mean(X));
-Z = Xcen * W;
-numCompToShow=size(V,2);
-a = corr(Z(:,1:numCompToShow));
-%a = a*0;
-b = V(:,1:numCompToShow)'*V(:,1:numCompToShow);
-
-% display(['Maximal correlation: ' num2str(max(abs(a(a<0.999))))])
-% display(['Minimal angle: ' num2str(acosd(max(abs(b(b<0.999)))))])
-
-[~, psp] = corr(V(:,1:numCompToShow), 'type', 'Kendall');
-%[cpr, ppr] = corr(V(:,1:numCompToShow));
-%map = tril(a,-1)+triu(b);
-
-%L = length(marginalizationColours);
-%image(round(map*128)+128 + L)
-
-%xlabel('Component')
-%ylabel('Component')
-
-%cb = colorbar('location', 'southoutside');
-%set(cb, 'xlim', [L+1 L+256], 'XTick', [L+1:65:L+256 L+256], 'XTickLabel', -1:0.5:1)
-
-%hold on
-% [i,j] = ind2sub(size(triu(b,1)), ...
-%     find(abs(triu(b,1)) > 3.3/sqrt(size(V,1)) & psp<0.001)); % & abs(csp)>0.02));
-% 
-[i,j] = ind2sub(size(triu(b,1)), ...
-    find(abs(triu(b,1)) > 3.3/sqrt(size(V,1)) & psp<0.01)); % & abs(csp)>0.02));
-%plot(j,i,'k*')
 end

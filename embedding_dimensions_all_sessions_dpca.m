@@ -62,6 +62,11 @@ for isession=1:size(Sessions,2)
     disp(['Starting PCA for recording ' num2str(isession)])
     
     %[variance,dist_mov_dir,mov_duration,max_speed]=embedding_dimensions(Sessions{isession}, Area{isession},Ndir,Nbins,t_from(isession),t_upto(isession),edges_dur_bin,do_plot);
+    if isession==1
+        do_plot=1;
+    else
+        do_plot=0;
+    end
     [variance,dist_mov_dir,mov_duration,max_speed,Dur_var_exp,InnerP(isession),InnerPdir(isession)]=embedding_dimensions_dpca(Sessions{isession}, Area{isession},Ndir,Nbins,t_from(isession),t_upto(isession),edges_dur_bin,do_plot);
     var_exp_dur_all(isession,:)=Dur_var_exp;
     
@@ -153,18 +158,20 @@ if plot_supp
     title(['Mean = ' num2str(mean([R.R_speed_dur]),'%.2f')])
 end
 
-figure
+subplot(4,4,[5 9])
 plot(var_exp_dur_all','.-','Color',[0.5 0.5 0.5])
 hold on 
 errorbar(1:3,mean(var_exp_dur_all),std(var_exp_dur_all),'.')
 ylabel('Variance explained')
+xticks(1:3)
+xticklabels({'Direction','Duration','Condition independent'})
 box off
 xlim([0.8 3.2])
 ylim([0 100])
 
-mean(var_exp_dur_all)
-std(var_exp_dur_all)
+%mean(var_exp_dur_all)
+%std(var_exp_dur_all)
 disp(['Variance explained by duration = ',num2str(mean(var_exp_dur_all)),' +- ',num2str(std(var_exp_dur_all))])
-disp(['Inner product duration vs dir = ',num2str(mean(InnerP)),' +- ',num2str(std(InnerP))])
-disp(['Inner product dir vs dir = ',num2str(mean(InnerPdir)),' +- ',num2str(std(InnerPdir))])
+%disp(['Inner product duration vs dir = ',num2str(mean(InnerP)),' +- ',num2str(std(InnerP))])
+%disp(['Inner product dir vs dir = ',num2str(mean(InnerPdir)),' +- ',num2str(std(InnerPdir))])
 end
