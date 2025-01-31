@@ -11,8 +11,6 @@
 
 The main objective of this code is to perform PCA on the neural activity of PMd and M1 recorded while non-human primates performed a sequential movement task (see [Lawlor et al,. 2018](https://doi.org/10.1007/s10827-018-0696-6) for a full description of the task). 
 Movements and neural activity are binned into 32 conditions (4 duration bins and 8 direction bins). 
-A full description of the datset format can be found [here](http://crcns.org/data-sets/motor-cortex/pmd-1). 
-
 
 ## Dataset
 
