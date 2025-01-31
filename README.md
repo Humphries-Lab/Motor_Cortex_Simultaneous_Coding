@@ -37,10 +37,12 @@ All recordings from the Random-Target task can be found on [DANDI](https://dandi
 The script Main_analyses.m sets all the initial parameters and executes the code to perform PCA on all the neural recordings
 
 1) Download the all the recording described in the table above and the code of this repository
-2) Download the [dPCA toolbox from its repository](https://github.com/machenslab/dPCA)
-3) Set the Matlab Path to the folder Data
-4) Open Main_analyses.m and define the paths where the dPCA toolbox and this code are
-5) Run adding to the current path.
+2) Install the Matlab interface to read data from Neurodata Without Borders ([MATNWB](https://github.com/NeurodataWithoutBorders/matnwb))
+3) Open the file reading_data_from_DANDI.m and set the path where MATNWB is stored.
+4) Download the [dPCA toolbox from its repository](https://github.com/machenslab/dPCA)
+5) Set the Matlab Path to the folder Data
+6) Open Main_analyses.m and define the paths where the dPCA toolbox and this code are
+7) Run adding to the current path.
 
 ## Expected output
 
