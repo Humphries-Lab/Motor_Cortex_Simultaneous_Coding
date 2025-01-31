@@ -99,7 +99,7 @@ for i_dur=1:Nbins
     for i_dir=1:Ndir
         nsamples_condition(i_dir,i_dur)=sum(direction1==i_dir);
         %close_dir{i_dur,i_dir}=direction1==i_dir;
-        if nsamples_condition(i_dir,i_dur)>=2
+        if nsamples_condition(i_dir,i_dur)>=1
 
 
             timebins=round((t_upto(i_dur)-t_from)*ms);
@@ -181,13 +181,13 @@ if sum(whichMarg==3)>0
 end
 
 if do_plot
-My_dpca_plot(FR_dPCA, newW, newV, @My_dpca_plot_default, ...
+My_dpca_plot(FR_dPCA, W, V, @My_dpca_plot_default, ...
     'explainedVar', explVar,...
     'time', linspace(0,1,size(FR_dPCA,4)),                        ...
     'timeEvents', 0,               ...
     'marginalizationNames', margNames, ...
     'marginalizationColours', margColours, ...
-    'whichMarg', newwhichMarg);
+    'whichMarg', whichMarg);
 end
 
 end

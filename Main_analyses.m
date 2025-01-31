@@ -10,16 +10,21 @@
 % Area: Neural recording corresponding to one area. e.g. 'M1' or 'PMd'
 %
 % Recording: A recording is defined by a session and an area.
-
+%
 % This way ('MM_S1_raw.mat','M1') and ('MM_S1_raw.mat','PMd') are two
 % recordings from the same behavioural session.
+
+% Please define the path where the dPCA toolbox is stored
+dir_dpca='C:/Users/controlmotor/Desktop/Andrea/codes_from_papers/kobak2016';% folder where dpca toolbox is
+% Please define the path where the Motor_Cortex_Simultaneous_Coding is stored
+dir_code='C:/Users/controlmotor/Desktop/Andrea/Motor_Cortex_Simultaneous_Coding';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 close all
-clearvars
+clearvars  -except dir_code dir_dpca
 addpath(genpath('../'))
-dir_dpca='C:/Users/controlmotor/Desktop/Andrea/codes_from_papers/kobak2016';% folder where dpca toolbox is
 addpath(dir_dpca)
+addpath(genpath(dir_code))
 mkdir('../Output_files')
 %% Define recordings to analyse
 
@@ -48,7 +53,7 @@ edges_dur_bin=(0:Nbins)*dur_bin_size+start_dur_bin; %Movement duration for each 
 %% Figure 1-behaviour
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Example trial
-trial=4;
+trial=7;
 Behaviour_spikes_per_trial(session{11}, Area{11},Ndir,trial)
 % Example session stats just for plotting purposes, reported corr values
 % are computed later

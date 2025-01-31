@@ -105,7 +105,7 @@ for i_dur=1:Nbins
     
     for i_dir=1:Ndir
         nsamples_condition(i_dir,i_dur)=sum(direction1==i_dir);
-        if nsamples_condition(i_dir,i_dur)>=2
+        if nsamples_condition(i_dir,i_dur)>=1
             timebins=round((t_upto(i_dur)-t_from)*1000);
             average_cond(:,counter+1:counter+timebins)=mean(Neural_info.FR(:,:,direction1==i_dir),3);
             idx_dir(counter+1:counter+timebins)=zeros(timebins,1)+i_dir;

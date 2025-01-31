@@ -152,7 +152,7 @@ for isession=1:Nsessions
     
     Hdist((isession-1)*Ncomb_total+1:isession*Ncomb_total)=Hdist_tmp;
     Hdur((isession-1)*Ncomb_total+1:isession*Ncomb_total)=Hdur_tmp;
-    Delta_all=[Delta_all;Delta_dist_all_same];
+    Delta_all=[Delta_all;Delta_dist_all_same(:)];
     
    [~,p(isession)]=ttest(Delta_distances);
    [~,p_delta_distance_same(isession)]=ttest(Delta_dist_all_same,0,'Tail','right');
