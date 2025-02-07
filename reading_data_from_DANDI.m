@@ -60,30 +60,8 @@ for i_file=1:size(Dandi_name,2)
 
 
 
-    % results = cell(1, length(stimulus_times));
-    %
-    % for itime = 1:length(stimulus_times)
-    %     stimulus_time = stimulus_times(itime);
-    %     spikes = unit_spikes - stimulus_time;
-    %     spikes = spikes(spikes > -before);
-    %     spikes = spikes(spikes < after);
-    %     results{itime} = spikes;
-    % end
-
-    % figure();
-    % hold on
-    % for i = 1:length(results)
-    %     spikes = results{i};
-    %     yy = ones(length(spikes)) * i;
-    %
-    %     plot(spikes, yy, 'k.');
-    % end
-    % hold off
-    % ylabel('trial');
-    % xlabel('time (s)');
-    % axis('tight')
-
-    %% behaviour
+    %% Behaviour
+    % Position
     Pos=nwb.processing.get('behavior').nwbdatainterface.get('Position').spatialseries.get('cursor_pos').data;
 
     % Velocity
@@ -93,8 +71,7 @@ for i_file=1:size(Dandi_name,2)
     Acc=nwb.processing.get('behavior').nwbdatainterface.get('Acceleration').timeseries.get('cursor_acc').data;
     t=nwb.processing.get('behavior').nwbdatainterface.get('Position').spatialseries.get('cursor_pos').timestamps;
 
-    %% interpolate because for some reason the kinematics is formatted in 10 ms bin.
-    %this conversion works just fine for Mihili but not for Chewie
+    %% Interpolate because the kinematics is formatted in 10 ms bin.
     Pos=interp1(t(1:end),Pos(1:2,:)',0:0.001:t(end));
     Vel=interp1(t(1:end),Vel(1:2,:)',0:0.001:t(end));
     Acc=interp1(t(1:end),Acc(1:2,:)',0:0.001:t(end));
@@ -117,13 +94,13 @@ for i_file=1:size(Dandi_name,2)
 
     Ntrials=length(trial_start);
 
-    %this table contains the trial info following the same format than in Lawlor
-    %2018(?)
+    %this table contains the trial info following the same format that in Lawlor
+    %2018(?) except we use the time of movement offset instead of time of maximum speed
     trial_table2=nan(Ntrials,22);
     trial_table2(:,1)=trial_start(:);
     trial_table2(:,end)=trial_end(:);
 
-    % not positive about this one. Check!
+    
     target_onset=nwb.intervals_trials.vectordata.get('go_cue_time_array').data;
 
     trial_table2(:,[2 7 12 17])=target_onset(:,:)';
@@ -190,7 +167,6 @@ for i_file=1:size(Dandi_name,2)
                     idx_offset=find((tmp_x+tmp_y)>1,1,'first');
 
                     % check that speed it's ok
-                    % find time of max speed
                     if ~isnan(idx_T2)
                         MaxS=max(speed(idx_T+idx_onset:idx_T2));
 
